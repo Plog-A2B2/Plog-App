@@ -4,15 +4,119 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:orientation="vertical"
+    android:background="#DAE6EE">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
+    <ImageView
+        android:id="@+id/logoImg"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/logo"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.27" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/logoImg"
+        app:layout_constraintVertical_bias="0.179"
+        tools:layout_editor_absoluteX="-29dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ID"
+                android:textSize="20sp"
+                android:layout_marginLeft="50dp"/>
+            <EditText
+                android:id="@+id/idTxt"
+                android:layout_gravity="center"
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:layout_margin="10dp"
+                android:textSize="25sp"
+                android:background="@drawable/rounded_stroke_square"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PASSWARD"
+                android:textSize="20sp"
+                android:layout_marginLeft="50dp"/>
+            <EditText
+                android:id="@+id/pwTxt"
+                android:layout_width="300dp"
+                android:layout_gravity="center"
+                android:layout_height="40dp"
+                android:layout_margin="10dp"
+                android:textSize="25sp"
+                android:inputType="textPassword"
+                android:background="@drawable/rounded_stroke_square"/>
+        </LinearLayout>
+        <Button
+            android:id="@+id/loginBtn"
+            android:layout_width="300dp"
+            android:layout_height="40dp"
+            android:layout_margin="10dp"
+            android:text="LOGIN"
+            android:textSize="20dp"
+            android:background="@drawable/rounded_full_square"/>
+        <ImageView
+            android:id="@+id/kakaoLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/kakao_login"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center">
+            <Button
+                android:id="@+id/idFindBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="아이디 찾기"
+                android:background="@drawable/no_background"/>
+            <Button
+                android:id="@+id/pwFindBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="비밀번호 찾기"
+                android:background="@drawable/no_background"/>
+            <Button
+                android:id="@+id/joinBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="회원가입"
+                android:background="@drawable/no_background"/>
+        </LinearLayout>
+
+
+
+
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
