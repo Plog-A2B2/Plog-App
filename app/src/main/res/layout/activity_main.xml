@@ -12,8 +12,7 @@
         android:id="@+id/logoImg"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@drawable/logo"
-
+        android:src="@drawable/rounded_full_square"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
