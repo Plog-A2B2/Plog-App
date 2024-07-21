@@ -1,16 +1,21 @@
 package com.a2b2.plog;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -19,6 +24,12 @@ public class HomeActivity extends AppCompatActivity {
     private PloggerAdapter ploggerAdapter;
     private List<RealtimePloggerItem> ploggingItems;
     private ImageView rank, community, mission, mypage;
+    private SwitchCompat trashcanVisibleSwitch;
+    boolean trashcanVisible = false;
+    private Button setRoute;
+    private EditText trashGoalEditText;
+    int trashGoal = 0;
+    private Button plggingStartBut;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +56,38 @@ public class HomeActivity extends AppCompatActivity {
         ploggerAdapter = new PloggerAdapter(ploggingItems);
         recyclerView.setAdapter(ploggerAdapter);
 
+        trashcanVisibleSwitch = findViewById(R.id.trashcanVisibleSwitch);
+        setRoute = findViewById(R.id.routeBut);
+        trashGoalEditText = findViewById(R.id.trashGoalEditText);
+
+        // 스위치 상태 변경 리스너 설정
+        trashcanVisibleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            boolean trashcanVisible = isChecked;
+            Log.d("trashcanVisible", "trashcan : " + trashcanVisible);
+        });
+
+        setRoute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, RouteActivity.class);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                finish();
+            }
+        });
+
+        plggingStartBut = findViewById(R.id.startBtn);
+
+        plggingStartBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setTrashGoal();
+                Intent intent = new Intent(HomeActivity.this, PloggingActivity.class);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                finish();
+            }
+        });
 
         rank = findViewById(R.id.rank);
         community = findViewById(R.id.community);
@@ -88,5 +131,14 @@ public class HomeActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+
+    void setTrashGoal() {
+        String numberInput = trashGoalEditText.getText().toString();
+
+        if (!numberInput.isEmpty()){
+            trashGoal = Integer.parseInt(numberInput);
+        }
     }
 }

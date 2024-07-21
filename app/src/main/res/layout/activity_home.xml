@@ -139,6 +139,7 @@
         android:id="@+id/trashGoalEditText"
         android:layout_width="35dp"
         android:layout_height="45dp"
+        android:inputType="number"
         app:layout_constraintLeft_toRightOf="@id/text"
         app:layout_constraintTop_toTopOf="@id/settingboxback"
         android:layout_marginTop="172dp"
