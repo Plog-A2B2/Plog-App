@@ -160,6 +160,20 @@
         android:textColor="#E6EEF8"
         android:textSize="22sp"/>
 
+    <!-- 배지 리스트를 위한 RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/badgeRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="225dp"
+        app:layout_constraintTop_toTopOf="@id/badgeback"
+        app:layout_constraintLeft_toLeftOf="@id/badgeback"
+        app:layout_constraintRight_toRightOf="@id/badgeback"
+        android:layout_marginTop="40dp"
+        android:orientation="vertical"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:scrollbars="horizontal"/>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
