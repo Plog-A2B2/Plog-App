@@ -83,6 +83,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 setTrashGoal();
                 Intent intent = new Intent(HomeActivity.this, PloggingActivity.class);
+                intent.putExtra("ploggingItems", new ArrayList<>(ploggingItems));
                 startActivity(intent);
                 overridePendingTransition(0, 0);
                 finish();
