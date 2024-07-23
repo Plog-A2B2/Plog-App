@@ -41,5 +41,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        joinBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                finish();
+
+            }
+        });
     }
 }
