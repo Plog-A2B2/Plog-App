@@ -39,7 +39,8 @@
                 android:layout_height="wrap_content"
                 android:text="ID"
                 android:textSize="20sp"
-                android:layout_marginLeft="50dp"/>
+                android:layout_marginLeft="50dp"
+                android:fontFamily="@font/nanumbarungothiclight"/>
             <EditText
                 android:id="@+id/idTxt"
                 android:layout_gravity="center"
@@ -47,6 +48,7 @@
                 android:layout_height="40dp"
                 android:layout_margin="10dp"
                 android:textSize="25sp"
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:background="@drawable/rounded_stroke_square"/>
         </LinearLayout>
         <LinearLayout
@@ -59,6 +61,7 @@
                 android:layout_height="wrap_content"
                 android:text="PASSWARD"
                 android:textSize="20sp"
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:layout_marginLeft="50dp"/>
             <EditText
                 android:id="@+id/pwTxt"
@@ -68,6 +71,7 @@
                 android:layout_margin="10dp"
                 android:textSize="25sp"
                 android:inputType="textPassword"
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:background="@drawable/rounded_stroke_square"/>
         </LinearLayout>
         <Button
@@ -77,6 +81,7 @@
             android:layout_margin="10dp"
             android:text="LOGIN"
             android:textSize="20dp"
+            android:fontFamily="@font/nanumbarungothic"
             android:background="@drawable/rounded_full_square"/>
         <ImageView
             android:id="@+id/kakaoLogin"
@@ -95,6 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="아이디 찾기"
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:background="@drawable/no_background"/>
             <Button
                 android:id="@+id/pwFindBtn"
@@ -102,6 +108,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="비밀번호 찾기"
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:background="@drawable/no_background"/>
             <Button
                 android:id="@+id/joinBtn"
@@ -109,6 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="회원가입"
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:background="@drawable/no_background"/>
         </LinearLayout>
 

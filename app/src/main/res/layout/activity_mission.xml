@@ -39,6 +39,7 @@
         android:text="일일 퀘스트"
         android:gravity="center"
         android:textColor="#D9D4EA"
+        android:fontFamily="@font/nanumbarungothiclight"
         android:textSize="22sp"/>
 
     <ImageView
@@ -134,7 +135,8 @@
         app:layout_constraintLeft_toLeftOf="@id/questback"
         app:layout_constraintRight_toRightOf="@id/questback"
         android:layout_marginTop="40dp"
-        android:orientation="horizontal"/>
+        android:orientation="horizontal"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <ImageView
         android:id="@+id/badgeback"
@@ -158,7 +160,8 @@
         android:text="배지 목록"
         android:gravity="center"
         android:textColor="#E6EEF8"
-        android:textSize="22sp"/>
+        android:textSize="22sp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <!-- 배지 리스트를 위한 RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
@@ -172,7 +175,8 @@
         android:orientation="vertical"
         android:paddingLeft="30dp"
         android:paddingRight="30dp"
-        android:scrollbars="horizontal"/>
+        android:scrollbars="horizontal"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         app:layout_constraintBottom_toBottomOf="parent"

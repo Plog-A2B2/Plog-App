@@ -15,7 +15,8 @@
         android:textColor="@color/black"
         android:textSize="18sp"
         android:layout_gravity="center_vertical"
-        android:paddingLeft="25dp"/>
+        android:paddingLeft="25dp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <ImageView
         android:id="@+id/coinImageView"
@@ -33,7 +34,8 @@
         android:layout_gravity="center_vertical"
         android:textSize="18sp"
         android:textColor="@color/black"
-        android:layout_marginLeft="4dp"/>
+        android:layout_marginLeft="4dp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
 
 </LinearLayout>

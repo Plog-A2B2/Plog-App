@@ -15,7 +15,8 @@
         android:textSize="23sp"
         android:layout_marginLeft="35dp"
         android:textColor="@color/white"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <ImageView
         android:id="@+id/plusBtn"
@@ -35,7 +36,8 @@
         android:hint="0"
         android:layout_marginLeft="10dp"
         android:gravity="center"
-        android:inputType="number" />
+        android:inputType="number"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <ImageView
         android:id="@+id/minusBtn"
