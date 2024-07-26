@@ -28,9 +28,9 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
     @Override
     public void onBindViewHolder(@NonNull RankAdapter.RankViewHolder holder, int position) {
         RankItem rankItem = rankList.get(position);
-        holder.rank.setText(rankItem.getRank()+"등");
+        holder.rank.setText(String.valueOf(rankItem.getRank())+"등");
         holder.username.setText(rankItem.getUsername());
-        holder.rank_score.setText(rankItem.getScore());
+        holder.rank_score.setText(String.valueOf(rankItem.getScore()) + "점");
 
     }
 
