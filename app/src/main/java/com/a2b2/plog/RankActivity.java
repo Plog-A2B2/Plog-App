@@ -14,12 +14,14 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class RankActivity extends AppCompatActivity {
     private RecyclerView rankRecyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private List<RankItem> rankList;
+
 
     private ImageView community, home, mission, mypage,
             rank_first_frame, rank_sec_frame, rank_third_frame, first_userimg,sec_userimg,third_userimg;

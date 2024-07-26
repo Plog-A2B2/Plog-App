@@ -22,16 +22,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.UUID;
 
 public class JoinActivity extends AppCompatActivity {
 
-    TextView checkDu,chechDuNick,chechPw,fin;
+    TextView checkDu,checkDuNick,chechPw,fin;
     EditText joinNick,joinId, joinEmail, joinPw, joinPwChecK;
     Button duCheck,nickDu,join;
     private Spinner spinner;
     private String email, inputText;
 
     private Handler handler;
+    private UUID uuid;
 
 
     @Override
@@ -43,10 +45,11 @@ public class JoinActivity extends AppCompatActivity {
         nickDu = findViewById(R.id.nickDu);
         joinId = findViewById(R.id.joinId);
         joinEmail = findViewById(R.id.joinEmail);
-        chechDuNick = findViewById(R.id.chechDuNick);
+        checkDuNick = findViewById(R.id.chechDuNick);
         joinPw = findViewById(R.id.joinPw);
         joinPwChecK = findViewById(R.id.joinPwChecK);
         chechPw = findViewById(R.id.chechPw);
+        checkDu = findViewById(R.id.chechDu);
 
         duCheck = findViewById(R.id.duplicateCheck);
         spinner = findViewById(R.id.spinner);
@@ -55,7 +58,7 @@ public class JoinActivity extends AppCompatActivity {
         nickDu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chechDuNick.setVisibility(View.VISIBLE);
+                checkDuNick.setVisibility(View.VISIBLE);
             }
         });
 
