@@ -37,6 +37,7 @@
         android:layout_height="wrap_content"
         android:text="장징징"
         android:textSize="18sp"
+        android:fontFamily="@font/nanumbarungothiclight"
         android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,6 +51,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/rank_first_name"
         android:text="7120점"
+        android:fontFamily="@font/nanumbarungothiclight"
         android:textSize="18sp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
@@ -67,6 +69,7 @@
         android:layout_marginStart="48dp"
         android:layout_marginBottom="252dp"
         android:src="@drawable/rank_second"
+
         app:layout_constraintBottom_toTopOf="@+id/rankRecyclerView"
         app:layout_constraintRight_toRightOf="@id/rank_first_frame"
         app:layout_constraintStart_toStartOf="parent"
@@ -89,6 +92,7 @@
         android:layout_height="wrap_content"
         android:text="장징징"
         android:textSize="18sp"
+        android:fontFamily="@font/nanumbarungothiclight"
         android:layout_marginTop="3dp"
         app:layout_constraintLeft_toLeftOf="@id/rank_sec_frame"
         app:layout_constraintRight_toRightOf="@id/rank_sec_frame"
@@ -100,6 +104,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/rank_second_name"
         android:text="7120점"
+        android:fontFamily="@font/nanumbarungothiclight"
         android:textSize="18sp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
@@ -139,6 +144,7 @@
         android:text="장징징"
         android:textSize="18sp"
         android:layout_marginTop="3dp"
+        android:fontFamily="@font/nanumbarungothiclight"
         app:layout_constraintLeft_toLeftOf="@id/rank_third_frame"
         app:layout_constraintRight_toRightOf="@id/rank_third_frame"
         app:layout_constraintTop_toBottomOf="@+id/rank_third_frame"/>
@@ -149,6 +155,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/rank_third_name"
         android:text="7120점"
+        android:fontFamily="@font/nanumbarungothiclight"
         android:textSize="18sp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
@@ -169,7 +176,8 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="300dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"

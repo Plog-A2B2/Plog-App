@@ -8,21 +8,18 @@
     tools:context=".JoinActivity"
     android:background="#DAE6EE"
     android:orientation="vertical">
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="닉네임"
             android:textSize="20sp"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="15dp"/>
+            android:layout_marginTop="15dp"
+            android:fontFamily="@font/nanumbarungothiclight"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,6 +35,7 @@
                 android:layout_marginRight="10dp"
                 android:textStyle="bold"
                 android:hint=""
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:background="@drawable/rounded_stroke_square"/>
             <Button
                 android:id="@+id/nickDu"
@@ -45,6 +43,7 @@
                 android:layout_height="40dp"
                 android:layout_weight="1"
                 android:text="중복확인"
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:background="@drawable/rounded_full_square"
                 android:layout_marginRight="20dp"/>
         </LinearLayout>
@@ -55,12 +54,14 @@
             android:layout_marginLeft="20dp"
             android:text="사용 가능한 닉네임 입니다"
             android:textSize="10sp"
+            android:fontFamily="@font/nanumbarungothiclight"
             android:layout_marginTop="5dp"
             android:visibility="invisible"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="아이디"
+            android:fontFamily="@font/nanumbarungothiclight"
             android:textSize="20sp"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="5dp"/>
@@ -79,6 +80,7 @@
                 android:layout_marginRight="10dp"
                 android:textStyle="bold"
                 android:hint=""
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:background="@drawable/rounded_stroke_square"/>
             <Button
                 android:id="@+id/duplicateCheck"
@@ -86,6 +88,7 @@
                 android:layout_height="40dp"
                 android:layout_weight="1"
                 android:text="중복확인"
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:background="@drawable/rounded_full_square"
                 android:layout_marginRight="20dp"/>
         </LinearLayout>
@@ -96,9 +99,9 @@
             android:layout_marginLeft="20dp"
             android:text="사용 가능한 ID 입니다"
             android:textSize="10sp"
+            android:fontFamily="@font/nanumbarungothiclight"
             android:layout_marginTop="5dp"
             android:visibility="invisible"/>
-
 
         <TextView
             android:layout_width="wrap_content"
@@ -106,6 +109,7 @@
             android:text="비밀번호"
             android:textSize="20sp"
             android:layout_marginLeft="20dp"
+            android:fontFamily="@font/nanumbarungothiclight"
             android:layout_marginTop="10dp"/>
         <EditText
             android:id="@+id/joinPw"
@@ -117,6 +121,7 @@
             android:layout_marginRight="20dp"
             android:inputType="textPassword"
             android:hint="영어+숫자 8자 이상"
+            android:fontFamily="@font/nanumbarungothiclight"
             android:background="@drawable/rounded_stroke_square"/>
         <EditText
             android:id="@+id/joinPwChecK"
@@ -128,6 +133,7 @@
             android:layout_marginRight="20dp"
             android:inputType="textPassword"
             android:hint="비밀번호 확인"
+            android:fontFamily="@font/nanumbarungothiclight"
             android:background="@drawable/rounded_stroke_square"/>
         <TextView
             android:id="@+id/chechPw"
@@ -136,6 +142,7 @@
             android:layout_marginLeft="20dp"
             android:text="사용 가능한 PW 입니다"
             android:textSize="10sp"
+            android:fontFamily="@font/nanumbarungothiclight"
             android:layout_marginTop="5dp"
             android:visibility="invisible"/>
         <TextView
@@ -144,6 +151,7 @@
             android:text="이메일"
             android:textSize="20sp"
             android:layout_marginLeft="20dp"
+            android:fontFamily="@font/nanumbarungothiclight"
             android:layout_marginTop="5dp"/>
         <LinearLayout
             android:layout_width="match_parent"
@@ -157,7 +165,7 @@
                 android:layout_height="40dp"
                 android:layout_marginLeft="20dp"
                 android:textSize="20sp"
-
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:hint="이메일"
                 android:background="@drawable/rounded_stroke_square"/>
             <TextView
@@ -165,6 +173,7 @@
                 android:layout_height="40dp"
                 android:layout_weight="1"
                 android:text="@"
+                android:fontFamily="@font/nanumbarungothiclight"
                 android:gravity="center"
                 android:textSize="20sp"/>
             <Spinner
@@ -174,7 +183,8 @@
                 android:layout_weight="4"
                 android:layout_marginRight="20dp"
                 android:background="@drawable/rounded_stroke_square"
-                android:entries="@array/emailArray">
+                android:entries="@array/emailArray"
+                android:fontFamily="@font/nanumbarungothiclight">
 
             </Spinner>
 
@@ -189,6 +199,7 @@
             android:layout_marginRight="20dp"
             android:text="JOIN"
             android:textSize="20sp"
+            android:fontFamily="@font/nanumbarungothic"
             android:background="@drawable/rounded_full_square"/>
 
     </LinearLayout>
@@ -196,11 +207,13 @@
         android:id="@+id/emailCheck"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"/>
+        android:textSize="20sp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
     <TextView
         android:id="@+id/fin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"/>
+        android:textSize="20sp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
 </LinearLayout>

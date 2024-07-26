@@ -17,7 +17,8 @@
         android:textSize="18sp"
         android:layout_marginLeft="10dp"
         android:layout_gravity="center_vertical"
-        android:paddingLeft="10sp"/>
+        android:paddingLeft="10sp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <TextView
         android:id="@+id/rank_username"
@@ -29,7 +30,8 @@
         android:textSize="18sp"
         android:textColor="@color/black"
         android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"/>
+        android:layout_marginRight="25dp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <TextView
         android:id="@+id/rank_score"
@@ -40,7 +42,8 @@
         android:textSize="18sp"
         android:textColor="@color/black"
         android:layout_marginRight="10dp"
-        android:paddingRight="10dp"/>
+        android:paddingRight="10dp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
 
 </LinearLayout>

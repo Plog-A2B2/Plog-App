@@ -39,7 +39,8 @@
         android:layout_marginTop="15dp"
         android:layout_marginLeft="70dp"
         android:paddingLeft="15dp"
-        android:paddingRight="15dp"/>
+        android:paddingRight="15dp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <ImageView
         android:id="@+id/ploggerBack"
@@ -109,7 +110,8 @@
         android:textColor="@color/black"
         android:textSize="24sp"
         android:layout_marginLeft="38dp"
-        android:layout_marginTop="45dp"/>
+        android:layout_marginTop="45dp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/trashcanVisibleSwitch"
@@ -133,7 +135,8 @@
         android:text="근처 루트 보기"
         android:layout_marginTop="110dp"
         android:layout_marginLeft="-60dp"
-        android:background="#E4E8E7"/>
+        android:background="#E4E8E7"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <EditText
         android:id="@+id/trashGoalEditText"
@@ -143,7 +146,8 @@
         app:layout_constraintLeft_toRightOf="@id/text"
         app:layout_constraintTop_toTopOf="@id/settingboxback"
         android:layout_marginTop="170dp"
-        android:layout_marginLeft="6dp"/>
+        android:layout_marginLeft="6dp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <TextView
         android:layout_width="35dp"
@@ -154,7 +158,8 @@
         app:layout_constraintLeft_toRightOf="@id/text"
         app:layout_constraintTop_toTopOf="@id/settingboxback"
         android:layout_marginTop="181dp"
-        android:layout_marginLeft="41dp"/>
+        android:layout_marginLeft="41dp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
 
     <android.widget.Button
         android:id="@+id/startBtn"
@@ -168,7 +173,8 @@
         android:text="시작하기"
         android:textStyle="bold"
         android:textSize="17sp"
-        android:textColor="@color/white"/>
+        android:textColor="@color/white"
+        android:fontFamily="@font/nanumbarungothic"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         app:layout_constraintBottom_toBottomOf="parent"
