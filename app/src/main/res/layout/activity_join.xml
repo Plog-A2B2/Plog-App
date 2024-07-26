@@ -9,10 +9,13 @@
     android:background="#DAE6EE"
     android:orientation="vertical">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -95,6 +98,46 @@
             android:textSize="10sp"
             android:layout_marginTop="5dp"
             android:visibility="invisible"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="비밀번호"
+            android:textSize="20sp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"/>
+        <EditText
+            android:id="@+id/joinPw"
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="20dp"
+            android:textSize="20sp"
+            android:layout_marginRight="20dp"
+            android:inputType="textPassword"
+            android:hint="영어+숫자 8자 이상"
+            android:background="@drawable/rounded_stroke_square"/>
+        <EditText
+            android:id="@+id/joinPwChecK"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="20dp"
+            android:textSize="20sp"
+            android:layout_marginRight="20dp"
+            android:inputType="textPassword"
+            android:hint="비밀번호 확인"
+            android:background="@drawable/rounded_stroke_square"/>
+        <TextView
+            android:id="@+id/chechPw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="사용 가능한 PW 입니다"
+            android:textSize="10sp"
+            android:layout_marginTop="5dp"
+            android:visibility="invisible"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -135,47 +178,8 @@
 
             </Spinner>
 
+
         </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="비밀번호"
-            android:textSize="20sp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"/>
-        <EditText
-            android:id="@+id/joinPw"
-            android:layout_marginTop="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginLeft="20dp"
-            android:textSize="20sp"
-            android:layout_marginRight="20dp"
-            android:inputType="textPassword"
-            android:hint="영어+숫자 8자 이상"
-            android:background="@drawable/rounded_stroke_square"/>
-        <EditText
-            android:id="@+id/joinPwChecK"
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginLeft="20dp"
-            android:textSize="20sp"
-            android:layout_marginRight="20dp"
-            android:inputType="textPassword"
-            android:hint="비밀번호 확인"
-            android:background="@drawable/rounded_stroke_square"/>
-        <TextView
-            android:id="@+id/chechPw"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="사용 가능한 PW 입니다"
-            android:textSize="10sp"
-            android:layout_marginTop="5dp"
-            android:visibility="invisible"/>
-
         <Button
             android:id="@+id/join"
             android:layout_width="match_parent"
