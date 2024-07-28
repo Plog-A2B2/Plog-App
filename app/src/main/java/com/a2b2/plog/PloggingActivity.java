@@ -8,10 +8,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,6 +23,7 @@ import android.widget.TextView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class PloggingActivity extends AppCompatActivity {
@@ -138,18 +143,87 @@ public class PloggingActivity extends AppCompatActivity {
             });
 
 
+            // 쓰레기 종류와 개수를 저장할 변수 초기화
+            final HashMap<String, Integer> trashCountMap = new HashMap<>();
+
             LinearLayout trashContainer = findViewById(R.id.trashContainer);
-
             String[] trashTypes = {"일반쓰레기", "플라스틱", "종이류", "캔/고철류", "병류", "비닐류"};
-
             LayoutInflater inflater = LayoutInflater.from(this);
 
             for (String trashType : trashTypes) {
                 View itemView = inflater.inflate(R.layout.item_trash, trashContainer, false);
                 TextView tvTrashType = itemView.findViewById(R.id.trashType);
                 tvTrashType.setText(trashType);
+
+                EditText etTrashAmount = itemView.findViewById(R.id.trashAmount);
+                ImageView plusBtn = itemView.findViewById(R.id.plusBtn);
+                ImageView minusBtn = itemView.findViewById(R.id.minusBtn);
+
+                // 초기값 설정
+                trashCountMap.put(trashType, 0);
+
+                // Plus 버튼 클릭 이벤트
+                plusBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int count = trashCountMap.get(trashType);
+                        count++;
+                        trashCountMap.put(trashType, count);
+                        etTrashAmount.setText(String.valueOf(count));
+                    }
+                });
+
+                // Minus 버튼 클릭 이벤트
+                minusBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int count = trashCountMap.get(trashType);
+                        if (count > 0) {
+                            count--;
+                            trashCountMap.put(trashType, count);
+                            etTrashAmount.setText(String.valueOf(count));
+                        }
+                    }
+                });
+
+// EditText 텍스트 변경 이벤트
+                etTrashAmount.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        try {
+                            int count = Integer.parseInt(s.toString());
+                            trashCountMap.put(trashType, count);
+                        } catch (NumberFormatException e) {
+                            trashCountMap.put(trashType, 0); // 유효하지 않은 숫자 입력 시 0으로 설정
+                        }
+                    }
+                });
+
                 trashContainer.addView(itemView);
             }
+
+            // 종료하기 버튼 클릭 이벤트
+            Button finishButton = findViewById(R.id.endBtn);
+            finishButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // 쓰레기 개수를 로그로 출력 (또는 필요한 처리)
+                    for (String trashType : trashCountMap.keySet()) {
+                        int count = trashCountMap.get(trashType);
+                        Log.d("PloggingActivity", trashType + ": " + count);
+                    }
+
+                    // 결과 화면으로 이동
+                }
+            });
         }catch (Exception e) {
             Log.e("PloggingActivity", "Exception in onCreate", e);
 
