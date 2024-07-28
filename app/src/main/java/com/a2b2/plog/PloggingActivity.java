@@ -21,6 +21,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.kakao.vectormap.KakaoMap;
+import com.kakao.vectormap.KakaoMapReadyCallback;
+import com.kakao.vectormap.KakaoMapSdk;
+import com.kakao.vectormap.LatLng;
+import com.kakao.vectormap.MapLifeCycleCallback;
+import com.kakao.vectormap.MapType;
+import com.kakao.vectormap.MapView;
+import com.kakao.vectormap.MapViewInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,14 +42,47 @@ public class PloggingActivity extends AppCompatActivity {
     private List<RealtimePloggerItem> ploggingItems;
     private BottomSheetBehavior<LinearLayout> bottomSheetBehavior;
     private ImageView topBtn;
+    private MapView mapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_plogging);
 
-        try{
-            setContentView(R.layout.activity_plogging);
+        KakaoMapSdk.init(this, "1b96fc67568f72bcc29317e838ad740f");
+        mapView = findViewById(R.id.map);
 
+        mapView.start(new MapLifeCycleCallback() {
+            @Override
+            public void onMapDestroy() {
+                // 지도 API가 정상적으로 종료될 때 호출됨
+            }
+
+            @Override
+            public void onMapError(Exception error) {
+                // 인증 실패 및 지도 사용 중 에러가 발생할 때 호출됨
+            }
+        }, new KakaoMapReadyCallback() {
+            @Override
+            public void onMapReady(KakaoMap kakaoMap) {
+                // 인증 후 API가 정상적으로 실행될 때 호출됨
+            }
+
+            @Override
+            public LatLng getPosition() {
+                // 지도 시작 시 위치 좌표를 설정
+                return LatLng.from(37.406960, 127.115587);
+            }
+
+            @Override
+            public int getZoomLevel() {
+                // 지도 시작 시 확대/축소 줌 레벨 설정
+                return 15;
+            }
+
+        });
+
+        try {
             // RecyclerView 초기화
             recyclerView = findViewById(R.id.ploggerRecyclerView);
             recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -65,7 +106,6 @@ public class PloggingActivity extends AppCompatActivity {
                     finish();
                 }
             });
-
 
             // BottomSheet 초기화
             LinearLayout bottomSheet = findViewById(R.id.bottom_sheet);
@@ -98,7 +138,6 @@ public class PloggingActivity extends AppCompatActivity {
                     if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         topBtn.setImageResource(R.drawable.top);
-
                         return true;
                     }
                     return false;
@@ -116,12 +155,10 @@ public class PloggingActivity extends AppCompatActivity {
                             break;
                         case BottomSheetBehavior.STATE_EXPANDED:
                             topBtn.setImageResource(R.drawable.bottom);
-
                             Log.d("PloggingActivity", "state: expanded");
                             break;
                         case BottomSheetBehavior.STATE_COLLAPSED:
                             topBtn.setImageResource(R.drawable.top);
-
                             Log.d("PloggingActivity", "state: collapsed");
                             break;
                         case BottomSheetBehavior.STATE_DRAGGING:
@@ -141,7 +178,6 @@ public class PloggingActivity extends AppCompatActivity {
                     // Handle slide offset if needed
                 }
             });
-
 
             // 쓰레기 종류와 개수를 저장할 변수 초기화
             final HashMap<String, Integer> trashCountMap = new HashMap<>();
@@ -186,7 +222,7 @@ public class PloggingActivity extends AppCompatActivity {
                     }
                 });
 
-// EditText 텍스트 변경 이벤트
+                // EditText 텍스트 변경 이벤트
                 etTrashAmount.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -224,10 +260,20 @@ public class PloggingActivity extends AppCompatActivity {
                     // 결과 화면으로 이동
                 }
             });
-        }catch (Exception e) {
+        } catch (Exception e) {
             Log.e("PloggingActivity", "Exception in onCreate", e);
-
         }
-
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        mapView.resume();     // MapView 의 resume 호출
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.pause();    // MapView 의 pause 호출
+    }
+
 }
