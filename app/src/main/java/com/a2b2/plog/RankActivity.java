@@ -33,7 +33,7 @@ public class RankActivity extends AppCompatActivity {
 
     private ImageView community, home, mission, mypage,
             rank_first_frame, rank_sec_frame, rank_third_frame, first_userimg,sec_userimg,third_userimg, helpBtn;
-    private TextView first_username,sec_username,third_username,first_score,sec_score,third_score, helpTxt;
+    private TextView first_username,sec_username,third_username,first_score,sec_score,third_score, helpTxt, myrankTxt;
     private ConstraintLayout background;
 
     @Override
@@ -63,11 +63,16 @@ public class RankActivity extends AppCompatActivity {
         rank_first_frame.bringToFront();
         rank_sec_frame.bringToFront();
         rank_third_frame.bringToFront();
+        myrankTxt = findViewById(R.id.myrankTxt);
 
         rankList = new ArrayList<>();
         rankList.add(new RankItem(4, "지구지킴이",936));
         rankList.add(new RankItem(5, "지구지킴이",873));
         rankList.add(new RankItem(6, "지구지킴이",450));
+        rankList.add(new RankItem(7, "지구지킴이",450));
+        rankList.add(new RankItem(7, "지구지킴이",450));
+        rankList.add(new RankItem(7, "지구지킴이",450));
+        rankList.add(new RankItem(7, "지구지킴이",450));
         rankList.add(new RankItem(7, "지구지킴이",450));
 
         rankRecyclerView = findViewById(R.id.rankRecyclerView);
