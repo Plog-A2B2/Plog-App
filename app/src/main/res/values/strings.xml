@@ -2,4 +2,5 @@
     <string name="app_name">plog</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="underline"><u>달린 거리(m) x 주운 쓰레기 개수</u></string>
 </resources>
