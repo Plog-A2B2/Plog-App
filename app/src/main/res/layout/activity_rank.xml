@@ -1,183 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".RankActivity"
+    android:id="@+id/rank_background"
     android:background="@drawable/rank_background_merge">
 
-
     <ImageView
-        android:id="@+id/rank_first_frame"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:src="@drawable/rank_first"
-        app:layout_constraintBottom_toTopOf="@+id/rankRecyclerView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.104"
-        tools:ignore="MissingConstraints" />
-
-    <ImageView
-        android:id="@+id/rank_first_userimg"
-        android:layout_width="90dp"
-        android:layout_height="100dp"
-        android:src="@drawable/badgetest"
-        app:layout_constraintBottom_toBottomOf="@+id/rank_first_frame"
-        app:layout_constraintEnd_toEndOf="@+id/rank_first_frame"
-        app:layout_constraintStart_toStartOf="@+id/rank_first_frame"
-        app:layout_constraintTop_toTopOf="@+id/rank_first_frame" />
-
-    <TextView
-        android:id="@+id/rank_first_username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="장징징"
-        android:textSize="18sp"
-        android:fontFamily="@font/nanumbarungothiclight"
+        android:id="@+id/helpBtn"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginRight="25dp"
         android:layout_marginTop="10dp"
+        android:src="@drawable/helpcircle"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintLeft_toLeftOf="@id/rank_first_frame"
-        app:layout_constraintRight_toRightOf="@id/rank_first_frame"
-        app:layout_constraintTop_toBottomOf="@+id/rank_first_frame"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/rank_first_score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rank_first_name"
-        android:text="7120점"
+        android:id="@+id/helpTxt"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:background="@drawable/speechbubble"
         android:fontFamily="@font/nanumbarungothiclight"
-        android:textSize="18sp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="점수는 달린 거리(m) x 주운 쓰레기 개수로 \n측정됩니다!"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintLeft_toLeftOf="@id/rank_first_username"
-        app:layout_constraintRight_toRightOf="@id/rank_first_username"
-        app:layout_constraintTop_toBottomOf="@+id/rank_first_username"/>
+        app:layout_constraintTop_toBottomOf="@+id/helpBtn"
+        android:visibility="invisible"/>
 
-    <ImageView
-        android:id="@+id/rank_sec_frame"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginStart="48dp"
-        android:layout_marginBottom="252dp"
-        android:src="@drawable/rank_second"
 
-        app:layout_constraintBottom_toTopOf="@+id/rankRecyclerView"
-        app:layout_constraintRight_toRightOf="@id/rank_first_frame"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <ImageView
-        android:id="@+id/rank_sec_userimg"
-        android:layout_width="95dp"
-        android:layout_height="95dp"
-        android:src="@drawable/badgetest"
-        app:layout_constraintBottom_toBottomOf="@+id/rank_sec_frame"
-        app:layout_constraintEnd_toEndOf="@+id/rank_sec_frame"
-        app:layout_constraintStart_toStartOf="@+id/rank_sec_frame"
-        app:layout_constraintTop_toTopOf="@+id/rank_sec_frame"
-        tools:ignore="MissingConstraints" />
-    <TextView
-        android:id="@+id/rank_sec_username"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rank_first_all"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="장징징"
-        android:textSize="18sp"
-        android:fontFamily="@font/nanumbarungothiclight"
-        android:layout_marginTop="3dp"
-        app:layout_constraintLeft_toLeftOf="@id/rank_sec_frame"
-        app:layout_constraintRight_toRightOf="@id/rank_sec_frame"
-        app:layout_constraintTop_toBottomOf="@+id/rank_sec_frame"/>
-
-    <TextView
-        android:id="@+id/rank_sec_score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rank_second_name"
-        android:text="7120점"
-        android:fontFamily="@font/nanumbarungothiclight"
-        android:textSize="18sp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintLeft_toLeftOf="@id/rank_sec_username"
-        app:layout_constraintRight_toRightOf="@id/rank_sec_username"
-        app:layout_constraintTop_toBottomOf="@+id/rank_sec_username"/>
-
-    <ImageView
-        android:id="@+id/rank_third_frame"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginEnd="48dp"
-        android:layout_marginBottom="212dp"
-        android:src="@drawable/rank_third"
-        app:layout_constraintBottom_toTopOf="@+id/rankRecyclerView"
+        app:layout_constraintTop_toBottomOf="@+id/helpBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintLeft_toLeftOf="@id/rank_first_frame"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.936" />
+        app:layout_constraintStart_toStartOf="parent">
 
-    <ImageView
-        android:id="@+id/rank_third_userimg"
-        android:layout_width="95dp"
-        android:layout_height="95dp"
-        android:src="@drawable/badgetest"
-        app:layout_constraintBottom_toBottomOf="@+id/rank_third_frame"
-        app:layout_constraintEnd_toEndOf="@+id/rank_third_frame"
-        app:layout_constraintStart_toStartOf="@+id/rank_third_frame"
-        app:layout_constraintTop_toTopOf="@+id/rank_third_frame"
-        tools:ignore="MissingConstraints" />
-    <TextView
-        android:id="@+id/rank_third_username"
+        <include layout="@layout/rank_first"></include>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rank_sec_all"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="장징징"
-        android:textSize="18sp"
-        android:layout_marginTop="3dp"
-        android:fontFamily="@font/nanumbarungothiclight"
-        app:layout_constraintLeft_toLeftOf="@id/rank_third_frame"
-        app:layout_constraintRight_toRightOf="@id/rank_third_frame"
-        app:layout_constraintTop_toBottomOf="@+id/rank_third_frame"/>
+        app:layout_constraintTop_toBottomOf="@+id/helpBtn"
+        app:layout_constraintRight_toLeftOf="@+id/rank_first_all"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp">
 
-    <TextView
-        android:id="@+id/rank_third_score"
+        <include layout="@layout/rank_second"></include>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rank_third_all"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/rank_third_name"
-        android:text="7120점"
-        android:fontFamily="@font/nanumbarungothiclight"
-        android:textSize="18sp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintLeft_toLeftOf="@id/rank_third_username"
-        app:layout_constraintRight_toRightOf="@id/rank_third_username"
-        app:layout_constraintTop_toBottomOf="@+id/rank_third_username"/>
+        app:layout_constraintTop_toBottomOf="@+id/helpBtn"
+        app:layout_constraintLeft_toRightOf="@+id/rank_first_all"
+        android:layout_marginTop="40dp"
+        android:layout_marginLeft="10dp">
 
+        <include layout="@layout/rank_third"></include>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rankRecyclerView"
-        android:layout_width="0dp"
-        android:layout_height="225dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingLeft="30dp"
         android:paddingRight="30dp"
         android:scrollbars="horizontal"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="300dp"
+        app:layout_constraintTop_toBottomOf="@+id/rank_first_all"
+        android:layout_marginTop="200dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:fontFamily="@font/nanumbarungothiclight"/>
+
+        />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"

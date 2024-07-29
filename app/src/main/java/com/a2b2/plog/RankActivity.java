@@ -1,13 +1,21 @@
 package com.a2b2.plog;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.RenderNode;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,13 +32,16 @@ public class RankActivity extends AppCompatActivity {
 
 
     private ImageView community, home, mission, mypage,
-            rank_first_frame, rank_sec_frame, rank_third_frame, first_userimg,sec_userimg,third_userimg;
-    private TextView first_username,sec_username,third_username,first_score,sec_score,third_score;
+            rank_first_frame, rank_sec_frame, rank_third_frame, first_userimg,sec_userimg,third_userimg, helpBtn;
+    private TextView first_username,sec_username,third_username,first_score,sec_score,third_score, helpTxt;
+    private ConstraintLayout background;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rank);
+
+        background = findViewById(R.id.rank_background);
 
         mission = findViewById(R.id.mission);
         community = findViewById(R.id.community);
@@ -65,6 +76,35 @@ public class RankActivity extends AppCompatActivity {
         rankRecyclerView.setLayoutManager(layoutManager);
         adapter = new RankAdapter(rankList);
         rankRecyclerView.setAdapter(adapter);
+
+        helpBtn = findViewById(R.id.helpBtn);
+        helpTxt = findViewById(R.id.helpTxt);
+
+//        String content = helpTxt.getText().toString(); //텍스트 가져옴.
+//        SpannableString spannableString = new SpannableString(content); //객체 생성
+//        String word ="달린 거리(m) x 주운 쓰레기 개수";
+//        int start = content.indexOf(word);
+//        int end = start + word.length();
+//
+//        spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#2b5d5b")), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//        spannableString.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//        spannableString.setSpan(new RelativeSizeSpan(1.3f), start, end, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+
+        helpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                helpTxt.bringToFront();
+                helpTxt.setVisibility(View.VISIBLE);
+            }
+        });
+        background.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                helpTxt.setVisibility(View.INVISIBLE);
+            }
+        });
 
 
 

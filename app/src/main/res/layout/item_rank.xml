@@ -14,11 +14,12 @@
         android:layout_height="wrap_content"
         android:text="4등"
         android:textColor="@color/black"
-        android:textSize="18sp"
+        android:textSize="25sp"
         android:layout_marginLeft="10dp"
         android:layout_gravity="center_vertical"
         android:paddingLeft="10sp"
-        android:fontFamily="@font/nanumbarungothiclight"/>
+        android:fontFamily="@font/nanumbarungothic"
+        android:layout_margin="10dp"/>
 
     <TextView
         android:id="@+id/rank_username"
@@ -27,11 +28,11 @@
         android:text="지구지킴이"
         android:layout_gravity="center_vertical"
         android:gravity="center"
-        android:textSize="18sp"
+        android:textSize="25sp"
         android:textColor="@color/black"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
-        android:fontFamily="@font/nanumbarungothiclight"/>
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:fontFamily="@font/nanumbarungothic"/>
 
     <TextView
         android:id="@+id/rank_score"
@@ -39,11 +40,11 @@
         android:layout_height="wrap_content"
         android:text="877점"
         android:layout_gravity="center_vertical"
-        android:textSize="18sp"
+        android:textSize="25sp"
         android:textColor="@color/black"
         android:layout_marginRight="10dp"
         android:paddingRight="10dp"
-        android:fontFamily="@font/nanumbarungothiclight"/>
+        android:fontFamily="@font/nanumbarungothic"/>
 
 
 </LinearLayout>
