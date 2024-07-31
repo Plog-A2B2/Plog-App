@@ -6,6 +6,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -34,6 +35,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import com.kakao.vectormap.Poi;
+
+//import net.daum.mf.map.api.MapPOIItem;
+//import net.daum.mf.map.api.MapPoint;
+//import net.daum.mf.map.api.MapView;
+
 public class PloggingActivity extends AppCompatActivity {
 
     private ImageView backBtn;
@@ -43,6 +54,8 @@ public class PloggingActivity extends AppCompatActivity {
     private BottomSheetBehavior<LinearLayout> bottomSheetBehavior;
     private ImageView topBtn;
     private MapView mapView;
+    private static final String KAKAO_API_KEY = "1b96fc67568f72bcc29317e838ad740f";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +94,30 @@ public class PloggingActivity extends AppCompatActivity {
             }
 
         });
+
+        List<String> addressList = ExcelUtils.readExcelFile(this, "trashcan_seoul.xlsx");
+
+        Retrofit retrofit = RetrofitClient.getClient("https://dapi.kakao.com/");
+        KakaoApiService apiService = retrofit.create(KakaoApiService.class);
+
+        for (String address : addressList) {
+            apiService.getCoordinates(address, KAKAO_API_KEY).enqueue(new Callback<AddressResponse>() {
+                @Override
+                public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        AddressResponse.Document.Address address = response.body().documents.get(0).address;
+                        double latitude = Double.parseDouble(address.y);
+                        double longitude = Double.parseDouble(address.x);
+//                        addMarker(mapView, latitude, longitude);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AddressResponse> call, Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+        }
 
         try {
             // RecyclerView 초기화
@@ -275,5 +312,15 @@ public class PloggingActivity extends AppCompatActivity {
         super.onPause();
         mapView.pause();    // MapView 의 pause 호출
     }
+
+//    private void addMarker(MapView mapView, double latitude, double longitude, String trashType) {
+//        MapView.MapPOIItem marker = new MapView.MapPOIItem();
+//        marker.setItemName(trashType);
+//        marker.setTag(0);
+//        marker.setMapPoint(MapPoint.mapPointWithGeoCoord(latitude, longitude));
+//        marker.setMarkerType(MapView.MapPOIItem.MarkerType.BluePin);
+//        marker.setSelectedMarkerType(MapView.MapPOIItem.MarkerType.RedPin);
+//        mapView.addPOIItem(marker);
+//    }
 
 }
