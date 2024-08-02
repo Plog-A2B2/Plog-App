@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,16 +36,24 @@ import com.kakao.vectormap.MapViewInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import com.kakao.vectormap.Poi;
+import com.kakao.vectormap.camera.CameraAnimation;
+import com.kakao.vectormap.camera.CameraUpdateFactory;
+import com.kakao.vectormap.label.Label;
+import com.kakao.vectormap.label.LabelLayer;
+import com.kakao.vectormap.label.LabelManager;
+import com.kakao.vectormap.label.LabelOptions;
+import com.kakao.vectormap.label.LabelStyle;
+import com.kakao.vectormap.label.LabelStyles;
+import com.kakao.vectormap.label.LabelTransition;
+import com.kakao.vectormap.label.Transition;
 
-//import net.daum.mf.map.api.MapPOIItem;
-//import net.daum.mf.map.api.MapPoint;
-//import net.daum.mf.map.api.MapView;
 
 public class PloggingActivity extends AppCompatActivity {
 
@@ -55,6 +65,9 @@ public class PloggingActivity extends AppCompatActivity {
     private ImageView topBtn;
     private MapView mapView;
     private static final String KAKAO_API_KEY = "1b96fc67568f72bcc29317e838ad740f";
+
+    private KakaoMap map;
+    private LabelLayer labelLayer;
 
 
     @Override
@@ -79,12 +92,23 @@ public class PloggingActivity extends AppCompatActivity {
             @Override
             public void onMapReady(KakaoMap kakaoMap) {
                 // 인증 후 API가 정상적으로 실행될 때 호출됨
+                map = kakaoMap;
+                labelLayer = kakaoMap.getLabelManager().getLayer();
+
+// 엑셀 파일에서 위치 정보를 가져옴
+                Map<String, Location> locationMap = ExcelUtils.readExcelFile(PloggingActivity.this, "trashcan_location.xlsx");
+
+                // 위치 정보를 기반으로 마커 추가
+                for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
+                    Location location = entry.getValue();
+                    addMarker(location.getLatitude(), location.getLongitude());
+                }
             }
 
             @Override
             public LatLng getPosition() {
                 // 지도 시작 시 위치 좌표를 설정
-                return LatLng.from(37.406960, 127.115587);
+                return LatLng.from(37.5763811, 126.9728228);
             }
 
             @Override
@@ -95,29 +119,48 @@ public class PloggingActivity extends AppCompatActivity {
 
         });
 
-        List<String> addressList = ExcelUtils.readExcelFile(this, "trashcan_seoul.xlsx");
-
-        Retrofit retrofit = RetrofitClient.getClient("https://dapi.kakao.com/");
-        KakaoApiService apiService = retrofit.create(KakaoApiService.class);
-
-        for (String address : addressList) {
-            apiService.getCoordinates(address, KAKAO_API_KEY).enqueue(new Callback<AddressResponse>() {
-                @Override
-                public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        AddressResponse.Document.Address address = response.body().documents.get(0).address;
-                        double latitude = Double.parseDouble(address.y);
-                        double longitude = Double.parseDouble(address.x);
-//                        addMarker(mapView, latitude, longitude);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<AddressResponse> call, Throwable t) {
-                    t.printStackTrace();
-                }
-            });
-        }
+//// Excel 파일에서 위치 정보를 가져옴
+//        Map<String, Location> locationMap = ExcelUtils.readExcelFile(PloggingActivity.this, "trashcan_location.xlsx");
+//
+//        Retrofit retrofit = RetrofitClient.getClient("https://dapi.kakao.com/");
+//        KakaoApiService apiService = retrofit.create(KakaoApiService.class);
+//
+//        for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
+//            String address = entry.getKey();
+//            Location location = entry.getValue();
+//
+//            apiService.getCoordinates(address, KAKAO_API_KEY).enqueue(new Callback<AddressResponse>() {
+//                @Override
+//                public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
+//                    Log.d("test", "in onResponse");
+//                    Log.d("test", "Response Code: " + response.code());
+//                    Log.d("test", "Response Body: " + response.body());
+//                    Log.d("test", "Response Message: " + response.message());
+//
+//                    if (response.isSuccessful() && response.body() != null) {
+//                        Log.d("test", "in if");
+//
+//                        try {
+//                            AddressResponse.Document.Address address = response.body().documents.get(0).address;
+//                            double latitude = Double.parseDouble(address.y);
+//                            double longitude = Double.parseDouble(address.x);
+//                            Log.d("test", String.format("Latitude: %.6f, Longitude: %.6f", latitude, longitude));
+//                            addMarker(latitude, longitude);
+//                        } catch (Exception e) {
+//                            Log.e("test", "Error parsing address", e);
+//                        }
+//                    } else {
+//                        Log.e("test", "Response not successful or body is null");
+//                    }
+//                }
+//
+//
+//                @Override
+//                public void onFailure(Call<AddressResponse> call, Throwable t) {
+//                    t.printStackTrace();
+//                }
+//            });
+//        }
 
         try {
             // RecyclerView 초기화
@@ -313,14 +356,27 @@ public class PloggingActivity extends AppCompatActivity {
         mapView.pause();    // MapView 의 pause 호출
     }
 
-//    private void addMarker(MapView mapView, double latitude, double longitude, String trashType) {
-//        MapView.MapPOIItem marker = new MapView.MapPOIItem();
-//        marker.setItemName(trashType);
-//        marker.setTag(0);
-//        marker.setMapPoint(MapPoint.mapPointWithGeoCoord(latitude, longitude));
-//        marker.setMarkerType(MapView.MapPOIItem.MarkerType.BluePin);
-//        marker.setSelectedMarkerType(MapView.MapPOIItem.MarkerType.RedPin);
-//        mapView.addPOIItem(marker);
-//    }
+    private void addMarker(double latitude, double longitude) {
+
+        // 마커 이미지 리사이즈
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false; // 스케일링 비활성화
+        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.trashcan, options);
+
+        // 원하는 크기로 이미지 조정
+        int newWidth = 30; // 새로운 너비 (픽셀 단위)
+        int newHeight = 30; // 새로운 높이 (픽셀 단위)
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
+
+        LabelStyles styles = map.getLabelManager()
+                .addLabelStyles(LabelStyles.from(LabelStyle.from(resizedBitmap)));
+        LabelOptions label_options = LabelOptions.from(LatLng.from(latitude, longitude))
+                .setStyles(styles);
+        LabelLayer layer = map.getLabelManager().getLayer();
+        layer.addLabel(label_options);
+//        LabelOptions options2 = LabelOptions.from(LatLng.from(latitude, longitude))
+//                .setStyles(styles);
+//        Label label2 = layer.addLabel(options2);
+    }
 
 }
