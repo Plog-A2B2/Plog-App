@@ -453,7 +453,8 @@ public class PloggingActivity extends AppCompatActivity {
         if (userMarkers.containsKey(userMarkerKey)) {
             LabelOptions existingMarker = userMarkers.get(userMarkerKey);
             if (existingMarker != null) {
-                labelLayer.removeLabel(existingMarker);
+                //기존마커제거!!!!!⭐️
+//                labelLayer.removeLabel(existingMarker);
             }
         }
 
