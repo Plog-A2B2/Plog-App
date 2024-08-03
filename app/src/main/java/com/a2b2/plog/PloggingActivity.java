@@ -3,14 +3,18 @@ package com.a2b2.plog;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -23,36 +27,33 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.kakao.vectormap.KakaoMap;
 import com.kakao.vectormap.KakaoMapReadyCallback;
 import com.kakao.vectormap.KakaoMapSdk;
 import com.kakao.vectormap.LatLng;
 import com.kakao.vectormap.MapLifeCycleCallback;
-import com.kakao.vectormap.MapType;
 import com.kakao.vectormap.MapView;
-import com.kakao.vectormap.MapViewInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import com.kakao.vectormap.Poi;
-import com.kakao.vectormap.camera.CameraAnimation;
-import com.kakao.vectormap.camera.CameraUpdateFactory;
-import com.kakao.vectormap.label.Label;
+import com.kakao.vectormap.camera.CameraUpdate;
 import com.kakao.vectormap.label.LabelLayer;
-import com.kakao.vectormap.label.LabelManager;
 import com.kakao.vectormap.label.LabelOptions;
 import com.kakao.vectormap.label.LabelStyle;
 import com.kakao.vectormap.label.LabelStyles;
-import com.kakao.vectormap.label.LabelTransition;
-import com.kakao.vectormap.label.Transition;
+
+import com.kakao.vectormap.camera.CameraUpdate;
+import com.kakao.vectormap.camera.CameraUpdateFactory;
+import com.kakao.vectormap.camera.CameraAnimation;
 
 
 public class PloggingActivity extends AppCompatActivity {
@@ -68,7 +69,12 @@ public class PloggingActivity extends AppCompatActivity {
 
     private KakaoMap map;
     private LabelLayer labelLayer;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationCallback locationCallback;
 
+    private HashMap<String, LabelOptions> userMarkers = new HashMap<>();
+    private String userMarkerKey = "user_location_marker";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +109,11 @@ public class PloggingActivity extends AppCompatActivity {
                     Location location = entry.getValue();
                     addMarker(location.getLatitude(), location.getLongitude());
                 }
+                // 위치 서비스 초기화
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(PloggingActivity.this);
+
+                // 위치 권한 요청
+                checkLocationPermission();
             }
 
             @Override
@@ -344,6 +355,7 @@ public class PloggingActivity extends AppCompatActivity {
             Log.e("PloggingActivity", "Exception in onCreate", e);
         }
     }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -369,14 +381,89 @@ public class PloggingActivity extends AppCompatActivity {
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
 
         LabelStyles styles = map.getLabelManager()
-                .addLabelStyles(LabelStyles.from(LabelStyle.from(resizedBitmap)));
+                .addLabelStyles(LabelStyles.from(LabelStyle.from(resizedBitmap).setZoomLevel(15)));
         LabelOptions label_options = LabelOptions.from(LatLng.from(latitude, longitude))
                 .setStyles(styles);
         LabelLayer layer = map.getLabelManager().getLayer();
         layer.addLabel(label_options);
-//        LabelOptions options2 = LabelOptions.from(LatLng.from(latitude, longitude))
-//                .setStyles(styles);
-//        Label label2 = layer.addLabel(options2);
+    }
+
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            startLocationUpdates();
+        }
+    }
+
+    private void startLocationUpdates() {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000); // 10초마다 위치 업데이트
+        locationRequest.setFastestInterval(5000); // 가장 빠른 위치 업데이트 간격
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+
+                for (android.location.Location location : locationResult.getLocations()) {
+                    updateLocationOnMap(location);
+                }
+            }
+        };
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+    }
+
+    private void updateLocationOnMap(android.location.Location location) {
+        LatLng userLatLng = LatLng.from(location.getLatitude(), location.getLongitude());
+
+        // 사용자 위치 마커 추가
+        addOrUpdateUserMarker(location.getLatitude(), location.getLongitude());
+
+//        // 사용자 위치로 카메라 이동
+//        map.moveCamera(CameraUpdateFactory.newCenterPosition(userLatLng, 15),
+//                CameraAnimation.from(500));
+    }
+
+    private void addOrUpdateUserMarker(double latitude, double longitude) {
+        LatLng userLatLng = LatLng.from(latitude, longitude);
+
+        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
+
+        // 원하는 크기로 이미지 조정
+        int newWidth = 60; // 새로운 너비 (픽셀 단위)
+        int newHeight = 60; // 새로운 높이 (픽셀 단위)
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
+
+        // 기존 마커가 있으면 제거
+        if (userMarkers.containsKey(userMarkerKey)) {
+            LabelOptions existingMarker = userMarkers.get(userMarkerKey);
+            if (existingMarker != null) {
+                //기존마커제거!!!!!⭐️
+//                labelLayer.removeLabel(existingMarker);
+            }
+        }
+
+        // 새 마커 추가
+        LabelOptions newMarker = LabelOptions.from(userLatLng)
+                .setStyles(LabelStyles.from(LabelStyle.from(resizedBitmap).setZoomLevel(15)));
+
+        userMarkers.put(userMarkerKey, newMarker);
+        labelLayer.addLabel(newMarker);
     }
 
 }
