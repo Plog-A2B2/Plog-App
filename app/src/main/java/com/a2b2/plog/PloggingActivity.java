@@ -109,7 +109,7 @@ public class PloggingActivity extends AppCompatActivity {
 
         }
     };
-
+    boolean trashcanVisible;
     TrackingManager trackingManager;
     KakaoMapReadyCallback readyCallback2 = new KakaoMapReadyCallback() {
 
@@ -124,7 +124,10 @@ public class PloggingActivity extends AppCompatActivity {
             // 위치 정보를 기반으로 마커 추가
             for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
                 Location location = entry.getValue();
-                addMarker(location.getLatitude(), location.getLongitude());
+                Log.d("trashcanVisible", String.valueOf(trashcanVisible));
+                if(trashcanVisible == true) {
+                    addMarker(location.getLatitude(), location.getLongitude());
+                }
             }
 
             Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
@@ -301,6 +304,7 @@ public class PloggingActivity extends AppCompatActivity {
             // 이전 액티비티에서 전달된 데이터 받기
             Intent intent = getIntent();
             ArrayList<RealtimePloggerItem> ploggingItems = (ArrayList<RealtimePloggerItem>) intent.getSerializableExtra("ploggingItems");
+            trashcanVisible = intent.getBooleanExtra("trashcanVisible", true);
 
             // Adapter 설정
             ploggerAdapter = new PloggerAdapter(ploggingItems);
@@ -469,6 +473,11 @@ public class PloggingActivity extends AppCompatActivity {
                     }
 
                     // 결과 화면으로 이동
+                    Intent intent = new Intent(PloggingActivity.this, FinishActivity.class);
+                    intent.putExtra("trashCountMap", trashCountMap);
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
+                    finish();
                 }
             });
         } catch (Exception e) {

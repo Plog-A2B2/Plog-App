@@ -25,7 +25,7 @@ public class HomeActivity extends AppCompatActivity {
     private List<RealtimePloggerItem> ploggingItems;
     private ImageView rank, community, mission, mypage;
     private SwitchCompat trashcanVisibleSwitch;
-    boolean trashcanVisible = false;
+    boolean trashcanVisible = true;
     private Button setRoute;
     private EditText trashGoalEditText;
     int trashGoal = 0;
@@ -60,9 +60,11 @@ public class HomeActivity extends AppCompatActivity {
         setRoute = findViewById(R.id.routeBut);
         trashGoalEditText = findViewById(R.id.trashGoalEditText);
 
+        trashcanVisibleSwitch.setChecked(true); //디폴트값: 쓰레기통 위치 보이기
+
         // 스위치 상태 변경 리스너 설정
         trashcanVisibleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            boolean trashcanVisible = isChecked;
+            trashcanVisible = isChecked;
             Log.d("trashcanVisible", "trashcan : " + trashcanVisible);
         });
 
@@ -84,6 +86,8 @@ public class HomeActivity extends AppCompatActivity {
                 setTrashGoal();
                 Intent intent = new Intent(HomeActivity.this, PloggingActivity.class);
                 intent.putExtra("ploggingItems", new ArrayList<>(ploggingItems));
+                intent.putExtra("trashcanVisible", trashcanVisible);
+
                 startActivity(intent);
                 overridePendingTransition(0, 0);
                 finish();
