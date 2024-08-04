@@ -98,7 +98,7 @@ public class ExcelUtils {
 
                 locationMap.put(city, new Location(longitude, latitude));
                 addressList.add(city); // 주소 리스트에 도시 추가
-                Log.d("ExcelParser", "Parsed city: " + city + ", latitude: " + latitude + ", longitude: " + longitude); // 로그 추가
+//                Log.d("ExcelParser", "Parsed city: " + city + ", latitude: " + latitude + ", longitude: " + longitude); // 로그 추가
             }
 
             workbook.close();

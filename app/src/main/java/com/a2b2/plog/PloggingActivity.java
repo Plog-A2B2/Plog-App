@@ -511,7 +511,7 @@ public class PloggingActivity extends AppCompatActivity {
         LabelLayer layer = map.getLabelManager().getLayer();
 
         Label trashLabel = layer.addLabel(label_options);
-        Log.d("trashMarker", "marker added");
+//        Log.d("trashMarker", "marker added");
     }
 
     private void checkLocationPermission() {
