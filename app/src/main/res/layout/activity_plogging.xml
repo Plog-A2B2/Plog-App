@@ -146,6 +146,16 @@
             android:layout_marginBottom="40dp"
             android:layout_marginTop="25dp"/>
 
+        <ImageView
+            android:id="@+id/current_location"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/current_location"
+            app:layout_constraintTop_toTopOf="@id/mapback"
+            app:layout_constraintRight_toRightOf="@id/mapback"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp"/>
+
         <android.widget.Button
             android:id="@+id/endBtn"
             android:layout_width="150dp"
