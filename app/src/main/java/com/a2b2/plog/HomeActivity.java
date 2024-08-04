@@ -25,7 +25,7 @@ public class HomeActivity extends AppCompatActivity {
     private List<RealtimePloggerItem> ploggingItems;
     private ImageView rank, community, mission, mypage;
     private SwitchCompat trashcanVisibleSwitch;
-    boolean trashcanVisible = false;
+    boolean trashcanVisible = true;
     private Button setRoute;
     private EditText trashGoalEditText;
     int trashGoal = 0;

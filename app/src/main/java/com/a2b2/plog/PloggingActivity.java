@@ -109,7 +109,7 @@ public class PloggingActivity extends AppCompatActivity {
 
         }
     };
-    boolean trashcanVisible = false;
+    boolean trashcanVisible;
     TrackingManager trackingManager;
     KakaoMapReadyCallback readyCallback2 = new KakaoMapReadyCallback() {
 
@@ -124,6 +124,7 @@ public class PloggingActivity extends AppCompatActivity {
             // 위치 정보를 기반으로 마커 추가
             for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
                 Location location = entry.getValue();
+                Log.d("trashcanVisible", String.valueOf(trashcanVisible));
                 if(trashcanVisible == true) {
                     addMarker(location.getLatitude(), location.getLongitude());
                 }
