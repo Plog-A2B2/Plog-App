@@ -473,6 +473,11 @@ public class PloggingActivity extends AppCompatActivity {
                     }
 
                     // 결과 화면으로 이동
+                    Intent intent = new Intent(PloggingActivity.this, FinishActivity.class);
+                    intent.putExtra("trashCountMap", trashCountMap);
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
+                    finish();
                 }
             });
         } catch (Exception e) {
