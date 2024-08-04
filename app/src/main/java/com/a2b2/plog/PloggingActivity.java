@@ -1,6 +1,7 @@
 package com.a2b2.plog;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
@@ -9,12 +10,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -32,7 +38,9 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.kakao.vectormap.GestureType;
 import com.kakao.vectormap.KakaoMap;
 import com.kakao.vectormap.KakaoMapReadyCallback;
 import com.kakao.vectormap.KakaoMapSdk;
@@ -45,7 +53,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.kakao.vectormap.camera.CameraPosition;
 import com.kakao.vectormap.camera.CameraUpdate;
+import com.kakao.vectormap.label.Label;
 import com.kakao.vectormap.label.LabelLayer;
 import com.kakao.vectormap.label.LabelOptions;
 import com.kakao.vectormap.label.LabelStyle;
@@ -54,6 +64,8 @@ import com.kakao.vectormap.label.LabelStyles;
 import com.kakao.vectormap.camera.CameraUpdate;
 import com.kakao.vectormap.camera.CameraUpdateFactory;
 import com.kakao.vectormap.camera.CameraAnimation;
+import com.kakao.vectormap.label.PathOptions;
+import com.kakao.vectormap.label.TrackingManager;
 
 
 public class PloggingActivity extends AppCompatActivity {
@@ -73,8 +85,86 @@ public class PloggingActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
 
+    private final String[] locationPermissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+
     private HashMap<String, LabelOptions> userMarkers = new HashMap<>();
     private String userMarkerKey = "user_location_marker";
+
+    // 위치 업데이트가 요청된 적 있는지 여부를 저장합니다.
+    private boolean requestingLocationUpdates = false;
+    private LocationRequest locationRequest;
+    Label userLabel;
+    private LatLng startPosition = null;
+
+    private ImageView userCurrentLocation;
+
+    MapLifeCycleCallback readyCallback1 = new MapLifeCycleCallback() {
+        @Override
+        public void onMapDestroy() {
+
+        }
+
+        @Override
+        public void onMapError(Exception e) {
+
+        }
+    };
+
+    TrackingManager trackingManager;
+    KakaoMapReadyCallback readyCallback2 = new KakaoMapReadyCallback() {
+
+        @Override
+        public void onMapReady(KakaoMap kakaoMap) {
+            map = kakaoMap;
+            labelLayer = map.getLabelManager().getLayer();
+
+            // 엑셀 파일에서 위치 정보를 가져옴
+            Map<String, Location> locationMap = ExcelUtils.readExcelFile(PloggingActivity.this, "trashcan_location.xlsx");
+
+            // 위치 정보를 기반으로 마커 추가
+            for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
+                Location location = entry.getValue();
+                addMarker(location.getLatitude(), location.getLongitude());
+            }
+
+            Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
+
+            // 원하는 크기로 이미지 조정
+            int newWidth = 70; // 새로운 너비 (픽셀 단위)
+            int newHeight = 70; // 새로운 높이 (픽셀 단위)
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
+
+            userLabel = labelLayer.addLabel(LabelOptions.from("userLabel", startPosition)
+                    .setStyles(LabelStyle.from(resizedBitmap).setAnchorPoint(0.5f, 0.5f))
+                    .setRank(1));
+
+            trackingManager = map.getTrackingManager();
+            trackingManager.startTracking(userLabel);
+            startLocationUpdates();
+
+
+            // 지도 이동 이벤트 설정
+            map.setOnCameraMoveEndListener(new KakaoMap.OnCameraMoveEndListener() {
+                @Override
+                public void onCameraMoveEnd(@NonNull KakaoMap kakaoMap,
+                                            @NonNull CameraPosition cameraPosition,
+                                            @NonNull GestureType gestureType) {
+
+                    trackingManager.stopTracking();
+                }
+            });
+        }
+
+        @Override
+        public LatLng getPosition() {
+            return startPosition;
+        }
+
+        @Override
+        public int getZoomLevel() {
+            return 17;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,50 +174,80 @@ public class PloggingActivity extends AppCompatActivity {
         KakaoMapSdk.init(this, "1b96fc67568f72bcc29317e838ad740f");
         mapView = findViewById(R.id.map);
 
-        mapView.start(new MapLifeCycleCallback() {
+//        mapView.start(new MapLifeCycleCallback() {
+//            @Override
+//            public void onMapDestroy() {
+//                // 지도 API가 정상적으로 종료될 때 호출됨
+//            }
+//
+//            @Override
+//            public void onMapError(Exception error) {
+//                // 인증 실패 및 지도 사용 중 에러가 발생할 때 호출됨
+//            }
+//        }, new KakaoMapReadyCallback() {
+//            @Override
+//            public void onMapReady(KakaoMap kakaoMap) {
+//                // 인증 후 API가 정상적으로 실행될 때 호출됨
+//                map = kakaoMap;
+//                labelLayer = kakaoMap.getLabelManager().getLayer();
+//
+//                // 엑셀 파일에서 위치 정보를 가져옴
+//                Map<String, Location> locationMap = ExcelUtils.readExcelFile(PloggingActivity.this, "trashcan_location.xlsx");
+//
+//                // 위치 정보를 기반으로 마커 추가
+//                for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
+//                    Location location = entry.getValue();
+//                    addMarker(location.getLatitude(), location.getLongitude());
+//                }
+//                // 위치 서비스 초기화
+//                fusedLocationClient = LocationServices.getFusedLocationProviderClient(PloggingActivity.this);
+//
+//                // 위치 권한 요청
+//                checkLocationPermission();
+//                updateLocationOnMap(location);
+//
+//            }
+//
+//            @Override
+//            public LatLng getPosition() {
+//                // 지도 시작 시 위치 좌표를 설정
+//                return LatLng.from(37.5763811, 126.9728228);
+//            }
+//
+//            @Override
+//            public int getZoomLevel() {
+//                // 지도 시작 시 확대/축소 줌 레벨 설정
+//                return 15;
+//            }
+//
+//        });
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000L).build();
+        locationCallback = new LocationCallback() {
             @Override
-            public void onMapDestroy() {
-                // 지도 API가 정상적으로 종료될 때 호출됨
-            }
-
-            @Override
-            public void onMapError(Exception error) {
-                // 인증 실패 및 지도 사용 중 에러가 발생할 때 호출됨
-            }
-        }, new KakaoMapReadyCallback() {
-            @Override
-            public void onMapReady(KakaoMap kakaoMap) {
-                // 인증 후 API가 정상적으로 실행될 때 호출됨
-                map = kakaoMap;
-                labelLayer = kakaoMap.getLabelManager().getLayer();
-
-// 엑셀 파일에서 위치 정보를 가져옴
-                Map<String, Location> locationMap = ExcelUtils.readExcelFile(PloggingActivity.this, "trashcan_location.xlsx");
-
-                // 위치 정보를 기반으로 마커 추가
-                for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
-                    Location location = entry.getValue();
-                    addMarker(location.getLatitude(), location.getLongitude());
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                for (android.location.Location location : locationResult.getLocations()) {
+                    userLabel.moveTo(LatLng.from(location.getLatitude(), location.getLongitude()));
                 }
-                // 위치 서비스 초기화
-                fusedLocationClient = LocationServices.getFusedLocationProviderClient(PloggingActivity.this);
-
-                // 위치 권한 요청
-                checkLocationPermission();
             }
+        };
 
+        if (ContextCompat.checkSelfPermission(this, locationPermissions[0]) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, locationPermissions[1]) == PackageManager.PERMISSION_GRANTED) {
+            getStartLocation();
+        } else {
+            ActivityCompat.requestPermissions(this, locationPermissions, LOCATION_PERMISSION_REQUEST_CODE);
+        }
+
+
+        userCurrentLocation = findViewById(R.id.current_location);
+
+        userCurrentLocation.setOnClickListener(new View.OnClickListener() {
             @Override
-            public LatLng getPosition() {
-                // 지도 시작 시 위치 좌표를 설정
-                return LatLng.from(37.5763811, 126.9728228);
+            public void onClick(View v) {
+//                map.moveCamera(CameraUpdateFactory.newCenterPosition(userLatLng, 15),
+//                CameraAnimation.from(100));
+                trackingManager.startTracking(userLabel);
             }
-
-            @Override
-            public int getZoomLevel() {
-                // 지도 시작 시 확대/축소 줌 레벨 설정
-                return 15;
-            }
-
         });
 
 //// Excel 파일에서 위치 정보를 가져옴
@@ -366,6 +486,8 @@ public class PloggingActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         mapView.pause();    // MapView 의 pause 호출
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+
     }
 
     private void addMarker(double latitude, double longitude) {
@@ -384,8 +506,12 @@ public class PloggingActivity extends AppCompatActivity {
                 .addLabelStyles(LabelStyles.from(LabelStyle.from(resizedBitmap).setZoomLevel(15)));
         LabelOptions label_options = LabelOptions.from(LatLng.from(latitude, longitude))
                 .setStyles(styles);
+
+
         LabelLayer layer = map.getLabelManager().getLayer();
-        layer.addLabel(label_options);
+
+        Label trashLabel = layer.addLabel(label_options);
+        Log.d("trashMarker", "marker added");
     }
 
     private void checkLocationPermission() {
@@ -396,37 +522,96 @@ public class PloggingActivity extends AppCompatActivity {
         }
     }
 
-    private void startLocationUpdates() {
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(10000); // 10초마다 위치 업데이트
-        locationRequest.setFastestInterval(5000); // 가장 빠른 위치 업데이트 간격
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-
-                for (android.location.Location location : locationResult.getLocations()) {
-                    updateLocationOnMap(location);
-                }
-            }
-        };
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+    @SuppressLint("MissingPermission")
+    private void getStartLocation() {
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY,null)
+                .addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        startPosition = LatLng.from(location.getLatitude(), location.getLongitude());
+                        mapView.start(readyCallback1, readyCallback2);
+                    }
+                });
     }
+
+    @SuppressLint("MissingPermission")
+    private void startLocationUpdates() {
+        requestingLocationUpdates = true;
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getStartLocation();
+            } else {
+                showPermissionDeniedDialog();
+            }
+        }
+    }
+
+    private void showPermissionDeniedDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("위치 권한 거부시 앱을 사용할 수 없습니다.")
+                .setPositiveButton("권한 설정하러 가기", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        try {
+                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(Uri.parse("package:" + getPackageName()));
+                            startActivity(intent);
+                        } catch (ActivityNotFoundException e) {
+                            e.printStackTrace();
+                            Intent intent = new Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
+                            startActivity(intent);
+                        } finally {
+                            finish();
+                        }
+                    }
+                })
+                .setNegativeButton("앱 종료하기", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                    }
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+//    private void startLocationUpdates() {
+//        LocationRequest locationRequest = LocationRequest.create();
+//        locationRequest.setInterval(2000); // 10초마다 위치 업데이트
+//        locationRequest.setFastestInterval(2000); // 가장 빠른 위치 업데이트 간격
+//        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//
+//        locationCallback = new LocationCallback() {
+//            @Override
+//            public void onLocationResult(LocationResult locationResult) {
+//                if (locationResult == null) {
+//                    return;
+//                }
+//
+//                for (android.location.Location location : locationResult.getLocations()) {
+//                    // 업데이트된 위치로 라벨 이동
+//                    userLabel.moveTo(LatLng.from(location.getLatitude(), location.getLongitude()));
+//                }
+//            }
+//        };
+//
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+//    }
 
     private void updateLocationOnMap(android.location.Location location) {
         LatLng userLatLng = LatLng.from(location.getLatitude(), location.getLongitude());
@@ -436,7 +621,7 @@ public class PloggingActivity extends AppCompatActivity {
 
 //        // 사용자 위치로 카메라 이동
 //        map.moveCamera(CameraUpdateFactory.newCenterPosition(userLatLng, 15),
-//                CameraAnimation.from(500));
+//                CameraAnimation.from(100));
     }
 
     private void addOrUpdateUserMarker(double latitude, double longitude) {
@@ -449,21 +634,26 @@ public class PloggingActivity extends AppCompatActivity {
         int newHeight = 60; // 새로운 높이 (픽셀 단위)
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
 
-        // 기존 마커가 있으면 제거
-        if (userMarkers.containsKey(userMarkerKey)) {
-            LabelOptions existingMarker = userMarkers.get(userMarkerKey);
-            if (existingMarker != null) {
-                //기존마커제거!!!!!⭐️
-//                labelLayer.removeLabel(existingMarker);
-            }
-        }
+//        // 기존 마커가 있으면 제거
+//        if (userMarkers.containsKey(userMarkerKey)) {
+//            LabelOptions existingMarker = userMarkers.get(userMarkerKey);
+//            if (existingMarker != null) {
+//                //기존마커제거!!!!!⭐️
+////                labelLayer.removeLabel(existingMarker);
+//            }
+//        }
 
         // 새 마커 추가
         LabelOptions newMarker = LabelOptions.from(userLatLng)
                 .setStyles(LabelStyles.from(LabelStyle.from(resizedBitmap).setZoomLevel(15)));
 
+
         userMarkers.put(userMarkerKey, newMarker);
-        labelLayer.addLabel(newMarker);
+        userLabel = labelLayer.addLabel(newMarker);
+
+        //라벨의 위치가 변하더라도 항상 화면 중앙에 위치할 수 있도록 trackingManager를 통해 tracking을 시작합니다.
+        TrackingManager trackingManager = map.getTrackingManager();
+        trackingManager.startTracking(userLabel);
     }
 
 }
