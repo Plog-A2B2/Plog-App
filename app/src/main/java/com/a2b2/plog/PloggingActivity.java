@@ -19,7 +19,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -54,17 +56,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.kakao.vectormap.camera.CameraPosition;
-import com.kakao.vectormap.camera.CameraUpdate;
 import com.kakao.vectormap.label.Label;
 import com.kakao.vectormap.label.LabelLayer;
 import com.kakao.vectormap.label.LabelOptions;
 import com.kakao.vectormap.label.LabelStyle;
 import com.kakao.vectormap.label.LabelStyles;
 
-import com.kakao.vectormap.camera.CameraUpdate;
-import com.kakao.vectormap.camera.CameraUpdateFactory;
-import com.kakao.vectormap.camera.CameraAnimation;
-import com.kakao.vectormap.label.PathOptions;
 import com.kakao.vectormap.label.TrackingManager;
 
 
@@ -78,6 +75,27 @@ public class PloggingActivity extends AppCompatActivity {
     private ImageView topBtn;
     private MapView mapView;
     private static final String KAKAO_API_KEY = "1b96fc67568f72bcc29317e838ad740f";
+
+    private TextView distanceTextView, timeTextView;
+    private String time;
+    private android.location.Location lastLocation;
+    private double distance = 0.0;
+    private long startTime = 0L;
+    private Handler handler = new Handler();
+    private Runnable updateTimeTask = new Runnable() {
+        @Override
+        public void run() {
+            final long start = startTime;
+            long millis = SystemClock.uptimeMillis() - start;
+            int seconds = (int) (millis / 1000);
+            int minutes = seconds / 60;
+            int hours = minutes / 60;
+            seconds = seconds % 60;
+            minutes = minutes % 60;
+            timeTextView.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+            handler.postDelayed(this, 1000);
+        }
+    };
 
     private KakaoMap map;
     private LabelLayer labelLayer;
@@ -177,53 +195,6 @@ public class PloggingActivity extends AppCompatActivity {
         KakaoMapSdk.init(this, "1b96fc67568f72bcc29317e838ad740f");
         mapView = findViewById(R.id.map);
 
-//        mapView.start(new MapLifeCycleCallback() {
-//            @Override
-//            public void onMapDestroy() {
-//                // 지도 API가 정상적으로 종료될 때 호출됨
-//            }
-//
-//            @Override
-//            public void onMapError(Exception error) {
-//                // 인증 실패 및 지도 사용 중 에러가 발생할 때 호출됨
-//            }
-//        }, new KakaoMapReadyCallback() {
-//            @Override
-//            public void onMapReady(KakaoMap kakaoMap) {
-//                // 인증 후 API가 정상적으로 실행될 때 호출됨
-//                map = kakaoMap;
-//                labelLayer = kakaoMap.getLabelManager().getLayer();
-//
-//                // 엑셀 파일에서 위치 정보를 가져옴
-//                Map<String, Location> locationMap = ExcelUtils.readExcelFile(PloggingActivity.this, "trashcan_location.xlsx");
-//
-//                // 위치 정보를 기반으로 마커 추가
-//                for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
-//                    Location location = entry.getValue();
-//                    addMarker(location.getLatitude(), location.getLongitude());
-//                }
-//                // 위치 서비스 초기화
-//                fusedLocationClient = LocationServices.getFusedLocationProviderClient(PloggingActivity.this);
-//
-//                // 위치 권한 요청
-//                checkLocationPermission();
-//                updateLocationOnMap(location);
-//
-//            }
-//
-//            @Override
-//            public LatLng getPosition() {
-//                // 지도 시작 시 위치 좌표를 설정
-//                return LatLng.from(37.5763811, 126.9728228);
-//            }
-//
-//            @Override
-//            public int getZoomLevel() {
-//                // 지도 시작 시 확대/축소 줌 레벨 설정
-//                return 15;
-//            }
-//
-//        });
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000L).build();
         locationCallback = new LocationCallback() {
@@ -252,49 +223,6 @@ public class PloggingActivity extends AppCompatActivity {
                 trackingManager.startTracking(userLabel);
             }
         });
-
-//// Excel 파일에서 위치 정보를 가져옴
-//        Map<String, Location> locationMap = ExcelUtils.readExcelFile(PloggingActivity.this, "trashcan_location.xlsx");
-//
-//        Retrofit retrofit = RetrofitClient.getClient("https://dapi.kakao.com/");
-//        KakaoApiService apiService = retrofit.create(KakaoApiService.class);
-//
-//        for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
-//            String address = entry.getKey();
-//            Location location = entry.getValue();
-//
-//            apiService.getCoordinates(address, KAKAO_API_KEY).enqueue(new Callback<AddressResponse>() {
-//                @Override
-//                public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
-//                    Log.d("test", "in onResponse");
-//                    Log.d("test", "Response Code: " + response.code());
-//                    Log.d("test", "Response Body: " + response.body());
-//                    Log.d("test", "Response Message: " + response.message());
-//
-//                    if (response.isSuccessful() && response.body() != null) {
-//                        Log.d("test", "in if");
-//
-//                        try {
-//                            AddressResponse.Document.Address address = response.body().documents.get(0).address;
-//                            double latitude = Double.parseDouble(address.y);
-//                            double longitude = Double.parseDouble(address.x);
-//                            Log.d("test", String.format("Latitude: %.6f, Longitude: %.6f", latitude, longitude));
-//                            addMarker(latitude, longitude);
-//                        } catch (Exception e) {
-//                            Log.e("test", "Error parsing address", e);
-//                        }
-//                    } else {
-//                        Log.e("test", "Response not successful or body is null");
-//                    }
-//                }
-//
-//
-//                @Override
-//                public void onFailure(Call<AddressResponse> call, Throwable t) {
-//                    t.printStackTrace();
-//                }
-//            });
-//        }
 
         try {
             // RecyclerView 초기화
@@ -393,6 +321,9 @@ public class PloggingActivity extends AppCompatActivity {
                     // Handle slide offset if needed
                 }
             });
+            distanceTextView = findViewById(R.id.distanceTextView);
+            timeTextView = findViewById(R.id.timeTextView);
+
 
             // 쓰레기 종류와 개수를 저장할 변수 초기화
             final HashMap<String, Integer> trashCountMap = new HashMap<>();
@@ -460,6 +391,9 @@ public class PloggingActivity extends AppCompatActivity {
 
                 trashContainer.addView(itemView);
             }
+            startPlogging();
+            setupLocationCallback();
+            startLocationUpdates();
 
             // 종료하기 버튼 클릭 이벤트
             Button finishButton = findViewById(R.id.endBtn);
@@ -472,12 +406,19 @@ public class PloggingActivity extends AppCompatActivity {
                         Log.d("PloggingActivity", trashType + ": " + count);
                     }
 
+//                    endPlogging();
+                    stopPlogging();
+                    stopLocationUpdates();
+
                     // 결과 화면으로 이동
                     Intent intent = new Intent(PloggingActivity.this, FinishActivity.class);
                     intent.putExtra("trashCountMap", trashCountMap);
+                    intent.putExtra("time", timeTextView.getText().toString());
+                    intent.putExtra("distance", distanceTextView.getText().toString());
                     startActivity(intent);
                     overridePendingTransition(0, 0);
                     finish();
+
                 }
             });
         } catch (Exception e) {
@@ -497,6 +438,56 @@ public class PloggingActivity extends AppCompatActivity {
         mapView.pause();    // MapView 의 pause 호출
         fusedLocationClient.removeLocationUpdates(locationCallback);
 
+    }
+
+    private void startPlogging() {
+        startTime = SystemClock.uptimeMillis();
+        handler.postDelayed(updateTimeTask, 1000);
+    }
+
+    private void stopPlogging() {
+        handler.removeCallbacks(updateTimeTask);
+    }
+
+    private void setupLocationCallback() {
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (android.location.Location location : locationResult.getLocations()) {
+                    if (lastLocation != null) {
+                        distance += lastLocation.distanceTo(location);
+                    }
+                    lastLocation = location;
+                    distanceTextView.setText(String.format("%.2f KM", distance / 1000));
+                }
+            }
+        };
+    }
+
+//    private void startLocationUpdates() {
+//        LocationRequest locationRequest = LocationRequest.create();
+//        locationRequest.setInterval(10000); // 10초마다 업데이트
+//        locationRequest.setFastestInterval(5000); // 5초마다 업데이트
+//        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//
+//        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+//    }
+
+    private void stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+
+    private void endPlogging() {
+        stopPlogging();
+        stopLocationUpdates();
+        Intent intent = new Intent(PloggingActivity.this, FinishActivity.class);
+        intent.putExtra("time", timeTextView.getText().toString());
+        intent.putExtra("distance", distanceTextView.getText().toString());
+        startActivity(intent);
+        finish();
     }
 
     private void addMarker(double latitude, double longitude) {
@@ -520,7 +511,6 @@ public class PloggingActivity extends AppCompatActivity {
         LabelLayer layer = map.getLabelManager().getLayer();
 
         Label trashLabel = layer.addLabel(label_options);
-//        Log.d("trashMarker", "marker added");
     }
 
     private void checkLocationPermission() {
@@ -589,50 +579,6 @@ public class PloggingActivity extends AppCompatActivity {
                 .show();
     }
 
-//    private void startLocationUpdates() {
-//        LocationRequest locationRequest = LocationRequest.create();
-//        locationRequest.setInterval(2000); // 10초마다 위치 업데이트
-//        locationRequest.setFastestInterval(2000); // 가장 빠른 위치 업데이트 간격
-//        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//
-//        locationCallback = new LocationCallback() {
-//            @Override
-//            public void onLocationResult(LocationResult locationResult) {
-//                if (locationResult == null) {
-//                    return;
-//                }
-//
-//                for (android.location.Location location : locationResult.getLocations()) {
-//                    // 업데이트된 위치로 라벨 이동
-//                    userLabel.moveTo(LatLng.from(location.getLatitude(), location.getLongitude()));
-//                }
-//            }
-//        };
-//
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return;
-//        }
-//        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-//    }
-
-    private void updateLocationOnMap(android.location.Location location) {
-        LatLng userLatLng = LatLng.from(location.getLatitude(), location.getLongitude());
-
-        // 사용자 위치 마커 추가
-        addOrUpdateUserMarker(location.getLatitude(), location.getLongitude());
-
-//        // 사용자 위치로 카메라 이동
-//        map.moveCamera(CameraUpdateFactory.newCenterPosition(userLatLng, 15),
-//                CameraAnimation.from(100));
-    }
-
     private void addOrUpdateUserMarker(double latitude, double longitude) {
         LatLng userLatLng = LatLng.from(latitude, longitude);
 
@@ -642,15 +588,6 @@ public class PloggingActivity extends AppCompatActivity {
         int newWidth = 60; // 새로운 너비 (픽셀 단위)
         int newHeight = 60; // 새로운 높이 (픽셀 단위)
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
-
-//        // 기존 마커가 있으면 제거
-//        if (userMarkers.containsKey(userMarkerKey)) {
-//            LabelOptions existingMarker = userMarkers.get(userMarkerKey);
-//            if (existingMarker != null) {
-//                //기존마커제거!!!!!⭐️
-////                labelLayer.removeLabel(existingMarker);
-//            }
-//        }
 
         // 새 마커 추가
         LabelOptions newMarker = LabelOptions.from(userLatLng)
