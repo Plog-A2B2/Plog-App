@@ -101,7 +101,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/depositInfoLinkBtn"
         android:layout_marginTop="20dp"
-        android:text="<자원순환보증금 공병/1회용컵 수거 위치>"
+        android:text="자원순환보증금 공병/1회용컵 수거 위치"
         android:gravity="center"
         android:textColor="@color/white"
         android:textSize="20sp"
