@@ -8,6 +8,9 @@ import android.media.MediaPlayer;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.kakao.sdk.common.KakaoSdk;
+import com.kakao.vectormap.KakaoMapSdk;
+
 public class SplashActivity extends AppCompatActivity {
 
     private VideoView videoView;
@@ -16,6 +19,9 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        // KakaoMap SDK 초기화
+        KakaoMapSdk.init(this, "1b96fc67568f72bcc29317e838ad740f");
 
         videoView = findViewById(R.id.video_view);
 

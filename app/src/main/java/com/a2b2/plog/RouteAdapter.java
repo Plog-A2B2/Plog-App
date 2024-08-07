@@ -1,5 +1,6 @@
 package com.a2b2.plog;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +18,14 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.RouteViewHol
 
     private List<Route> routeList;
     private OnItemClickListener itemClickListener;
+    private Route selectedRoute;
+    private SharedPreferencesHelper prefsHelper;
 
-    public RouteAdapter(List<Route> routeList, OnItemClickListener itemClickListener) {
+    public RouteAdapter(List<Route> routeList, OnItemClickListener itemClickListener, Context context) {
         this.routeList = routeList;
         this.itemClickListener = itemClickListener;
+        this.prefsHelper = new SharedPreferencesHelper(context);
+        this.selectedRoute = prefsHelper.getRoute();
     }
 
     public static class RouteViewHolder extends RecyclerView.ViewHolder {
@@ -51,6 +56,13 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.RouteViewHol
         holder.destinationTextView.setText(route.getDestination());
         holder.distanceTextView.setText(route.getDistance());
         holder.timeTextView.setText(route.getTime());
+
+//        // Highlight the selected route
+//        if (selectedRoute != null && selectedRoute.getId().equals(route.getId())) {
+//            holder.itemView.setBackgroundColor(holder.itemView.getResources().getColor(R.color.selected_route_color)); // Color for selected item
+//        } else {
+//            holder.itemView.setBackgroundColor(holder.itemView.getResources().getColor(R.color.default_route_color)); // Default color
+//        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

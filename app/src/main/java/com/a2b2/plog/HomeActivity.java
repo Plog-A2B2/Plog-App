@@ -1,5 +1,7 @@
 package com.a2b2.plog;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,11 +32,14 @@ public class HomeActivity extends AppCompatActivity {
     private EditText trashGoalEditText;
     int trashGoal = 0;
     private Button plggingStartBut;
+    private SharedPreferencesHelper prefsHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        prefsHelper = new SharedPreferencesHelper(this);
 
         recyclerView = findViewById(R.id.ploggerRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -59,6 +64,10 @@ public class HomeActivity extends AppCompatActivity {
         trashcanVisibleSwitch = findViewById(R.id.trashcanVisibleSwitch);
         setRoute = findViewById(R.id.routeBtn);
         trashGoalEditText = findViewById(R.id.trashGoalEditText);
+
+        if (prefsHelper.getRoute() != null) {
+            setRoute.setText(prefsHelper.getRoute().getId());
+        }
 
         trashcanVisibleSwitch.setChecked(true); //디폴트값: 쓰레기통 위치 보이기
 
