@@ -15,4 +15,11 @@
     <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowFullscreen">true</item>
     </style>
+
+    <style name="SimpleRouteLineStyle" parent="RouteLineStyle">
+        <item name="mapLineWidth">12.0</item>
+        <item name="mapLineColor">#F05D61</item>
+        <item name="mapStrokeWidth">3</item>
+        <item name="mapStrokeColor">#ffffff</item>
+    </style>
 </resources>

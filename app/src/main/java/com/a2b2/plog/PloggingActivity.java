@@ -104,6 +104,7 @@ public class PloggingActivity extends AppCompatActivity {
     private LocationCallback locationCallback;
 
     private final String[] locationPermissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+    private List<LatLng> routePoints = new ArrayList<>(); // 경로 점들을 저장할 리스트
 
     private HashMap<String, LabelOptions> userMarkers = new HashMap<>();
     private String userMarkerKey = "user_location_marker";
@@ -201,7 +202,16 @@ public class PloggingActivity extends AppCompatActivity {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 for (android.location.Location location : locationResult.getLocations()) {
+                    // 서버로 위치 전송
+//                    sendLocationToServer(location.getLatitude(), location.getLongitude());
+                    startLocationSendingTask();
+
                     userLabel.moveTo(LatLng.from(location.getLatitude(), location.getLongitude()));
+
+                    // 경로 점 추가
+                    routePoints.add(LatLng.from(location.getLatitude(), location.getLongitude()));
+
+
                 }
             }
         };
@@ -439,6 +449,28 @@ public class PloggingActivity extends AppCompatActivity {
         fusedLocationClient.removeLocationUpdates(locationCallback);
 
     }
+    private void startLocationSendingTask() {
+        final Handler locationHandler = new Handler(Looper.getMainLooper());
+        final Runnable locationRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (lastLocation != null) {
+                    // 현재 위치를 서버에 전송
+                    sendLocationToServer(lastLocation.getLatitude(), lastLocation.getLongitude());
+                }
+                locationHandler.postDelayed(this, 5000); // 5초마다 반복
+            }
+        };
+        locationHandler.post(locationRunnable);
+    }
+
+    private void sendLocationToServer(double latitude, double longitude) {
+        // 서버에 위치 전송하는 코드 구현
+        // 예를 들어, Retrofit을 사용할 수 있습니다.
+        // 여기에 네트워크 요청 코드를 작성해야 합니다.
+        Log.d("PloggingActivity", "Location sent to server: Lat: " + latitude + ", Lng: " + longitude);
+    }
+
 
     private void startPlogging() {
         startTime = SystemClock.uptimeMillis();
