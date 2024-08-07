@@ -75,35 +75,35 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String url = "";
-                String data = "{\"id\" : \""+id+"\",\"pw\" : \""+pw+"\"}";
-                new Thread(() -> {
-                    String result = httpPostBodyConnection(url, data);
-                    // JSON 파싱
-                    Gson gson = new Gson();
-                    JsonObject jsonObject = JsonParser.parseString(result).getAsJsonObject();
-                     userNickname = jsonObject.get("userNickname").getAsString();
-                    String userUUIDStr = jsonObject.get("userUUID").getAsString();
-                     userUUID = UUID.fromString(userUUIDStr);
-
-                    // UserManager 업데이트
-                    UserManager userManager = UserManager.getInstance();
-                    userManager.setUserNickname(userNickname);
-                    userManager.setUserId(userUUID);
-                    // 처리 결과 확인
-                    handler.post(() -> seeNetworkResult(result));
-                }).start();
-
-
-
-                if( userUUID==null && userNickname == null){
-                    Toast.makeText(getApplicationContext(), "아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_LONG).show();
-                } else{
-                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                    startActivity(intent);
-                    overridePendingTransition(0, 0);
-                    finish();
-                }
+//                String url = "";
+//                String data = "{\"id\" : \""+id+"\",\"pw\" : \""+pw+"\"}";
+//                new Thread(() -> {
+//                    String result = httpPostBodyConnection(url, data);
+//                    // JSON 파싱
+//                    Gson gson = new Gson();
+//                    JsonObject jsonObject = JsonParser.parseString(result).getAsJsonObject();
+//                     userNickname = jsonObject.get("userNickname").getAsString();
+//                    String userUUIDStr = jsonObject.get("userUUID").getAsString();
+//                     userUUID = UUID.fromString(userUUIDStr);
+//
+//                    // UserManager 업데이트
+//                    UserManager userManager = UserManager.getInstance();
+//                    userManager.setUserNickname(userNickname);
+//                    userManager.setUserId(userUUID);
+//                    // 처리 결과 확인
+//                    handler.post(() -> seeNetworkResult(result));
+//                }).start();
+//
+//
+//
+//                if( userUUID==null && userNickname == null){
+//                    Toast.makeText(getApplicationContext(), "아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_LONG).show();
+//                } else{
+//                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+//                    startActivity(intent);
+//                    overridePendingTransition(0, 0);
+//                    finish();
+//                }
 
 
                 Intent intent = new Intent(MainActivity.this, HomeActivity.class);
