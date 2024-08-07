@@ -57,7 +57,7 @@ public class HomeActivity extends AppCompatActivity {
         recyclerView.setAdapter(ploggerAdapter);
 
         trashcanVisibleSwitch = findViewById(R.id.trashcanVisibleSwitch);
-        setRoute = findViewById(R.id.routeBut);
+        setRoute = findViewById(R.id.routeBtn);
         trashGoalEditText = findViewById(R.id.trashGoalEditText);
 
         trashcanVisibleSwitch.setChecked(true); //디폴트값: 쓰레기통 위치 보이기
@@ -71,7 +71,7 @@ public class HomeActivity extends AppCompatActivity {
         setRoute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.this, RouteActivity.class);
+                Intent intent = new Intent(HomeActivity.this, RouteListActivity.class);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
                 finish();

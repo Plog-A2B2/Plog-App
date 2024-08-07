@@ -11,11 +11,24 @@ import android.widget.Button;
 public class RecyclingInfoActivity extends AppCompatActivity {
 
     private Button recycleInfoLinkBtn, depositInfoLinkBtn;
+    private Button yesBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycling_info);
+
+        yesBtn = findViewById(R.id.yesBtn);
+
+        yesBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(RecyclingInfoActivity.this, HomeActivity.class);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                finish();
+            }
+        });
 
         recycleInfoLinkBtn = findViewById(R.id.recycleInfoLinkBtn);
         depositInfoLinkBtn = findViewById(R.id.depositInfoLinkBtn);

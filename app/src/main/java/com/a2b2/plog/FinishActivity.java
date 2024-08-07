@@ -79,7 +79,7 @@ public class FinishActivity extends AppCompatActivity {
         tvFinalDistance.setText(distance);
 
         todayDateTextView = findViewById(R.id.todayDateTextView);
-        totalTrashAmountTextView = findViewById(R.id.totalTrashAmount);
+        totalTrashAmountTextView = findViewById(R.id.totalTrashAmountTextView);
         // 현재 날짜를 yyyy.MM.dd(E) 형식으로 설정
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd(E)", Locale.getDefault());
         String currentDate = dateFormat.format(new Date());
@@ -103,7 +103,10 @@ public class FinishActivity extends AppCompatActivity {
 
             TextView tvTrashAmount = itemView.findViewById(R.id.trashAmount);
 
-            int count = trashCountMap.get(trashType);
+            Integer count = trashCountMap.get(trashType);
+            if (count == null) {
+                count = 0; // 기본값 설정
+            }
             Log.d("finishActivity", trashType + ": " + count);
             tvTrashAmount.setText(count + "개");
             totalTrashAmount += count;
@@ -117,7 +120,10 @@ public class FinishActivity extends AppCompatActivity {
 
             TextView tvTrashAmount = itemView.findViewById(R.id.trashAmount);
 
-            int count = trashCountMap.get(trashType);
+            Integer count = trashCountMap.get(trashType);
+            if (count == null) {
+                count = 0; // 기본값 설정
+            }
             Log.d("finishActivity", trashType + ": " + count);
             tvTrashAmount.setText(count + "개");
             totalTrashAmount += count;
