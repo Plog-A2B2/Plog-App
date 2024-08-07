@@ -16,6 +16,10 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -33,8 +37,8 @@ public class JoinActivity extends AppCompatActivity {
     private String email, inputText,nickname,pw,id,emailresult;
 
     private Handler handler;
-    private UUID emailUUid, userUUid;
-    private String url;
+    private UUID emailUUid;
+    private String url, account;
 
 
     @Override
@@ -95,19 +99,26 @@ public class JoinActivity extends AppCompatActivity {
 
                 if(emailAuthBtn.getText().equals("인 증 하 기")){
                     url = "서버 주소";
-                    String data = "{ \"nickname\" : \""+nickname+"\",\"id\" : \""+id+"\",\"password\" : \""+pw+"\",\"email\" : \""+email+"\" }";
+                    String data = "{ \"nickname\" : \""+joinNick.getText().toString()+"\",\"id\" : \""+joinId.getText().toString()+"\",\"password\" : \""+joinPw.getText().toString()+"\",\"email\" : \""+email.toString()+"\" }";
 
                     new Thread(() -> {
                     String result = httpPostBodyConnection(url, data);
                     // 처리 결과 확인
                     handler.post(() -> seeNetworkResult(result));
-                    emailUUid = UUID.fromString(result);
+                        // JSON 파싱
+                    Gson gson = new Gson();
+                    JsonObject jsonObject = JsonParser.parseString(result).getAsJsonObject();
+                     String message = jsonObject.get("message").getAsString();
+                     account = jsonObject.get("account").getAsString();
+                    String userUUIDStr = jsonObject.get("uuid").getAsString();
+                    emailUUid = UUID.fromString(userUUIDStr);
                 }).start();
                     emailAuthBtn.setText("인 증 완 료");
+                    emailAuthBtn.getResources().getColor(R.color.joinBack);
                 } else {
 
                     url = "";
-                    String data = "{\"emailUUID\" : \""+emailUUid+"\"}";
+                    String data = "{\"account\" : \""+account+"\"}";
                     new Thread(() -> {
                         emailresult = httpPostBodyConnection(url, data);
                         // 처리 결과 확인

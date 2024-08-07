@@ -93,7 +93,7 @@ public class FinishActivity extends AppCompatActivity {
         LinearLayout trashContainer1 = findViewById(R.id.trashContainer1);
         LinearLayout trashContainer2 = findViewById(R.id.trashContainer2);
         String[] trashTypes1 = {"일반쓰레기", "플라스틱", "종이류"};
-        String[] trashTypes2 = {"캔/고철류", "병류", "비닐류"};
+        String[] trashTypes2 = {"캔/고철류", "유리류", "비닐류"};
         LayoutInflater inflater = LayoutInflater.from(this);
 
         for (String trashType : trashTypes1) {
