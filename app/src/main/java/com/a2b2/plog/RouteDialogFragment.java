@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -37,11 +38,15 @@ public class RouteDialogFragment extends DialogFragment {
     private static final String ARG_ROUTE = "route";
     private Route route;
     private boolean isRouteSelected = false;
+    private SharedPreferencesHelper prefsHelper;
+
+
     private KakaoMap kakaoMap;
     private RouteLineLayer layer;
     private List<LatLng> routePoints = new ArrayList<>();
     private RouteLine routeLine;
     MapView mapView;
+    private Route selectedRoute;
 
 
     public static RouteDialogFragment newInstance(Route route) {
@@ -58,6 +63,8 @@ public class RouteDialogFragment extends DialogFragment {
         if (getArguments() != null) {
             route = (Route) getArguments().getSerializable(ARG_ROUTE);
         }
+        prefsHelper = new SharedPreferencesHelper(requireContext()); // Initialize SharedPreferencesHelper
+
     }
 
     @NonNull
@@ -73,6 +80,20 @@ public class RouteDialogFragment extends DialogFragment {
 
         textViewRouteDetails.setText(route.getOrigin() + " -> " + route.getDestination() + "\n" + route.getDistance() + ", " + route.getTime());
 
+//        if (prefsHelper.getRoute() != null) {
+//            Log.d("RouteDialogFragment", String.valueOf(prefsHelper.getRoute().equals(route)));
+//            Log.d("RouteDialogFragment", prefsHelper.getRoute().getId());
+//            Log.d("RouteDialogFragment", route.getId());
+//        } else {
+//            Log.d("RouteDialogFragment", "prefsHelper is null");
+//        }
+
+        if (prefsHelper.getRoute() != null && prefsHelper.getRoute().getId().equals(route.getId())) {
+            isRouteSelected = true;
+            buttonSelect.setText("선택 취소");
+            buttonSelect.setBackground(getActivity().getDrawable(R.drawable.round_rectangle_realgreen));
+        }
+
         buttonSelect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,12 +101,11 @@ public class RouteDialogFragment extends DialogFragment {
                 buttonSelect.setText(isRouteSelected ? "선택 취소" : "루트 선택");
                 if(isRouteSelected) {
                     buttonSelect.setBackground(getActivity().getDrawable(R.drawable.round_rectangle_realgreen));
+                    prefsHelper.saveRoute(route);
+
                 } else {
                     buttonSelect.setBackground(getActivity().getDrawable(R.drawable.round_rectangle_realblue));
                 }
-
-                selectRoute(route);
-                dismiss();
             }
         });
 
@@ -118,13 +138,16 @@ public class RouteDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    private void selectRoute(Route route) {
-        // 선택된 루트를 저장하는 로직
-        SharedPreferences prefs = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-//        editor.putString("selected_route", route.getId());
-        editor.apply();
-    }
+//    private void selectRoute(Route route) {
+//        // 선택된 루트를 저장하는 로직
+//
+//        // Route 객체 생성 및 저장
+//        route = new Route();
+//        route.setStartLocation("Start");
+//        route.setEndLocation("End");
+//        prefsHelper.saveRoute(route);
+//
+//    }
 
 //    private boolean isRouteSelected(Route route) {
 //        SharedPreferences prefs = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);

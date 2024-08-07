@@ -43,11 +43,16 @@ public class MainActivity extends AppCompatActivity {
     private UUID userUUID;
 
     private Handler handler;
+    private SharedPreferencesHelper prefsHelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        prefsHelper = new SharedPreferencesHelper(this);
+        prefsHelper.saveRoute(null);
 
         try {
             PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);

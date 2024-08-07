@@ -7,12 +7,18 @@ public class Route implements Serializable {
     private String destination;
     private String distance;
     private String time;
+    private String id;
 
-    public Route(String origin, String destination, String distance, String time) {
+    public Route(String id, String origin, String destination, String distance, String time) {
+        this.id = id;
         this.origin = origin;
         this.destination = destination;
         this.distance = distance;
         this.time = time;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getOrigin() {
@@ -29,5 +35,16 @@ public class Route implements Serializable {
 
     public String getTime() {
         return time;
+    }
+
+    @Override
+    public String toString() {
+        return "Route{" +
+                "id='" + id + '\'' +
+                ", origin='" + origin + '\'' +
+                ", destination='" + destination + '\'' +
+                ", distance='" + distance + '\'' +
+                ", time='" + time + '\'' +
+                '}';
     }
 }
