@@ -13,10 +13,31 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.kakao.vectormap.GestureType;
+import com.kakao.vectormap.KakaoMap;
+import com.kakao.vectormap.KakaoMapReadyCallback;
+import com.kakao.vectormap.KakaoMapSdk;
+import com.kakao.vectormap.LatLng;
+import com.kakao.vectormap.MapLifeCycleCallback;
+import com.kakao.vectormap.MapView;
+import com.kakao.vectormap.camera.CameraPosition;
+import com.kakao.vectormap.camera.CameraUpdateFactory;
+import com.kakao.vectormap.route.RouteLine;
+import com.kakao.vectormap.route.RouteLineLayer;
+import com.kakao.vectormap.route.RouteLineOptions;
+import com.kakao.vectormap.route.RouteLineSegment;
+import com.kakao.vectormap.route.RouteLineStyle;
+import com.kakao.vectormap.shape.Polyline;
+import com.kakao.vectormap.shape.PolylineOptions;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 public class FinishActivity extends AppCompatActivity {
@@ -26,6 +47,14 @@ public class FinishActivity extends AppCompatActivity {
     private TextView todayDateTextView, totalTrashAmountTextView;
     private int totalTrashAmount = 0;
     private TextView tvFinalTime, tvFinalDistance;
+
+    private MapView mapView;
+    private KakaoMap kakaoMap;
+    private static final String KAKAO_API_KEY = "1b96fc67568f72bcc29317e838ad740f";
+    private List<LatLng> routePoints = new ArrayList<>();
+    private RouteLine routeLine;
+    private RouteLineLayer layer;
+
 
 
     @Override
@@ -104,6 +133,27 @@ public class FinishActivity extends AppCompatActivity {
 //                // count를 사용하여 필요한 작업 수행
 //            }
 //        }
+        mapView = findViewById(R.id.map);
+        mapView.start(new MapLifeCycleCallback() {
+            @Override
+            public void onMapDestroy() {
+
+            }
+
+            @Override
+            public void onMapError(Exception e) {
+
+            }
+        }, new KakaoMapReadyCallback() {
+
+            @Override
+            public void onMapReady(KakaoMap map) {
+                kakaoMap = map;
+                layer = kakaoMap.getRouteLineManager().getLayer();
+
+                fetchRoutePointsFromServer();
+            }
+        });
 
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,4 +168,66 @@ public class FinishActivity extends AppCompatActivity {
 
 
     }
+
+    private void fetchRoutePointsFromServer() {
+        // 실제 서버에서 데이터를 받아오는 코드로 대체해야 합니다.
+        // 여기서는 더미 데이터를 사용합니다.
+        List<LatLng> fetchedPoints = getDummyRoutePoints();
+
+        if (fetchedPoints != null && !fetchedPoints.isEmpty()) {
+            routePoints.addAll(fetchedPoints);
+            drawRouteOnMap(routePoints);
+        } else {
+            Toast.makeText(this, "경로 데이터를 받아오는 데 실패했습니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void drawRouteOnMap(List<LatLng> routePoints) {
+        if (kakaoMap != null) {
+//            PolylineOptions polylineOptions = new PolylineOptions()
+//                    .addAll(routePoints)
+//                    .color(0xFF0000FF) // 선 색상 (파란색)
+//                    .width(5); // 선 두께
+
+            RouteLineStyle style = RouteLineStyle.from(getBaseContext(),
+                    R.style.SimpleRouteLineStyle);
+            RouteLineOptions options = RouteLineOptions.from(
+                    Arrays.asList(RouteLineSegment.from(routePoints, style)));
+
+
+//            Polyline polyline = kakaoMap.addPolyline(polylineOptions);
+
+            routeLine = layer.addRouteLine(options);
+            kakaoMap.moveCamera(CameraUpdateFactory.newCenterPosition(
+                    LatLng.from(37.338549743448546,127.09368565409382), 16));
+
+        }
+    }
+
+    // 더미 데이터 생성
+    private List<LatLng> getDummyRoutePoints() {
+        List<LatLng> routePoints = Arrays.asList(
+                LatLng.from(37.338549743448546,127.09368565409382),
+                LatLng.from(37.33856778190988,127.093663107081),
+                LatLng.from(37.33860015104726,127.09374891110167),
+                LatLng.from(37.33866855056389,127.09384830168884),
+                LatLng.from(37.33881977657985,127.09403355969684),
+                LatLng.from(37.33881977657985,127.09403355969684),
+                LatLng.from(37.338798130341964,127.09406061609467),
+                LatLng.from(37.33874386013671,127.0943223542757),
+                LatLng.from(37.33869695980336,127.09438097621258),
+                LatLng.from(37.337824766739104,127.09437537101812),
+                LatLng.from(37.33770221229771,127.09439327300674),
+                LatLng.from(37.33770221229771,127.09439327300674),
+                LatLng.from(37.3376974871616,127.09578804101909),
+                LatLng.from(37.3376974871616,127.09578804101909),
+                LatLng.from(37.336219787367654,127.0957997057665),
+                LatLng.from(37.33621663148788,127.09524451138867),
+                LatLng.from(37.336234684781665,127.09520391048807),
+                LatLng.from(37.336234684781665,127.09520391048807),
+                LatLng.from(37.33645497790997,127.09465351015245));
+
+        return routePoints;
+    }
+
 }
