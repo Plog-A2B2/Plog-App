@@ -119,6 +119,12 @@
                 android:fontFamily="@font/nanumbarungothiclight"
                 android:background="@drawable/no_background"/>
         </LinearLayout>
+        <TextView
+            android:id="@+id/tv1"
+            android:layout_marginTop="40dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"/>
 
 
 
