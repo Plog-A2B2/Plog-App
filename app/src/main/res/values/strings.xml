@@ -3,4 +3,6 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="underline"><u>달린 거리(m) x 주운 쓰레기 개수</u></string>
+    <string name="connected_nodes">Nodes: %1$s</string>
+    <string name="no_device">No device provides the requested capabilities(요청한 capability_1이란 이름을 가진 device가 없어요</string>
 </resources>

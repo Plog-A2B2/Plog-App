@@ -4,25 +4,41 @@ import static android.content.ContentValues.TAG;
 
 import static androidx.core.app.PendingIntentCompat.getActivity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.telephony.ims.ImsMmTelManager;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.wearable.CapabilityClient;
+import com.google.android.gms.wearable.CapabilityInfo;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,9 +48,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CapabilityClient.OnCapabilityChangedListener {
 
     Button loginBtn, idFindBtn, pwFindBtn, joinBtn;
     ImageView kakaoLogin;
@@ -44,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Handler handler;
     private SharedPreferencesHelper prefsHelper;
+    TextView tv1;
+    private static final String CAPABILITY_1_NAME = "capability_1";
 
 
     @Override
@@ -110,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
 //                    finish();
 //                }
 
-
                 Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
@@ -128,7 +150,126 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        //워치 연결 확인 코드
+        tv1 = findViewById(R.id.tv1);
+
+        idFindBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showNodes(CAPABILITY_1_NAME);
+            }
+        });
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/path/to/data");
+        putDataMapReq.getDataMap().putString("key", "value");
+        PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+        Task<DataItem> putDataTask = Wearable.getDataClient(this).putDataItem(putDataReq);
+        putDataTask.addOnSuccessListener(new OnSuccessListener<DataItem>() {
+            @Override
+            public void onSuccess(DataItem dataItem) {
+                Log.d("MobileApp", "Data item set: " + dataItem);
+            }
+        });
+
+        pwFindBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendJsonData();
+            }
+        });
+
+
     }
+
+    //앱 -> 워치 json 형식 값 전달 확인
+    private void sendJsonData() {
+        try {
+            // JSON 객체 생성
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("key1", "value1");
+            jsonObject.put("key2", 123);
+
+            // JSON을 문자열로 변환
+            String jsonString = jsonObject.toString();
+
+            // PutDataMapRequest를 사용하여 데이터 전송
+            PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/path/to/data");
+            putDataMapReq.getDataMap().putString("json_data", jsonString);
+            PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+
+            Wearable.getDataClient(this).putDataItem(putDataReq)
+                    .addOnSuccessListener(dataItem -> Log.d("MobileApp", "JSON data sent successfully"))
+                    .addOnFailureListener(e -> Log.e("MobileApp", "Failed to send JSON data", e));
+        } catch (Exception e) {
+            Log.e("MobileApp", "Failed to create JSON data", e);
+        }
+    }
+    @Override
+    public void onCapabilityChanged(@NonNull CapabilityInfo capabilityInfo) {
+        Log.d(TAG,capabilityInfo.toString());
+    }
+
+    private void showNodes(final String... capabilityNames) {
+
+        Task<Map<String, CapabilityInfo>> capabilitiesTask =
+                Wearable.getCapabilityClient(this)
+                        .getAllCapabilities(CapabilityClient.FILTER_REACHABLE);
+
+        capabilitiesTask.addOnSuccessListener(
+                new OnSuccessListener<Map<String, CapabilityInfo>>() {
+                    @Override
+                    public void onSuccess(Map<String, CapabilityInfo> capabilityInfoMap) {
+                        Set<Node> nodes = new HashSet<>();
+
+                        if (capabilityInfoMap.isEmpty()) {
+                            showDiscoveredNodes(nodes);
+                            return;
+                        }
+                        for (String capabilityName : capabilityNames) {
+                            CapabilityInfo capabilityInfo = capabilityInfoMap.get(capabilityName);
+                            if (capabilityInfo != null) {
+                                nodes.addAll(capabilityInfo.getNodes());
+                            }
+                        }
+                        showDiscoveredNodes(nodes);
+                    }
+                });
+    }
+
+    private void showDiscoveredNodes(Set<Node> nodes) {
+        List<String> nodesList = new ArrayList<>();
+        for (Node node : nodes) {
+            nodesList.add(node.getDisplayName());
+        }
+        Log.d(
+                TAG,
+                "Connected Nodes: "
+                        + (nodesList.isEmpty()
+                        ? "No connected device was found for the given capabilities"
+                        : TextUtils.join(",", nodesList)));
+        String msg;
+        if (!nodesList.isEmpty()) {
+            msg = getString(R.string.connected_nodes, TextUtils.join(", ", nodesList));
+        } else {
+            msg = getString(R.string.no_device);
+        }
+        tv1.setText(msg);
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Wearable.getCapabilityClient(this)
+                .addListener(this, Uri.parse("wear://"), CapabilityClient.FILTER_REACHABLE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Wearable.getCapabilityClient(this).removeListener(this);
+    }
+
     public String httpPostBodyConnection(String UrlData, String ParamData) {
         // 이전과 동일한 네트워크 연결 코드를 그대로 사용합니다.
         // 백그라운드 스레드에서 실행되기 때문에 메인 스레드에서는 문제가 없습니다.

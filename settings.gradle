@@ -19,3 +19,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "plog"
 include ':app'
+include ':plog'

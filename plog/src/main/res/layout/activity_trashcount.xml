@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TrashCountActivity"
+    android:background="#67646F"
+    android:layout_gravity="center">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/trashcountRecyclerView"
+        android:layout_width="wrap_content"
+        android:layout_height="170dp"
+        android:orientation="vertical"
+        android:scrollbars="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/totalTxt"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/totalTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="total"
+        android:textColor="#ffffff"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/trashcountRecyclerView"/>
+
+    <!--
+    바닥 비닐 잘리는 것 때문에 대안으로 고민 중인 거
+    1. 위랑 똑같이 바닥에도 마진을 준다
+        => 넘 이상함
+    2. 바탕 색 바꾸기
+        => 앞에 총 개수 확인하는 창이랑 색 맞추는 게 좋을 것 같은데
+        그럼 앞에 색도 바꿔야 함 어두운 색으로 할 시 앞 배경과 안 어울리지 않을까 싶음
+    3. 가장 아래에 총 주운 개수 보일 수 있게 하기
+        => 이미 이전 창에서 총 주운 개수를 알려주기 때문에 굳이 싶긴 함
+    4. 하단에 종료하기 버튼?
+        => 종료시 서버로 넘겨줘야 하는 값이 있는데 그걸 처리할 수 있을지 걱정됨
+        4-1. 종료 버튼 클릭 시 핸드폰으로 종료 신호 가게 함
+            -> 종료 신호 받은 핸드폰은 플로깅 데이터 서버로 전송
+        4-2. 루트 등록 여부 확인
+            -> x 클릭 시 그냥 종료, o 클릭 시 핸드폰으로 루트 신호 보내고 핸드폰에서 서버로 데이터 전송
+        가뜩이나 램도 작고 배터리도 빨리 닳는데 너무 많은 걸 시키는 게 아닐까라는 생각이 듦
+        다른 버튼들도 다 작아서 실수로 잘못 누를 경우도 있음-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
