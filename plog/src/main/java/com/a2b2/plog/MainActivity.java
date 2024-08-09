@@ -26,6 +26,9 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
     private ConstraintLayout background;
     private static final String CAPABILITY_1_NAME = "capability_1";
     private int total = 0;
+    private TrashcountItem trashcountItem;
+    private String trashtype;
+    private int cnt;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
 
         trashtotal.setText(total + "/0");
 
+        trashcountItem = new TrashcountItem(trashtype,cnt);
+
+        Wearable.getDataClient(this).addListener(this);
 
         Wearable.getDataClient(this).addListener(new DataClient.OnDataChangedListener() {
             @Override
@@ -62,6 +68,10 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
             Intent intent = new Intent(MainActivity.this, TrashCountActivity.class);
             startActivityForResult(intent, REQUEST_CODE);
         });
+        findViewById(R.id.trashCount).setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, TrashCountActivity.class);
+            startActivityForResult(intent, REQUEST_CODE);
+        });
 
 //        trashEdit.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -77,8 +87,6 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
 //                startActivity(intent);
 //            }
 //        });
-        DataClient dataClient = Wearable.getDataClient(this);
-        dataClient.addListener(this);
 
     }
     @Override
@@ -86,23 +94,18 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
                 DataItem item = event.getDataItem();
-                if (item.getUri().getPath().equals("/path/to/data")) {
+                if (item.getUri().getPath().equals("/trash_data")) {
                     DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
                     String jsonString = dataMap.getString("json_data");
 
                     try {
-                        // JSON 문자열을 JSONObject로 변환
                         JSONObject jsonObject = new JSONObject(jsonString);
-                        String value1 = jsonObject.getString("key1");
-                        int value2 = jsonObject.getInt("key2");
+                        int count = jsonObject.getInt("count");
 
-                        km = findViewById(R.id.km);
-                        km.setText(value1);
-                        time = findViewById(R.id.time);
-                        time.setText(value2);
+                        // TrashCountItem의 cnt 변수에 수신한 count 값을 설정
+                        trashcountItem.getCnt();
 
-
-                        Log.d("WatchApp", "Received JSON data: key1=" + value1 + ", key2=" + value2);
+                        Log.d("WatchApp", "Received count: " + count);
                     } catch (Exception e) {
                         Log.e("WatchApp", "Failed to parse JSON data", e);
                     }

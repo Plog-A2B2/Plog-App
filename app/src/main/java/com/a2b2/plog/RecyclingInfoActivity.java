@@ -36,7 +36,7 @@ public class RecyclingInfoActivity extends AppCompatActivity {
         recycleInfoLinkBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = "https://www.example.com";
+                String url = "https://blisgo.com";
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(url));
                 startActivity(intent);

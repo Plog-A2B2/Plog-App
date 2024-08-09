@@ -13,6 +13,10 @@ public class TrashcountItem {
     public String getTrashtype() {
         return trashtype;
     }
+    public void setCnt(int cnt){
+        this.cnt = cnt;
+    }
+
 
     public int getCnt() {
         return cnt;
