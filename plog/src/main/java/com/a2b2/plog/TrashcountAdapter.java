@@ -1,5 +1,6 @@
 package com.a2b2.plog;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +10,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Wearable;
+
 import java.util.List;
 
-public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.TrashcountViewHolder> {
+public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.TrashcountViewHolder>  {
 
     private List<Integer> tData;
     private String[] trashTypes;
@@ -39,6 +48,7 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
                 notifyItemChanged(position);
                 updateTotal();
             }
+
         });
         holder.plus.setOnClickListener(v -> {
             tData.set(position, count + 1);

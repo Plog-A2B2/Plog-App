@@ -12,15 +12,17 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/trashcountRecyclerView"
         android:layout_width="wrap_content"
-        android:layout_height="170dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:scrollbars="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/totalTxt"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingTop="40dp"
+        android:paddingBottom="40dp"
+        android:clipToPadding="false"/>
 
-    <TextView
+    <!--<TextView
         android:id="@+id/totalTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -29,7 +31,7 @@
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/trashcountRecyclerView"/>
+        app:layout_constraintTop_toBottomOf="@+id/trashcountRecyclerView"/>-->
 
     <!--
     바닥 비닐 잘리는 것 때문에 대안으로 고민 중인 거
