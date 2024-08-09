@@ -43,6 +43,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
@@ -65,6 +69,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.kakao.vectormap.camera.CameraPosition;
 import com.kakao.vectormap.label.Label;
@@ -159,7 +164,7 @@ public class PloggingActivity extends AppCompatActivity {
             // 위치 정보를 기반으로 마커 추가
             for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
                 Location location = entry.getValue();
-                Log.d("trashcanVisible", String.valueOf(trashcanVisible));
+//                Log.d("trashcanVisible", String.valueOf(trashcanVisible));
                 if(trashcanVisible == true) {
                     addMarker(location.getLatitude(), location.getLongitude());
                 }
@@ -212,28 +217,37 @@ public class PloggingActivity extends AppCompatActivity {
         KakaoMapSdk.init(this, "1b96fc67568f72bcc29317e838ad740f");
         mapView = findViewById(R.id.map);
 
+
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000L).build();
+        locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000L)
+                .setWaitForAccurateLocation(false)
+                .setMinUpdateIntervalMillis(1000)
+                .setMaxUpdateDelayMillis(2000)
+                .build();
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 for (android.location.Location location : locationResult.getLocations()) {
+                    // 위치 정보를 lastLocation에 저장
+                    lastLocation = location;
+
                     // 서버로 위치 전송
-//                    sendLocationToServer(location.getLatitude(), location.getLongitude());
                     startLocationSendingTask();
 
-                    userLabel.moveTo(LatLng.from(location.getLatitude(), location.getLongitude()));
+                    userLabel.moveTo(LatLng.from(lastLocation.getLatitude(), lastLocation.getLongitude()));
 
                     // 경로 점 추가
-                    routePoints.add(LatLng.from(location.getLatitude(), location.getLongitude()));
-
-
+                    routePoints.add(LatLng.from(lastLocation.getLatitude(), lastLocation.getLongitude()));
                 }
             }
         };
 
+
         if (ContextCompat.checkSelfPermission(this, locationPermissions[0]) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, locationPermissions[1]) == PackageManager.PERMISSION_GRANTED) {
             getStartLocation();
+            startLocationUpdates(); // 위치 업데이트 시작
         } else {
             ActivityCompat.requestPermissions(this, locationPermissions, LOCATION_PERMISSION_REQUEST_CODE);
         }
@@ -386,18 +400,26 @@ public class PloggingActivity extends AppCompatActivity {
                             jsonObject.put("\""+trashType+"\"", count);
                             Log.d(trashType, Integer.toString(count));
 
+                            // JSON 객체를 문자열로 변환
+                            String jsonString = jsonObject.toString(); // 여기에 jsonString 변수를 선언하고 초기화합니다.
 
-                            // JSON을 문자열로 변환
-                            String jsonString = jsonObject.toString();
+                            // 데이터를 전송하는 코드 예시
+                            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create("/path/to/data");
+                            putDataMapRequest.getDataMap().putString("json_data", jsonString);
+                            PutDataRequest request = putDataMapRequest.asPutDataRequest();
+                            Task<DataItem> putDataTask = Wearable.getDataClient(getApplicationContext()).putDataItem(request);
 
-                            // PutDataMapRequest를 사용하여 데이터 전송
-                            PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/path/to/data");
-                            putDataMapReq.getDataMap().putString("json_data", jsonString);
-                            PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
-
-                            Wearable.getDataClient(getApplicationContext()).putDataItem(putDataReq)
-                                    .addOnSuccessListener(dataItem -> Log.d("MobileApp", "JSON data sent successfully"))
-                                    .addOnFailureListener(e -> Log.e("MobileApp", "Failed to send JSON data", e));
+                            putDataTask.addOnSuccessListener(new OnSuccessListener<DataItem>() {
+                                @Override
+                                public void onSuccess(DataItem dataItem) {
+                                    Log.d("App", "Data successfully sent: " + dataItem.getUri());
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(Exception e) {
+                                    Log.e("App", "Failed to send data", e);
+                                }
+                            });
                         } catch (Exception e) {
                             Log.e("MobileApp", "Failed to create JSON data", e);
                         }
@@ -506,6 +528,24 @@ public class PloggingActivity extends AppCompatActivity {
         };
         locationHandler.post(locationRunnable);
     }
+
+//    private void startLocationSendingTask() {
+//        final Handler locationHandler = new Handler(Looper.getMainLooper());
+//        final Runnable locationRunnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                if (lastLocation != null) {
+//                    UUID uuid  = UUID.fromString("11");
+//                    // 현재 위치를 서버에 전송
+//                    sendLocationToServer(lastLocation.getLatitude(), lastLocation.getLongitude(), UserManager.getInstance().getUserId());
+//
+//                }
+//                locationHandler.postDelayed(this, 5000); // 5초마다 반복
+//
+//            }
+//        };
+//        locationHandler.post(locationRunnable);
+//    }
 
     private void sendLocationToServer(double latitude, double longitude) {
         // 서버에 위치 전송하는 코드 구현

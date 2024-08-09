@@ -80,26 +80,56 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
         // Initial total update
        //  totalTxt.setText("Total: " + adapter.getTotalCount());
 
+// 앱 실행 시 워치에서 최신 데이터 요청 (필요 시 구현)
+        requestLatestDataFromWatch();
 
         //+앱이랑 연결해야함
+    }
+    private void requestLatestDataFromWatch() {
+        // 워치로부터 데이터를 요청하는 로직을 여기에 추가
     }
 
     @Override //핸드폰에서 값 받아오는 거
     public void onDataChanged(DataEventBuffer dataEvents) {
+        Log.d("WatchApp", "onDataChanged called, checking for data events...");
+
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
                 DataItem item = event.getDataItem();
+                Log.d("WatchApp", "Data event received. Path: " + item.getUri().getPath());
+
                 if (item.getUri().getPath().equals("/path/to/data")) {
                     DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
                     String jsonString = dataMap.getString("json_data");
+                    Log.d("WatchApp", "Received JSON string: " + jsonString);
 
                     try {
                         // JSON 문자열을 JSONObject로 변환
                         JSONObject jsonObject = new JSONObject(jsonString);
-                        String value1 = jsonObject.getString(trashType);
-                        int value2 = jsonObject.getInt("value");
 
-                        Log.d("WatchApp", "Received JSON data: key1=" + value1 + ", key2=" + value2);
+                        if(jsonObject != null) {
+                            for (int i = 0; i < trashTypes.length; i++) {
+                                int value = jsonObject.getInt(trashTypes[i]); // 쓰레기 종류별 개수를 가져옴
+                                Log.d("WatchApp", "Updating " + trashTypes[i] + " with value: " + value);
+
+                                dataList.set(i, value); // 해당 리스트 항목을 업데이트
+                            }
+
+                            // 어댑터를 통해 RecyclerView를 업데이트
+                            adapter.notifyDataSetChanged();
+                            Log.d("WatchApp", "RecyclerView updated with new data");
+
+                            // 총합 업데이트
+                            total = adapter.getTotalCount();
+                        } else {
+                            Log.w("WatchApp", "Received null JSONObject, resetting dataList to zeros.");
+
+                            for (int i = 0; i < trashTypes.length; i++) {
+                                dataList.set(i, 0); // 해당 리스트 항목을 업데이트
+                            }
+                        }
+
+                        //totalTxt.setText("Total: " + total); // UI에 총합 반영
                     } catch (Exception e) {
                         Log.e("WatchApp", "Failed to parse JSON data", e);
                     }
@@ -107,6 +137,7 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
             }
         }
     }
+
     @Override //백버튼 누를 시 메인으로 값 전달
     public void onBackPressed() {
         Intent resultIntent = new Intent();
@@ -133,5 +164,10 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Wearable.getDataClient(this).removeListener(this);
+    }
 
 }
