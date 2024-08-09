@@ -1,7 +1,9 @@
 package com.a2b2.plog;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -104,6 +106,33 @@ public class FinishActivity extends AppCompatActivity {
         downloadBtn = findViewById(R.id.downloadBtn);
         nextBtn = findViewById(R.id.nextBtn);
         routeCreateBtn = findViewById(R.id.routeBtn);
+
+        // routeBtn 버튼 클릭 리스너 설정
+        routeCreateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 팝업 다이얼로그 생성
+                AlertDialog.Builder builder = new AlertDialog.Builder(FinishActivity.this);
+                builder.setMessage("루트로 등록하시겠습니까?")
+                        .setPositiveButton("네", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // "네" 버튼 클릭 시 알림창 표시
+                                Toast.makeText(FinishActivity.this, "루트로 등록되었습니다", Toast.LENGTH_SHORT).show();
+                                // 다이얼로그 닫기
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton("아니요", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // "아니요" 버튼 클릭 시 다이얼로그 닫기
+                                dialog.dismiss();
+                            }
+                        });
+                // 다이얼로그 보여주기
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
 
         LinearLayout trashContainer1 = findViewById(R.id.trashContainer1);
         LinearLayout trashContainer2 = findViewById(R.id.trashContainer2);
