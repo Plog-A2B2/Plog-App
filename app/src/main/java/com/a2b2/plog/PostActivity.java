@@ -7,27 +7,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
-public class CommunityActivity extends AppCompatActivity {
+public class PostActivity extends AppCompatActivity {
 
     private ImageView rank, home, mission, mypage;
-    private ImageView test;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_community);
-
-        test = findViewById(R.id.communitytest);
-
-        test.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(CommunityActivity.this, PostActivity.class);
-                startActivity(intent);
-                overridePendingTransition(0, 0);
-                finish();
-            }
-        });
+        setContentView(R.layout.activity_post);
 
         rank = findViewById(R.id.rank);
         mission = findViewById(R.id.mission);
@@ -37,7 +24,7 @@ public class CommunityActivity extends AppCompatActivity {
         rank.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CommunityActivity.this, RankActivity.class);
+                Intent intent = new Intent(PostActivity.this, RankActivity.class);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
                 finish();
@@ -47,7 +34,7 @@ public class CommunityActivity extends AppCompatActivity {
         mission.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CommunityActivity.this, MissionActivity.class);
+                Intent intent = new Intent(PostActivity.this, MissionActivity.class);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
                 finish();
@@ -56,7 +43,7 @@ public class CommunityActivity extends AppCompatActivity {
         home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CommunityActivity.this, HomeActivity.class);
+                Intent intent = new Intent(PostActivity.this, HomeActivity.class);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
                 finish();
@@ -65,7 +52,7 @@ public class CommunityActivity extends AppCompatActivity {
         mypage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CommunityActivity.this, MyPageActivity.class);
+                Intent intent = new Intent(PostActivity.this, MyPageActivity.class);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
                 finish();
