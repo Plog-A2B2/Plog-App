@@ -42,8 +42,8 @@ public class RouteListActivity extends AppCompatActivity implements RouteAdapter
 
         // 예제 데이터
         routeList = new ArrayList<>();
-        routeList.add(new Route("id1","서울", "부산", "400km", "4시간"));
-        routeList.add(new Route("id2", "인천", "대전", "150km", "2시간"));
+        routeList.add(new Route("route1","수원대학교", "안녕동", "2km", "2시간"));
+        routeList.add(new Route("route2", "수원역", "종합운동장", "3km", "3시간"));
         // 추가 루트 데이터
 
         recyclerView = findViewById(R.id.recyclerView);

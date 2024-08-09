@@ -102,5 +102,7 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
 
     public void setData(List<Integer> data) {
         this.tData = data;
+        notifyDataSetChanged();
+
     }
 }
