@@ -46,27 +46,22 @@ public class HomeActivity extends AppCompatActivity {
 
         ploggingItems = new ArrayList<>();
         // 샘플 데이터 추가
-        ploggingItems.add(new RealtimePloggerItem(R.drawable.ic_runner, "5 km", "00:30"));
-        ploggingItems.add(new RealtimePloggerItem(R.drawable.ic_runner, "3 km", "01:26"));
-        ploggingItems.add(new RealtimePloggerItem(R.drawable.ic_runner, "7 km", "02:07"));
-        ploggingItems.add(new RealtimePloggerItem(R.drawable.ic_runner, "7 km", "02:07"));
-        ploggingItems.add(new RealtimePloggerItem(R.drawable.ic_runner, "7 km", "02:07"));
-        ploggingItems.add(new RealtimePloggerItem(R.drawable.ic_runner, "7 km", "02:07"));
-        ploggingItems.add(new RealtimePloggerItem(R.drawable.ic_runner, "7 km", "02:07"));
-        ploggingItems.add(new RealtimePloggerItem(R.drawable.ic_runner, "7 km", "02:07"));
-        ploggingItems.add(new RealtimePloggerItem(R.drawable.ic_runner, "7 km", "02:07"));
-        ploggingItems.add(new RealtimePloggerItem(R.drawable.ic_runner, "7 km", "02:07"));
-        ploggingItems.add(new RealtimePloggerItem(R.drawable.ic_runner, "7 km", "02:07"));
+        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
+        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
+        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
+        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
+        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
+        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
+
 
         ploggerAdapter = new PloggerAdapter(ploggingItems);
         recyclerView.setAdapter(ploggerAdapter);
 
         trashcanVisibleSwitch = findViewById(R.id.trashcanVisibleSwitch);
         setRoute = findViewById(R.id.routeBtn);
-        trashGoalEditText = findViewById(R.id.trashGoalEditText);
 
         if (prefsHelper.getRoute() != null) {
-            setRoute.setText(prefsHelper.getRoute().getId());
+            setRoute.setText(prefsHelper.getRoute().getOrigin());
         }
 
         trashcanVisibleSwitch.setChecked(true); //디폴트값: 쓰레기통 위치 보이기

@@ -5,21 +5,18 @@ import android.os.Parcelable;
 
 public class RealtimePloggerItem implements Parcelable {
     private int icon;
-    private String distance;
-    private String time;
+    private String nickname;
 
     // Constructor
-    public RealtimePloggerItem(int icon, String distance, String time) {
+    public RealtimePloggerItem(int icon, String nickname) {
         this.icon = icon;
-        this.distance = distance;
-        this.time = time;
+        this.nickname = nickname;
     }
 
     // Parcelable implementation
     protected RealtimePloggerItem(Parcel in) {
         icon = in.readInt();
-        distance = in.readString();
-        time = in.readString();
+        nickname = in.readString();
     }
 
     public static final Creator<RealtimePloggerItem> CREATOR = new Creator<RealtimePloggerItem>() {
@@ -37,8 +34,7 @@ public class RealtimePloggerItem implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(icon);
-        dest.writeString(distance);
-        dest.writeString(time);
+        dest.writeString(nickname);
     }
 
     @Override
@@ -51,11 +47,8 @@ public class RealtimePloggerItem implements Parcelable {
         return icon;
     }
 
-    public String getDistance() {
-        return distance;
+    public String getNickname() {
+        return nickname;
     }
 
-    public String getTime() {
-        return time;
-    }
 }

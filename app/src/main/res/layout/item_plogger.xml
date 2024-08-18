@@ -9,19 +9,10 @@
     android:gravity="center">
 
     <TextView
-        android:id="@+id/distance"
+        android:id="@+id/nickname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0 km"
-        android:textColor="@color/white"
-        android:textSize="17sp"
-        android:fontFamily="@font/nanumbarungothiclight"/>
-
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="00:00"
+        android:text="nickname"
         android:textColor="@color/white"
         android:textSize="17sp"
         android:fontFamily="@font/nanumbarungothiclight"/>
@@ -41,10 +32,10 @@
 
         <ImageView
             android:id="@+id/runner"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_marginTop="10dp"
-            android:src="@drawable/ic_runner" />
+            android:src="@drawable/badgetest" />
 
     </LinearLayout>
 
