@@ -29,8 +29,7 @@ public class PloggerAdapter extends RecyclerView.Adapter<PloggerAdapter.Plogging
     public void onBindViewHolder(@NonNull PloggingViewHolder holder, int position) {
         RealtimePloggerItem item = ploggingItems.get(position);
         holder.icon.setImageResource(item.getIcon());
-        holder.distance.setText(item.getDistance());
-        holder.time.setText(item.getTime());
+        holder.distance.setText(item.getNickname());
     }
 
     @Override
@@ -41,13 +40,11 @@ public class PloggerAdapter extends RecyclerView.Adapter<PloggerAdapter.Plogging
     public static class PloggingViewHolder extends RecyclerView.ViewHolder {
         ImageView icon;
         TextView distance;
-        TextView time;
 
         public PloggingViewHolder(@NonNull View itemView) {
             super(itemView);
             icon = itemView.findViewById(R.id.runner);
-            distance = itemView.findViewById(R.id.distance);
-            time = itemView.findViewById(R.id.time);
+            distance = itemView.findViewById(R.id.nickname);
         }
     }
 }

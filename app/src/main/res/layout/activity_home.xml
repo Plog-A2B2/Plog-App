@@ -106,7 +106,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="@id/settingboxback"
         app:layout_constraintTop_toTopOf="@id/settingboxback"
-        android:text="쓰레기통 위치 보이기\n\n\n루트 설정\n\n\n목표 쓰레기 개수"
+        android:text="쓰레기통 위치 보이기\n\n\n루트 설정"
         android:textColor="@color/black"
         android:textSize="24sp"
         android:layout_marginLeft="38dp"
@@ -136,29 +136,6 @@
         android:layout_marginTop="110dp"
         android:layout_marginLeft="-60dp"
         android:background="#E4E8E7"
-        android:fontFamily="@font/nanumbarungothiclight"/>
-
-    <EditText
-        android:id="@+id/trashGoalEditText"
-        android:layout_width="35dp"
-        android:layout_height="45dp"
-        android:inputType="number"
-        app:layout_constraintLeft_toRightOf="@id/text"
-        app:layout_constraintTop_toTopOf="@id/settingboxback"
-        android:layout_marginTop="170dp"
-        android:layout_marginLeft="6dp"
-        android:fontFamily="@font/nanumbarungothiclight"/>
-
-    <TextView
-        android:layout_width="35dp"
-        android:layout_height="wrap_content"
-        android:text="개"
-        android:textSize="22sp"
-        android:textColor="@color/black"
-        app:layout_constraintLeft_toRightOf="@id/text"
-        app:layout_constraintTop_toTopOf="@id/settingboxback"
-        android:layout_marginTop="181dp"
-        android:layout_marginLeft="41dp"
         android:fontFamily="@font/nanumbarungothiclight"/>
 
     <android.widget.Button
