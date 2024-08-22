@@ -7,7 +7,8 @@
     android:layout_height="wrap_content"
     android:background="@drawable/rounded_green_square"
     android:layout_gravity="center"
-    android:id="@+id/community_back">
+    android:id="@+id/community_back"
+    android:layout_margin="10dp">
 
     <LinearLayout
         android:layout_marginTop="10dp"
@@ -59,7 +60,7 @@
         android:layout_marginTop="10dp"
         android:fontFamily="@font/nanumbarungothic"
         android:text="8월 25일 플로깅 모집합니다~ "
-        android:textSize="30sp"
+        android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"

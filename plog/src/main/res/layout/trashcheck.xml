@@ -27,6 +27,7 @@
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.584"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title">
 
@@ -34,16 +35,17 @@
             android:id="@+id/trash"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00/00"
-            android:textSize="30sp"
-            android:textColor="#ffffff"
+            android:layout_margin="10dp"
             android:fontFamily="@font/nanumbarungothicbold"
-            android:layout_margin="10dp"/>
+            android:text="0"
+            android:textColor="#ffffff"
+            android:textSize="30sp" />
+
         <ImageView
             android:id="@+id/trashEdit"
             android:layout_width="30sp"
             android:layout_height="30sp"
-            android:src="@drawable/editicon"/>
+            android:src="@drawable/editicon" />
     </LinearLayout>
 
 
