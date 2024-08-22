@@ -66,10 +66,12 @@ public class HomeActivity extends AppCompatActivity {
 
         trashcanVisibleSwitch.setChecked(true); //디폴트값: 쓰레기통 위치 보이기
 
+        //쓰레기통 위치 보이게 하기로 하면 서버로 쓰레기통 위치 달라고 요청해야함 유유아이디, 현위치 위도 경도, 문의하는 내용
+
         // 스위치 상태 변경 리스너 설정
         trashcanVisibleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             trashcanVisible = isChecked;
-            Log.d("trashcanVisible", "trashcan : " + trashcanVisible);
+            //Log.d("trashcanVisible", "trashcan : " + trashcanVisible);
         });
 
         setRoute.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +89,7 @@ public class HomeActivity extends AppCompatActivity {
         plggingStartBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setTrashGoal();
+
                 Intent intent = new Intent(HomeActivity.this, PloggingActivity.class);
                 intent.putExtra("ploggingItems", new ArrayList<>(ploggingItems));
                 intent.putExtra("trashcanVisible", trashcanVisible);
@@ -142,12 +144,4 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-
-    void setTrashGoal() {
-        String numberInput = trashGoalEditText.getText().toString();
-
-        if (!numberInput.isEmpty()){
-            trashGoal = Integer.parseInt(numberInput);
-        }
-    }
 }

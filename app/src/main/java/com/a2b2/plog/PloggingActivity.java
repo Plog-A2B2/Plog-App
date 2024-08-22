@@ -36,6 +36,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -47,6 +48,7 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kakao.vectormap.GestureType;
 import com.kakao.vectormap.KakaoMap;
 import com.kakao.vectormap.KakaoMapReadyCallback;
@@ -83,6 +85,7 @@ public class PloggingActivity extends AppCompatActivity {
 
 
     private ImageView backBtn;
+    private ImageView trashReport;
     private RecyclerView recyclerView;
     private PloggerAdapter ploggerAdapter;
     private List<RealtimePloggerItem> ploggingItems;
@@ -209,6 +212,34 @@ public class PloggingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plogging);
+
+        trashReport = findViewById(R.id.trashReport);
+        trashReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(PloggingActivity.this);
+               // builder.setTitle("확인");
+                builder.setMessage("🗑️쓰레기통 위치 신고하기");
+                builder.setPositiveButton("쓰레기통이 없어요!", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //쓰레기통 없다는 거 백으로 전송하기(유유아이디, 현 위치 위도경도, 쓰레기통 없음
+                        Toast.makeText(PloggingActivity.this, "신고해주셔서 감사합니다", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("쓰레기통 있어요!", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(PloggingActivity.this, "신고해주셔서 감사합니다", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                builder.setNeutralButton("취소", null);
+                builder.create().show();
+
+
+            }
+        });
 
         KakaoMapSdk.init(this, "1b96fc67568f72bcc29317e838ad740f");
         mapView = findViewById(R.id.map);
