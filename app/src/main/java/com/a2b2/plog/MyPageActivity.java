@@ -10,6 +10,7 @@ import android.widget.ImageView;
 public class MyPageActivity extends AppCompatActivity {
 
     private ImageView rank, community, mission, home;
+    private int n=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
