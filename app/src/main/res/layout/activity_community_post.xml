@@ -1,37 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CommunityPostActivity">
-    <ImageView
-        android:id="@+id/backBtn"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="30dp"
-        android:src="@drawable/back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="게시글 작성"
-        android:fontFamily="@font/nanumbarungothicbold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/backBtn"
-        android:textSize="30sp"/>
-    <LinearLayout
+    tools:context=".CommunityPostActivity"
+    android:orientation="vertical">
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
+        <ImageView
+            android:id="@+id/backBtn"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="40dp"
+            android:src="@drawable/back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="게시글 작성"
+            android:fontFamily="@font/nanumbarungothicbold"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/backBtn"
+            android:textSize="30sp"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/backBtn"
+        android:layout_marginTop="10dp"
         android:layout_margin="10dp"
-        android:padding="20dp">
+        android:padding="20dp"
+        android:background="@drawable/rounded_stroke_square">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -41,12 +48,13 @@
                 android:layout_height="wrap_content"
                 android:text="제목 : "
                 android:fontFamily="@font/nanumbarungothiclight"
-                android:textSize="25sp"/>
+                android:textSize="15sp"/>
             <EditText
                 android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/nanumbarungothiclight"/>
+                android:fontFamily="@font/nanumbarungothiclight"
+                android:textSize="15sp"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -57,15 +65,79 @@
                 android:layout_height="wrap_content"
                 android:text="플로깅 장소 : "
                 android:fontFamily="@font/nanumbarungothiclight"
-                android:textSize="25sp"/>
+                android:textSize="15sp"/>
             <EditText
                 android:id="@+id/ploggingPlace"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="플로깅 할 장소를 적어주세요!"
-                android:fontFamily="@font/nanumbarungothiclight"/>
+                android:fontFamily="@font/nanumbarungothiclight"
+                android:textSize="15sp"/>
         </LinearLayout>
-
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="모임일시 : "
+                android:fontFamily="@font/nanumbarungothiclight"
+                android:textSize="15sp"/>
+            <EditText
+                android:id="@+id/meetingDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="날짜와 정확한 시간을 정해주세요!"
+                android:fontFamily="@font/nanumbarungothiclight"
+                android:textSize="15sp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="모임장소 : "
+                android:fontFamily="@font/nanumbarungothiclight"
+                android:textSize="15sp"/>
+            <EditText
+                android:id="@+id/meetingPlace"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="모임 장소를 적어주세요!"
+                android:fontFamily="@font/nanumbarungothiclight"
+                android:textSize="15sp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="내용"
+                android:fontFamily="@font/nanumbarungothiclight"
+                android:textSize="15sp"/>
+            <EditText
+                android:id="@+id/text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/nanumbarungothiclight"
+                android:textSize="15sp"/>
+        </LinearLayout>
     </LinearLayout>
+    <Button
+        android:id="@+id/enterBtn"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:text="등록"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="10dp"
+        android:background="#9A8DBD"
+        android:fontFamily="@font/nanumbarungothiclight"
+        android:textColor="#ffffff"
+        android:textSize="15sp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
