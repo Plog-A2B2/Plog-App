@@ -1,0 +1,6 @@
+<!-- rounded_filled_square.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#ffffff" /> <!-- 채워진 도형의 색상 지정 -->
+    <corners android:radius="170dp" /> <!-- 모서리의 반지름을 조절하여 둥근 모서리 생성 -->
+</shape>

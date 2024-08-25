@@ -37,6 +37,9 @@
                 android:resource="@xml/file_paths" />
         </provider>
         <activity
+            android:name=".MyCommunityActivity"
+            android:exported="false" />
+        <activity
             android:name=".CommunityPostActivity"
             android:exported="false" />
         <activity
