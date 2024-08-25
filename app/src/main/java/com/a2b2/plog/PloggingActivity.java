@@ -188,8 +188,6 @@ public class PloggingActivity extends AppCompatActivity {
 //                    // 카메라 위치에 따라 마커를 동적으로 로드
 //                    LatLng newCameraPosition = cameraPosition.getPosition();
 //                    addMarkersNearby(locationMap, newCameraPosition, 30000);
-//
-////                    loadMarkersInView(locationMap);
 
                 }
             });
@@ -203,6 +201,8 @@ public class PloggingActivity extends AppCompatActivity {
             userLabel = labelLayer.addLabel(LabelOptions.from("userLabel", startPosition)
                     .setStyles(LabelStyle.from(resizedBitmap).setAnchorPoint(0.5f, 0.5f))
                     .setRank(1));
+
+            isUserLabelInitialized = true;
 
             trackingManager = map.getTrackingManager();
             trackingManager.startTracking(userLabel);
@@ -234,6 +234,8 @@ public class PloggingActivity extends AppCompatActivity {
             return 17;
         }
     };
+
+    private boolean isUserLabelInitialized = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -272,17 +274,27 @@ public class PloggingActivity extends AppCompatActivity {
         mapView = findViewById(R.id.map);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        if (ContextCompat.checkSelfPermission(this, locationPermissions[0]) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, locationPermissions[1]) == PackageManager.PERMISSION_GRANTED) {
+            getStartLocation();
+        } else {
+            ActivityCompat.requestPermissions(this, locationPermissions, LOCATION_PERMISSION_REQUEST_CODE);
+        }
+
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000L).build();
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 for (android.location.Location location : locationResult.getLocations()) {
-                    // 서버로 위치 전송
-//                    sendLocationToServer(location.getLatitude(), location.getLongitude());
-                    startLocationSendingTask();
 
-                    userLabel.moveTo(LatLng.from(location.getLatitude(), location.getLongitude()));
+                    startLocationSendingTask(location);
+                    Log.d("onLocationResult", "onLocationResult executed");
 
+                    if (isUserLabelInitialized && userLabel != null) {
+                        userLabel.moveTo(LatLng.from(location.getLatitude(), location.getLongitude()));
+                    } else {
+                        Log.d("PloggingActivity", "userLabel is not initialized yet.");
+                    }
                     // 경로 점 추가
                     routePoints.add(LatLng.from(location.getLatitude(), location.getLongitude()));
 
@@ -291,11 +303,7 @@ public class PloggingActivity extends AppCompatActivity {
             }
         };
 
-        if (ContextCompat.checkSelfPermission(this, locationPermissions[0]) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, locationPermissions[1]) == PackageManager.PERMISSION_GRANTED) {
-            getStartLocation();
-        } else {
-            ActivityCompat.requestPermissions(this, locationPermissions, LOCATION_PERMISSION_REQUEST_CODE);
-        }
+
 
 
         userCurrentLocation = findViewById(R.id.current_location);
@@ -502,8 +510,9 @@ public class PloggingActivity extends AppCompatActivity {
                 trashContainer.addView(itemView);
             }
             startPlogging();
-            setupLocationCallback();
             startLocationUpdates();
+
+            setupLocationCallback();
 
             // 종료하기 버튼 클릭 이벤트
             Button finishButton = findViewById(R.id.endBtn);
@@ -552,32 +561,6 @@ public class PloggingActivity extends AppCompatActivity {
 
     }
 
-    // 현재 화면에 보이는 마커만 추가로 로드
-    private void loadMarkersInView(Map<String, com.a2b2.plog.Location> locationMap) {
-
-        Log.d("loadMarkersInView", "loadMarkersInView executed");
-        LatLng position = map.fromScreenPoint(100, 100);
-
-        for (Map.Entry<String, com.a2b2.plog.Location> entry : locationMap.entrySet()) {
-            com.a2b2.plog.Location location = entry.getValue();
-
-            // 좌표에 해당하는 지도화면(viewport) 스크린 상 위치를 가져온다.
-            Point point = map.toScreenPoint(LatLng.from(location.getLatitude(), location.getLongitude()));
-            float[] distance = new float[1];
-
-            Location.distanceBetween(position.getLatitude(), position.getLongitude(),
-                    location.getLatitude(), location.getLongitude(), distance);
-            Log.d("loadMarkersInView", "distance: " + distance[0]);
-
-            // 거리 계산 결과가 10km 이하일 경우 마커를 추가
-            if (distance[0] <= 10000) { // 10km는 10000미터
-                Log.d("loadMarkersInView", "add marker");
-
-                addMarker(location.getLatitude(), location.getLongitude());
-            }
-        }
-    }
-
     private void addMarkersNearby(Map<String, com.a2b2.plog.Location> locationMap, LatLng centerPosition, int radius) {
         Log.d("addMarkersNearby", "addMarkersNearby executed");
 
@@ -593,7 +576,7 @@ public class PloggingActivity extends AppCompatActivity {
 
             // 거리 계산 및 반경 확인
             if (distance[0] <= radius) {
-                Log.d("loadMarkersInView", "add marker");
+                Log.d("addMarkersNearby", "add marker");
 
                 addMarker(location.getLatitude(), location.getLongitude());
             }
@@ -617,16 +600,19 @@ public class PloggingActivity extends AppCompatActivity {
         startLocationUpdates();
     }
 
-    private void startLocationSendingTask() {
+    private void startLocationSendingTask(android.location.Location location) {
+
+        Log.d("startLocationSendingTask", "startLocationSendingTask executed");
+
         final Handler locationHandler = new Handler(Looper.getMainLooper());
         final Runnable locationRunnable = new Runnable() {
             @Override
             public void run() {
-                if (lastLocation != null) {
-                    UUID uuid  =UUID.fromString("11");
+                if (location != null) {
+//                    UUID uuid  =UUID.fromString("11");
                     // 현재 위치를 서버에 전송
-                    sendLocationToServer(lastLocation.getLatitude(), lastLocation.getLongitude(), UserManager.getInstance().getUserId());
-
+                    sendLocationToServer(location.getLatitude(), location.getLongitude(), UserManager.getInstance().getUserId());
+                    Log.d("startLocationSendingTask", "sendLocationToServer called");
                 }
                 locationHandler.postDelayed(this, 5000); // 5초마다 반복
 
@@ -639,7 +625,8 @@ public class PloggingActivity extends AppCompatActivity {
         // 서버에 위치 전송하는 코드 구현
         // 예를 들어, Retrofit을 사용할 수 있습니다.
         // 여기에 네트워크 요청 코드를 작성해야 합니다.
-        Log.d("getLocation", "Location sent to server: Lat: " + latitude + ", Lng: " + longitude);
+        Log.d("sendLocationToServer", "Location sent to server: Lat: " + latitude + ", Lng: " + longitude);
+        Log.d("sendLocationToServer", "user uuid: " + uuid);
     }
 
 
@@ -782,28 +769,28 @@ public class PloggingActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void addOrUpdateUserMarker(double latitude, double longitude) {
-        LatLng userLatLng = LatLng.from(latitude, longitude);
-
-        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
-
-        // 원하는 크기로 이미지 조정
-        int newWidth = 60; // 새로운 너비 (픽셀 단위)
-        int newHeight = 60; // 새로운 높이 (픽셀 단위)
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
-
-        // 새 마커 추가
-        LabelOptions newMarker = LabelOptions.from(userLatLng)
-                .setStyles(LabelStyles.from(LabelStyle.from(resizedBitmap).setZoomLevel(15)));
-
-
-        userMarkers.put(userMarkerKey, newMarker);
-        userLabel = labelLayer.addLabel(newMarker);
-
-        //라벨의 위치가 변하더라도 항상 화면 중앙에 위치할 수 있도록 trackingManager를 통해 tracking을 시작합니다.
-        TrackingManager trackingManager = map.getTrackingManager();
-        trackingManager.startTracking(userLabel);
-    }
+//    private void addOrUpdateUserMarker(double latitude, double longitude) {
+//        LatLng userLatLng = LatLng.from(latitude, longitude);
+//
+//        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
+//
+//        // 원하는 크기로 이미지 조정
+//        int newWidth = 60; // 새로운 너비 (픽셀 단위)
+//        int newHeight = 60; // 새로운 높이 (픽셀 단위)
+//        Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
+//
+//        // 새 마커 추가
+//        LabelOptions newMarker = LabelOptions.from(userLatLng)
+//                .setStyles(LabelStyles.from(LabelStyle.from(resizedBitmap).setZoomLevel(15)));
+//
+//
+//        userMarkers.put(userMarkerKey, newMarker);
+//        userLabel = labelLayer.addLabel(newMarker);
+//
+//        //라벨의 위치가 변하더라도 항상 화면 중앙에 위치할 수 있도록 trackingManager를 통해 tracking을 시작합니다.
+//        TrackingManager trackingManager = map.getTrackingManager();
+//        trackingManager.startTracking(userLabel);
+//    }
 
     private void sendJsonData() {
 
