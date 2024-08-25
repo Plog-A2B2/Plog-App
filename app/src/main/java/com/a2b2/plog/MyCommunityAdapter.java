@@ -19,27 +19,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.time.LocalDate;
 import java.util.List;
 
-public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.CommunityViewHolder> {
-    private List<CommunityItem> communityList;
+public class MyCommunityAdapter extends RecyclerView.Adapter<MyCommunityAdapter.MyCommunityViewHolder> {
+    private List<MyCommunityItem> MycommunityList;
     private Context context;
-    public CommunityAdapter(List<CommunityItem> communityList, Context context){
-        this.communityList = communityList;
+    public MyCommunityAdapter(List<MyCommunityItem> MycommunityList, Context context){
+        this.MycommunityList = MycommunityList;
         this.context = context;}
     @NonNull
     @Override
-    public CommunityAdapter.CommunityViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MyCommunityAdapter.MyCommunityViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_community, parent, false);
-        return new CommunityViewHolder(v);
+        return new MyCommunityViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CommunityAdapter.CommunityViewHolder holder, int position) {
-
-        CommunityItem communityItem = communityList.get(position);
-        holder.badge.setImageResource(communityItem.getBadge());
-        holder.nickname.setText(communityItem.getNickname());
-        holder.date.setText(communityItem.getDate());
-        holder.title.setText(communityItem.getTitle());
+    public void onBindViewHolder(@NonNull MyCommunityAdapter.MyCommunityViewHolder holder, int position) {
+        MyCommunityItem MycommunityItem = MycommunityList.get(position);
+        holder.badge.setImageResource(MycommunityItem.getBadge());
+        holder.nickname.setText(MycommunityItem.getNickname());
+        holder.date.setText(MycommunityItem.getDate());
+        holder.title.setText(MycommunityItem.getTitle());
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, CommunityPostShowActivity.class);
             context.startActivity(intent);
@@ -53,30 +52,20 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
         }
 
         holder.itemView.setBackground(background);
-
-
-
-
     }
-
     @Override
     public int getItemCount() {
-        return communityList.size();
+        return MycommunityList.size();
     }
-
-    public class CommunityViewHolder extends RecyclerView.ViewHolder {
+    public class MyCommunityViewHolder extends RecyclerView.ViewHolder {
         public ImageView badge;
         public TextView nickname, title,date;
-
-
-        public CommunityViewHolder(@NonNull View itemView) {
+        public MyCommunityViewHolder(@NonNull View itemView) {
             super(itemView);
             badge = itemView.findViewById(R.id.badge);
             nickname = itemView.findViewById(R.id.nickname);
             title = itemView.findViewById(R.id.community_title);
             date = itemView.findViewById(R.id.date);
-
-
         }
     }
 }

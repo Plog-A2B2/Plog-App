@@ -94,5 +94,15 @@ public class CommunityActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        ImageView myCommunity = findViewById(R.id.joinBtn);
+        myCommunity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CommunityActivity.this, MyCommunityActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 }

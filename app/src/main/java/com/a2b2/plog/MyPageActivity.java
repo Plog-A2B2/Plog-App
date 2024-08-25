@@ -11,6 +11,7 @@ public class MyPageActivity extends AppCompatActivity {
 
     private ImageView rank, community, mission, home;
     private int n=0;
+    private android.widget.Button  myCommunityBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,15 @@ public class MyPageActivity extends AppCompatActivity {
                 Intent intent = new Intent(MyPageActivity.this, MissionActivity.class);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
+                finish();
+            }
+        });
+        myCommunityBtn = findViewById(R.id.myCommunityTaskBtn);
+        myCommunityBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MyPageActivity.this, MyCommunityActivity.class);
+                startActivity(intent);
                 finish();
             }
         });
