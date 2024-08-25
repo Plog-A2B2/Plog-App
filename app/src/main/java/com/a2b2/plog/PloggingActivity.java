@@ -2,6 +2,9 @@ package com.a2b2.plog;
 
 import static androidx.fragment.app.FragmentManager.TAG;
 
+import android.graphics.Point;
+import android.location.Location;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +22,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -77,6 +81,7 @@ import com.kakao.vectormap.label.LabelStyle;
 import com.kakao.vectormap.label.LabelStyles;
 
 import com.kakao.vectormap.label.TrackingManager;
+import com.kakao.vectormap.shape.DimScreenLayer;
 
 import org.json.JSONObject;
 
@@ -158,17 +163,36 @@ public class PloggingActivity extends AppCompatActivity {
             labelLayer = map.getLabelManager().getLayer();
 
             // 엑셀 파일에서 위치 정보를 가져옴
-            Map<String, Location> locationMap = ExcelUtils.readExcelFile(PloggingActivity.this, "trashcan_location.xlsx");
+            Map<String, com.a2b2.plog.Location> locationMap = ExcelUtils.readExcelFile(PloggingActivity.this, "trashcan_location.xlsx");
 
-            // 위치 정보를 기반으로 마커 추가
-            for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
-                Location location = entry.getValue();
+//             위치 정보를 기반으로 마커 추가
+            for (Map.Entry<String, com.a2b2.plog.Location> entry : locationMap.entrySet()) {
+                com.a2b2.plog.Location location = entry.getValue();
                 //Log.d("trashcanVisible", String.valueOf(trashcanVisible));
                 if(trashcanVisible == true) {
                     addMarker(location.getLatitude(), location.getLongitude());
                 }
             }
+// 현재 사용자 위치를 중심으로 마커를 필터링하여 추가
+//            addMarkersNearby(locationMap, startPosition, 5000); // 5000미터 (5킬로미터) 반경
+            setupTracking(startPosition);
 
+//            loadMarkersInView(locationMap);
+
+            // 지도 이동 이벤트 설정
+            map.setOnCameraMoveEndListener(new KakaoMap.OnCameraMoveEndListener() {
+                @Override
+                public void onCameraMoveEnd(@NonNull KakaoMap kakaoMap,
+                                            @NonNull CameraPosition cameraPosition,
+                                            @NonNull GestureType gestureType) {
+//                    // 카메라 위치에 따라 마커를 동적으로 로드
+//                    LatLng newCameraPosition = cameraPosition.getPosition();
+//                    addMarkersNearby(locationMap, newCameraPosition, 30000);
+//
+////                    loadMarkersInView(locationMap);
+
+                }
+            });
             Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
 
             // 원하는 크기로 이미지 조정
@@ -191,8 +215,11 @@ public class PloggingActivity extends AppCompatActivity {
                 public void onCameraMoveEnd(@NonNull KakaoMap kakaoMap,
                                             @NonNull CameraPosition cameraPosition,
                                             @NonNull GestureType gestureType) {
-
+// 카메라 위치에 따라 마커를 동적으로 로드
+//                    LatLng newCameraPosition = cameraPosition.getPosition();
+//                    addMarkersNearby(locationMap, newCameraPosition, 30000);
                     trackingManager.stopTracking();
+
                 }
             });
         }
@@ -524,6 +551,72 @@ public class PloggingActivity extends AppCompatActivity {
         fusedLocationClient.removeLocationUpdates(locationCallback);
 
     }
+
+    // 현재 화면에 보이는 마커만 추가로 로드
+    private void loadMarkersInView(Map<String, com.a2b2.plog.Location> locationMap) {
+
+        Log.d("loadMarkersInView", "loadMarkersInView executed");
+        LatLng position = map.fromScreenPoint(100, 100);
+
+        for (Map.Entry<String, com.a2b2.plog.Location> entry : locationMap.entrySet()) {
+            com.a2b2.plog.Location location = entry.getValue();
+
+            // 좌표에 해당하는 지도화면(viewport) 스크린 상 위치를 가져온다.
+            Point point = map.toScreenPoint(LatLng.from(location.getLatitude(), location.getLongitude()));
+            float[] distance = new float[1];
+
+            Location.distanceBetween(position.getLatitude(), position.getLongitude(),
+                    location.getLatitude(), location.getLongitude(), distance);
+            Log.d("loadMarkersInView", "distance: " + distance[0]);
+
+            // 거리 계산 결과가 10km 이하일 경우 마커를 추가
+            if (distance[0] <= 10000) { // 10km는 10000미터
+                Log.d("loadMarkersInView", "add marker");
+
+                addMarker(location.getLatitude(), location.getLongitude());
+            }
+        }
+    }
+
+    private void addMarkersNearby(Map<String, com.a2b2.plog.Location> locationMap, LatLng centerPosition, int radius) {
+        Log.d("addMarkersNearby", "addMarkersNearby executed");
+
+
+        for (Map.Entry<String, com.a2b2.plog.Location> entry : locationMap.entrySet()) {
+            com.a2b2.plog.Location location = entry.getValue();
+
+            // 카메라 위치와 마커 간 거리 계산
+            float[] distance = new float[1];
+            Location.distanceBetween(centerPosition.latitude, centerPosition.longitude,
+                    location.getLatitude(), location.getLongitude(), distance);
+            Log.d("addMarkersNearby", "distance: " + distance[0]);
+
+            // 거리 계산 및 반경 확인
+            if (distance[0] <= radius) {
+                Log.d("loadMarkersInView", "add marker");
+
+                addMarker(location.getLatitude(), location.getLongitude());
+            }
+        }
+    }
+
+    private void setupTracking(LatLng startPosition) {
+        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
+
+        // 원하는 크기로 이미지 조정
+        int newWidth = 70; // 새로운 너비 (픽셀 단위)
+        int newHeight = 70; // 새로운 높이 (픽셀 단위)
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
+
+        userLabel = labelLayer.addLabel(LabelOptions.from("userLabel", startPosition)
+                .setStyles(LabelStyle.from(resizedBitmap).setAnchorPoint(0.5f, 0.5f))
+                .setRank(1));
+
+        trackingManager = map.getTrackingManager();
+        trackingManager.startTracking(userLabel);
+        startLocationUpdates();
+    }
+
     private void startLocationSendingTask() {
         final Handler locationHandler = new Handler(Looper.getMainLooper());
         final Runnable locationRunnable = new Runnable() {

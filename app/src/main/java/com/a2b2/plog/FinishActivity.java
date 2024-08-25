@@ -1,26 +1,44 @@
 package com.a2b2.plog;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.Manifest;
+
 
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
+import com.google.android.material.snackbar.Snackbar;
 import com.kakao.vectormap.GestureType;
 import com.kakao.vectormap.KakaoMap;
 import com.kakao.vectormap.KakaoMapReadyCallback;
@@ -41,6 +59,8 @@ import com.kakao.vectormap.shape.PolylineOptions;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -72,6 +92,15 @@ public class FinishActivity extends AppCompatActivity {
     private String trashType;
     private final String url = "http://15.164.152.246:8080/trash/E9E37FE2-FE90-4D51-9422-5E1475E8AC1A/record";
 
+    private static final int REQUEST_CAMERA_PERMISSION = 200;
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    private String currentPhotoPath;
+    private ImageView mapRouteSnapShot;
+
+    private boolean isPhotoVisible = false;
+    private ImageView switchViewButton;
+    private ImageView photoImageView;
 
 
     @Override
@@ -137,7 +166,6 @@ public class FinishActivity extends AppCompatActivity {
         LinearLayout trashContainer1 = findViewById(R.id.trashContainer1);
         LinearLayout trashContainer2 = findViewById(R.id.trashContainer2);
 
-        //정렬해둔 거 바꿔서 여기도 바꿔야함
         String[] trashTypes1 = {"일반쓰레기", "플라스틱", "종이류"};
         String[] trashTypes2 = {"캔/고철류", "유리류", "비닐류"};
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -207,6 +235,20 @@ public class FinishActivity extends AppCompatActivity {
             }
         });
 
+
+        ImageView cameraIcon = findViewById(R.id.camera);
+        switchViewButton = findViewById(R.id.viewPhoto);
+        photoImageView = findViewById(R.id.photoImageView);
+
+        cameraIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestCameraPermission();
+            }
+        });
+
+        switchViewButton.setOnClickListener(v -> toggleMapAndPhoto());
+
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -235,7 +277,135 @@ public class FinishActivity extends AppCompatActivity {
             }
         });
 
+    }
 
+    private void requestCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // 권한이 없으므로 요청합니다.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    REQUEST_CAMERA_PERMISSION);
+        } else {
+            // 권한이 이미 부여되었습니다.
+            dispatchTakePictureIntent();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 권한이 부여되었습니다.
+                dispatchTakePictureIntent();
+            } else {
+                // 권한이 거부되었습니다.
+                Toast.makeText(this, "Camera permission is required to take pictures.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    private void toggleMapAndPhoto() {
+        if (isPhotoVisible) {
+            // 사진이 보이고 있을 때 -> 맵을 보여줌
+            photoImageView.setVisibility(View.GONE);
+            mapView.setVisibility(View.VISIBLE);
+        } else {
+            // 맵이 보이고 있을 때 -> 사진을 보여줌
+            if (currentPhotoPath == null || currentPhotoPath.isEmpty()) {
+                // 사진이 없을 경우, 토스트 메시지 출력
+                Snackbar.make(findViewById(android.R.id.content), "사진 촬영 버튼을 눌러 플로깅 인증 사진을 찍어보세요!", Snackbar.LENGTH_SHORT).show();
+
+                return;
+            } else {
+                // 사진이 있을 경우, 사진 보여줌
+                Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
+                photoImageView.setImageBitmap(bitmap);
+                mapView.setVisibility(View.GONE);
+                photoImageView.setVisibility(View.VISIBLE);
+            }
+        }
+        isPhotoVisible = !isPhotoVisible;
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.a2b2.plog.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            File imgFile = new File(currentPhotoPath);
+            if (imgFile.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+
+                // 오른쪽으로 90도 회전
+                Matrix matrix = new Matrix();
+                matrix.postRotate(90);
+                Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                photoImageView.setImageBitmap(rotatedBitmap);
+                currentPhotoPath = imgFile.getAbsolutePath();
+
+                photoImageView.setVisibility(View.VISIBLE);
+                mapView.setVisibility(View.GONE);
+                isPhotoVisible = true; // 사진이 보이도록 상태 업데이트
+
+                // 원본 이미지를 회전된 이미지로 대체
+                saveRotatedImage(rotatedBitmap);
+            }
+        }
+    }
+
+    private void saveRotatedImage(Bitmap bitmap) {
+        FileOutputStream out = null;
+        try {
+            File file = new File(currentPhotoPath);
+            out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private void fetchRoutePointsFromServer() {
