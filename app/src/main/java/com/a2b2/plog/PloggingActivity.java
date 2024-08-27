@@ -119,7 +119,8 @@ public class PloggingActivity extends AppCompatActivity {
             handler.postDelayed(this, 1000);
         }
     };
-
+    Handler locationHandler;
+    private Runnable locationRunnable;
     private KakaoMap map;
     private LabelLayer labelLayer;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -241,6 +242,8 @@ public class PloggingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plogging);
+
+        locationHandler = new Handler(Looper.getMainLooper());
 
         trashReport = findViewById(R.id.trashReport);
         trashReport.setOnClickListener(new View.OnClickListener() {
@@ -526,8 +529,9 @@ public class PloggingActivity extends AppCompatActivity {
                     }
 
 //                    endPlogging();
-                    stopPlogging();
-                    stopLocationUpdates();
+
+//                    stopPlogging();
+//                    stopLocationUpdates();
 
                     ///////
 
@@ -604,8 +608,19 @@ public class PloggingActivity extends AppCompatActivity {
 
         Log.d("startLocationSendingTask", "startLocationSendingTask executed");
 
-        final Handler locationHandler = new Handler(Looper.getMainLooper());
-        final Runnable locationRunnable = new Runnable() {
+
+        if (locationHandler == null) {
+            Log.e("PloggingActivity", "Handler is null, cannot post runnable");
+            return; // Handler가 null이면 메서드를 종료
+        }
+
+        // 기존 Runnable이 존재하면 제거
+        if (locationRunnable != null) {
+            locationHandler.removeCallbacks(locationRunnable);
+        }
+
+
+        locationRunnable = new Runnable() {
             @Override
             public void run() {
                 if (location != null) {
@@ -619,6 +634,47 @@ public class PloggingActivity extends AppCompatActivity {
             }
         };
         locationHandler.post(locationRunnable);
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d("PloggingActivity", "onDestroy executed");
+
+        // Location updates 제거
+        if (fusedLocationClient != null && locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
+
+        // Handler와 Runnable 정리
+        if (locationHandler != null) {
+            if (locationRunnable != null) {
+                locationHandler.removeCallbacks(locationRunnable);
+            }
+            locationHandler = null;
+        }
+        locationRunnable = null;
+        locationCallback = null;
+
+
+        // Debugging
+        if (locationRunnable == null) {
+            Log.d("onDestroy", "locationRunnable is null");
+        } else {
+            Log.d("onDestroy", "locationRunnable is not null");
+        }
+
+        // Confirm handler and callback are cleaned up
+        if (locationHandler == null) {
+            Log.d("onDestroy", "locationHandler is null");
+        } else {
+            Log.d("onDestroy", "locationHandler is not null");
+        }
+
+        if (userLabel != null) {
+            // UserLabel 관련 리소스 정리 (필요한 경우)
+            userLabel = null;
+        }
     }
 
     private void sendLocationToServer(double latitude, double longitude, UUID uuid) {
@@ -637,9 +693,16 @@ public class PloggingActivity extends AppCompatActivity {
 
     private void stopPlogging() {
         handler.removeCallbacks(updateTimeTask);
+        locationHandler.removeCallbacks(locationRunnable);
+
     }
 
     private void setupLocationCallback() {
+        if (locationHandler == null) {
+            Log.e("PloggingActivity", "Handler is null, cannot post runnable");
+            return; // Handler가 null이면 메서드를 종료
+        }
+
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
@@ -668,6 +731,9 @@ public class PloggingActivity extends AppCompatActivity {
 
     private void stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback);
+        if (locationRunnable != null) {
+            locationHandler.removeCallbacks(locationRunnable);
+        }
     }
 
     private void endPlogging() {
