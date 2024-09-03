@@ -74,6 +74,9 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        handler = new Handler();
+
+
         prefsHelper = new SharedPreferencesHelper(this);
         prefsHelper.saveRoute(null);
 
@@ -103,40 +106,47 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
             @Override
             public void onClick(View view) {
 
-//                String url = "";
-//                String data = "{\"id\" : \""+id+"\",\"pw\" : \""+pw+"\"}";
-//                new Thread(() -> {
-//                    String result = httpPostBodyConnection(url, data);
-//                    // JSON 파싱
-//                    Gson gson = new Gson();
-//                    JsonObject jsonObject = JsonParser.parseString(result).getAsJsonObject();
-//                     userNickname = jsonObject.get("userNickname").getAsString();
-//                    String userUUIDStr = jsonObject.get("userUUID").getAsString();
-//                     userUUID = UUID.fromString(userUUIDStr);
-//
-//                    // UserManager 업데이트
-//                    UserManager userManager = UserManager.getInstance();
-//                    userManager.setUserNickname(userNickname);
-//                    userManager.setUserId(userUUID);
-//                    // 처리 결과 확인
-//                    handler.post(() -> seeNetworkResult(result));
-//                }).start();
-//
-//
-//
-//                if( userUUID==null && userNickname == null){
-//                    Toast.makeText(getApplicationContext(), "아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_LONG).show();
-//                } else{
-//                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-//                    startActivity(intent);
-//                    overridePendingTransition(0, 0);
-//                    finish();
-//                }
+                String url = "http://15.164.152.246:8080/user/signin";
+                String data = "{\"userAccount\" : \""+id.getText()+"\",\"userPw\" : \""+pw.getText()+"\"}";
+                new Thread(() -> {
+                    String result = httpPostBodyConnection(url, data);
+// JSON 파싱
+                    Gson gson = new Gson();
+                    JsonObject jsonObject = JsonParser.parseString(result).getAsJsonObject();
 
-                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                startActivity(intent);
-                overridePendingTransition(0, 0);
-                finish();
+// "data" 객체를 먼저 추출
+                    JsonObject dataObject = jsonObject.getAsJsonObject("data");
+
+// "data" 객체에서 "userNickname"과 "userUUID" 추출
+                    String userNickname = dataObject.get("userNickname").getAsString();
+                    String userUUIDStr = dataObject.get("userUUID").getAsString();
+                    UUID userUUID = UUID.fromString(userUUIDStr);
+
+// UserManager 업데이트
+                    UserManager userManager = UserManager.getInstance();
+                    userManager.setUserNickname(userNickname);
+                    userManager.setUserId(userUUID);
+
+// 처리 결과 확인
+                    handler.post(() -> seeNetworkResult(result));
+
+                }).start();
+
+                Log.d("logintest", userNickname+" "+userUUID);
+
+                if( UserManager.getInstance().getUserId() ==null && UserManager.getInstance().getUserNickname() == null){
+                    Toast.makeText(getApplicationContext(), "아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_LONG).show();
+                } else{
+                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
+                    finish();
+                }
+
+//                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+//                startActivity(intent);
+//                overridePendingTransition(0, 0);
+//                finish();
 
             }
         });

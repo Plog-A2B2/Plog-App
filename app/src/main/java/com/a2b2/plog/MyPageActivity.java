@@ -87,7 +87,7 @@ public class MyPageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("setting", "saved : " + isPushAlarmOn);
 
-                // 서버에 알림 허용여부 업데이트된 내용 저장(on/off, 기준위치)
+                // 서버에 알림 허용여부 업데이트된 내용 저장(on/off - isPushAlarmOn, 기준위치 - standardLocation)
 
                 saveBtn.setVisibility(View.GONE);
             }
