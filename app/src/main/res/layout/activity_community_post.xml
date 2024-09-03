@@ -33,7 +33,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="550dp"
         android:orientation="vertical"
         android:layout_marginTop="10dp"
         android:layout_margin="10dp"
@@ -44,16 +44,20 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
+                android:layout_gravity="center"
                 android:layout_height="wrap_content"
                 android:text="제목 : "
                 android:fontFamily="@font/nanumbarungothiclight"
                 android:textSize="15sp"/>
             <EditText
                 android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:background="@drawable/semiround_rectangle_white"
+                android:gravity="center"
                 android:fontFamily="@font/nanumbarungothiclight"
+
                 android:textSize="15sp"/>
         </LinearLayout>
         <LinearLayout
@@ -61,7 +65,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:text="플로깅 장소 : "
                 android:fontFamily="@font/nanumbarungothiclight"
@@ -69,7 +73,9 @@
             <EditText
                 android:id="@+id/ploggingPlace"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
+                android:background="@drawable/semiround_rectangle_white"
+                android:gravity="center"
                 android:hint="플로깅 할 장소를 적어주세요!"
                 android:fontFamily="@font/nanumbarungothiclight"
                 android:textSize="15sp"/>
@@ -79,7 +85,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:text="모임일시 : "
                 android:fontFamily="@font/nanumbarungothiclight"
@@ -87,7 +93,9 @@
             <EditText
                 android:id="@+id/meetingDate"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
+                android:background="@drawable/semiround_rectangle_white"
+                android:gravity="center"
                 android:hint="날짜와 정확한 시간을 정해주세요!"
                 android:fontFamily="@font/nanumbarungothiclight"
                 android:textSize="15sp"/>
@@ -97,16 +105,20 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:text="모임장소 : "
+                android:layout_gravity="center"
                 android:fontFamily="@font/nanumbarungothiclight"
                 android:textSize="15sp"/>
-            <EditText
+            <TextView
                 android:id="@+id/meetingPlace"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
+                android:background="@drawable/semiround_rectangle_white"
+                android:gravity="center"
                 android:hint="모임 장소를 적어주세요!"
+
                 android:fontFamily="@font/nanumbarungothiclight"
                 android:textSize="15sp"/>
         </LinearLayout>
@@ -115,7 +127,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:text="내용"
                 android:fontFamily="@font/nanumbarungothiclight"
@@ -123,7 +135,8 @@
             <EditText
                 android:id="@+id/text"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="400dp"
+                android:background="@drawable/semiround_rectangle_white"
                 android:fontFamily="@font/nanumbarungothiclight"
                 android:textSize="15sp"/>
         </LinearLayout>

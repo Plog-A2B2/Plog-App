@@ -90,7 +90,7 @@ public class FinishActivity extends AppCompatActivity {
     private RouteLineLayer layer;
     private Handler handler;
     private String trashType;
-    private final String url = "http://15.164.152.246:8080/trash/E9E37FE2-FE90-4D51-9422-5E1475E8AC1A/record";
+    //private final String url = "http://15.164.152.246:8080/trash/E9E37FE2-FE90-4D51-9422-5E1475E8AC1A/record";
 
     private static final int REQUEST_CAMERA_PERMISSION = 200;
 
@@ -255,7 +255,7 @@ public class FinishActivity extends AppCompatActivity {
 
                 try {
 
-                    //String url = "http://15.164.152.246:8080/trash/E9E37FE2-FE90-4D51-9422-5E1475E8AC1A/record";
+                    String url = "http://15.164.152.246:8080/trash/C3B29059-A9EA-4B7C-B7FE-3C402BB38B47/record";
                     //String url = "http://15.164.152.246:8080/trash/"+uuid;
                     String data = "{\"garbage\" : \""+trashCountMap.get("일반쓰레기")+"\",\"can\" : \""+trashCountMap.get("캔/고철류")+"\",\"plastic\" : \""+trashCountMap.get("플라스틱")+"\",\"paper\" : \""+trashCountMap.get("종이류")+"\", \"plastic_bag\" : \""+trashCountMap.get("비닐류")+"\", \"glass\" : \""+trashCountMap.get("종이류")+"\"}";
                     Log.d("쓰레기 전송값", data);

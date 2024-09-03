@@ -21,12 +21,15 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.UUID;
 
 //커뮤니티 게시글 작성 액티비티
 public class CommunityPostActivity extends AppCompatActivity {
@@ -37,6 +40,7 @@ public class CommunityPostActivity extends AppCompatActivity {
     private String f_title, f_ploggingPlace, f_meetingPlace, f_text;
     private int f_meetingDate;
     private Handler handler;
+    private SettingLocationDialog ploggingLocationDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +51,11 @@ public class CommunityPostActivity extends AppCompatActivity {
         title = findViewById(R.id.title);
         ploggingPlace = findViewById(R.id.ploggingPlace);
         meetingDate = findViewById(R.id.meetingDate);
-        meetingPlace = findViewById(R.id.meetingPlace);
+//        meetingPlace = findViewById(R.id.meetingPlace);
         text = findViewById(R.id.text);
         enterBtn = findViewById(R.id.enterBtn);
+
+        ploggingLocationDialog = new SettingLocationDialog(this);
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,13 +98,30 @@ public class CommunityPostActivity extends AppCompatActivity {
                 Log.d(f_text, f_text);
                 Log.d("f_meetingDate", String.valueOf(f_meetingDate));
 
-//                String url = "";
-//                String data = "{\"title\" : \""+f_title+"\",\"ploggingPlace\" : \""+f_ploggingPlace+"\", \"meetingPlace\" :  \""+f_ploggingPlace+"\" , \"text\" : \""+f_text+"\", \"meetingDate\" : \""+f_meetingDate+"\"}";
-//                new Thread(() -> {
-//                    String result = httpPostBodyConnection(url, data);
-//                    // 처리 결과 확인
-//                    handler.post(() -> seeNetworkResult(result));
-//                }).start();
+                UUID uuid = UUID.fromString("8D841B8A-C15A-4657-95AC-AB28ED6F0190");
+                String url = "http://15.164.152.246:8080/post/"+uuid+"/createpost";
+                String data = "{\"title\" : \""+f_title+"\",\"plogPlace\" : \""+f_ploggingPlace+"\", \"meetPlace\" :  \""+f_ploggingPlace+"\" , \"content\" : \""+f_text+"\", \"schedule\" : \""+f_meetingDate+"\"}";
+                new Thread(() -> {
+                    String result = httpPostBodyConnection(url, data);
+                    // 처리 결과 확인
+                    handler.post(() -> {
+                        seeNetworkResult(result);
+                        try {
+                            // JSON 문자열을 JSONObject로 변환
+                            JSONObject jsonObject = new JSONObject(result);
+
+                            // "userId" 키에 해당하는 값 추출
+                            String message = jsonObject.getString("message");
+
+                            // 추출한 userId 출력
+                            System.out.println("받은 값" + message);
+                            Toast.makeText(CommunityPostActivity.this,message+"완료",Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    });
+                }).start();
             }
         });
 
