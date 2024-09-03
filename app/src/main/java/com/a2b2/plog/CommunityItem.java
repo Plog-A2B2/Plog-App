@@ -6,11 +6,13 @@ import java.time.LocalDate;
 
 public class CommunityItem {
     private int badge;
+    private int postId;
     private String nickname;
     private String date;
     private String title;
 
-    public CommunityItem(int badge, String nickname, String date, String title) {
+    public CommunityItem(int postId, int badge, String nickname, String date, String title) {
+        this.postId = postId;
         this.badge = badge;
         this.nickname = nickname;
         this.date = date;

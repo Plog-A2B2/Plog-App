@@ -20,9 +20,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.CommunityViewHolder> {
-    private List<CommunityItem> communityList;
+    private List<CommunityList> communityList;
     private Context context;
-    public CommunityAdapter(List<CommunityItem> communityList, Context context){
+    public CommunityAdapter(List<CommunityList> communityList, Context context){
         this.communityList = communityList;
         this.context = context;}
     @NonNull
@@ -35,10 +35,10 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
     @Override
     public void onBindViewHolder(@NonNull CommunityAdapter.CommunityViewHolder holder, int position) {
 
-        CommunityItem communityItem = communityList.get(position);
+        CommunityList communityItem = communityList.get(position);
         holder.badge.setImageResource(communityItem.getBadge());
-        holder.nickname.setText(communityItem.getNickname());
-        holder.date.setText(communityItem.getDate());
+        holder.nickname.setText(communityItem.getUserNickname());
+        holder.date.setText(communityItem.getTime());
         holder.title.setText(communityItem.getTitle());
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, CommunityPostShowActivity.class);
