@@ -53,6 +53,7 @@ import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.gson.Gson;
 import com.kakao.vectormap.GestureType;
 import com.kakao.vectormap.KakaoMap;
 import com.kakao.vectormap.KakaoMapReadyCallback;
@@ -138,6 +139,7 @@ public class PloggingActivity extends AppCompatActivity {
     private LocationRequest locationRequest;
     Label userLabel;
     private LatLng startPosition = null;
+    private boolean isActivityDestroyed = false;
 
     private ImageView userCurrentLocation;
 //    public String[] trashTypes = {"종이류","유리류","일반쓰레기", "플라스틱",  "캔/고철류",  "비닐류"};
@@ -238,10 +240,18 @@ public class PloggingActivity extends AppCompatActivity {
 
     private boolean isUserLabelInitialized = false;
 
+    private StompClient stompClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plogging);
+
+        stompClient = new StompClient();
+        stompClient.connect("ws://15.164.152.246:8080/ws");
+
+//        UUID uuid = UUID.fromString("36994BC9-E1BD-426B-AA36-99A1B31E9980");
+//        UUID uuid = UserManager.getInstance().getUserId();
 
         locationHandler = new Handler(Looper.getMainLooper());
 
@@ -288,6 +298,12 @@ public class PloggingActivity extends AppCompatActivity {
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
+
+                if (isActivityDestroyed) {
+                    Log.d("PloggingActivity", "Activity is destroyed, ignoring location updates.");
+                    return; // 액티비티가 종료된 후에는 콜백 무시
+                }
+
                 for (android.location.Location location : locationResult.getLocations()) {
 
                     startLocationSendingTask(location);
@@ -305,9 +321,6 @@ public class PloggingActivity extends AppCompatActivity {
                 }
             }
         };
-
-
-
 
         userCurrentLocation = findViewById(R.id.current_location);
 
@@ -627,6 +640,8 @@ public class PloggingActivity extends AppCompatActivity {
 //                    UUID uuid  =UUID.fromString("11");
                     // 현재 위치를 서버에 전송
                     sendLocationToServer(location.getLatitude(), location.getLongitude(), UserManager.getInstance().getUserId());
+
+
                     Log.d("startLocationSendingTask", "sendLocationToServer called");
                 }
                 locationHandler.postDelayed(this, 5000); // 5초마다 반복
@@ -638,6 +653,8 @@ public class PloggingActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        isActivityDestroyed = true;
+
 
         Log.d("PloggingActivity", "onDestroy executed");
 
@@ -678,11 +695,25 @@ public class PloggingActivity extends AppCompatActivity {
     }
 
     private void sendLocationToServer(double latitude, double longitude, UUID uuid) {
-        // 서버에 위치 전송하는 코드 구현
-        // 예를 들어, Retrofit을 사용할 수 있습니다.
-        // 여기에 네트워크 요청 코드를 작성해야 합니다.
+
+        // 위도, 경도, UUID 값을 가진 DTO 객체 생성
+        LocationDTO locationDTO = new LocationDTO(latitude, longitude, UUID.fromString("42F57079-2DF3-416D-A22D-6C5AAF1D4A78"));
+
+        // DTO 객체를 JSON 문자열로 변환
+        Gson gson = new Gson();
+        String message = gson.toJson(locationDTO);
+
+        // 메시지 전송
+        stompClient.sendMessage("/app/location", message);
+        Log.d("보내는 값", message);
+
+
+        // 메시지 구독
+        stompClient.subscribe("/topic/location");
+
         Log.d("sendLocationToServer", "Location sent to server: Lat: " + latitude + ", Lng: " + longitude);
-        Log.d("sendLocationToServer", "user uuid: " + uuid);
+//        Log.d("sendLocationToServer", "user uuid: " + uuid);
+        Log.d("sendLocationToServer", "user uuid: " + UUID.fromString("42F57079-2DF3-416D-A22D-6C5AAF1D4A78"));
     }
 
 
@@ -706,6 +737,10 @@ public class PloggingActivity extends AppCompatActivity {
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
+                if (isActivityDestroyed) {
+                    Log.d("PloggingActivity", "Activity is destroyed, ignoring location updates.");
+                    return; // 액티비티가 종료된 후에는 콜백 무시
+                }
                 if (locationResult == null) {
                     return;
                 }
