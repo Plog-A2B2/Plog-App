@@ -70,12 +70,23 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
     private SharedPreferencesHelper prefsHelper;
     TextView tv1;
     private static final String CAPABILITY_1_NAME = "capability_1";
+    private ImageView logoImg;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        logoImg = findViewById(R.id.logoImg);
+        logoImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         handler = new Handler();
 

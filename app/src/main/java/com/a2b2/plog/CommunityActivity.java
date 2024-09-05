@@ -48,13 +48,18 @@ public class CommunityActivity extends AppCompatActivity {
         setContentView(R.layout.activity_community);
         logo = findViewById(R.id.title);
 
+        handler = new Handler(Looper.getMainLooper());
+
+
         // 싱글톤 인스턴스 가져오기
-//        UserManager userManager = UserManager.getInstance();
-//        String userId = userManager.getUserId();
+
         logo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UUID uuid = UUID.fromString("8D841B8A-C15A-4657-95AC-AB28ED6F0190");
+
+                //UUID uuid = UUID.fromString("8D841B8A-C15A-4657-95AC-AB28ED6F0190");
+                UUID uuid = UserManager.getInstance().getUserId();
+                Log.d("uuid", String.valueOf(uuid));
                 // GET 요청을 위한 ParamData 제거
                 String url = "http://15.164.152.246:8080/post/"+uuid+"/all";  // 예: http://example.com
 
@@ -65,9 +70,15 @@ public class CommunityActivity extends AppCompatActivity {
                     if (handler != null) {
                         handler.post(() -> {
                             if(result != null && !result.isEmpty()) {
-                                // tripPlans 초기화 및 데이터 파싱
-                                communitylists.clear();
+
+                                if (communitylists == null) {
+                                    communitylists = new ArrayList<>();
+                                } else{
+                                    communitylists.clear();
+                                }
                                 communitylists.addAll(parseCommunityList(result));
+                                // tripPlans 초기화 및 데이터 파싱
+
 //                                tripPlans = parseTripPlan(result);
 //                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + tripPlans.size());
 
@@ -164,9 +175,11 @@ public class CommunityActivity extends AppCompatActivity {
                 finish();
             }
         });
+
     }
-    TextView nothing = findViewById(R.id.nothing);
+
     private void updateUI() {
+        TextView nothing = findViewById(R.id.nothing);
         if (communitylists.isEmpty()) {
             nothing.setVisibility(View.VISIBLE);
             communityRecycler.setVisibility(View.GONE);

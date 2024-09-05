@@ -111,7 +111,7 @@
                 android:layout_gravity="center"
                 android:fontFamily="@font/nanumbarungothiclight"
                 android:textSize="15sp"/>
-            <TextView
+            <EditText
                 android:id="@+id/meetingPlace"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
