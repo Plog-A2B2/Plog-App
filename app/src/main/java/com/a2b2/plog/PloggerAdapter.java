@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PloggerAdapter extends RecyclerView.Adapter<PloggerAdapter.PloggingViewHolder> {
@@ -15,7 +16,8 @@ public class PloggerAdapter extends RecyclerView.Adapter<PloggerAdapter.Plogging
     private List<RealtimePloggerItem> ploggingItems;
 
     public PloggerAdapter(List<RealtimePloggerItem> ploggingItems) {
-        this.ploggingItems = ploggingItems;
+        //this.ploggingItems = ploggingItems;
+        this.ploggingItems = (ploggingItems != null) ? ploggingItems : new ArrayList<>();
     }
 
     @NonNull
