@@ -69,12 +69,14 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import com.kakao.vectormap.camera.CameraPosition;
+import com.kakao.vectormap.camera.CameraUpdateFactory;
 import com.kakao.vectormap.label.Label;
 import com.kakao.vectormap.label.LabelLayer;
 import com.kakao.vectormap.label.LabelOptions;
@@ -82,13 +84,21 @@ import com.kakao.vectormap.label.LabelStyle;
 import com.kakao.vectormap.label.LabelStyles;
 
 import com.kakao.vectormap.label.TrackingManager;
+import com.kakao.vectormap.route.RouteLine;
+import com.kakao.vectormap.route.RouteLineLayer;
+import com.kakao.vectormap.route.RouteLineOptions;
+import com.kakao.vectormap.route.RouteLineSegment;
+import com.kakao.vectormap.route.RouteLineStyle;
 import com.kakao.vectormap.shape.DimScreenLayer;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 
 public class PloggingActivity extends AppCompatActivity {
 
+    String result;
 
     private ImageView backBtn;
     private ImageView trashReport;
@@ -127,9 +137,11 @@ public class PloggingActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
-
+    private RouteLineLayer layer;
+    int activityId;
     private final String[] locationPermissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
     private List<LatLng> routePoints = new ArrayList<>(); // 경로 점들을 저장할 리스트
+    private ArrayList<com.a2b2.plog.LatLng> runRoutePoints = new ArrayList<>(); // 경로 점들을 저장할 리스트
 
     private HashMap<String, LabelOptions> userMarkers = new HashMap<>();
     private String userMarkerKey = "user_location_marker";
@@ -157,7 +169,14 @@ public class PloggingActivity extends AppCompatActivity {
         }
     };
     boolean trashcanVisible;
+    private RouteLine routeLine;
+    private SharedPreferencesHelper prefsHelper;
+
     TrackingManager trackingManager;
+    String url;
+    int routeId;
+    private Route route;
+    ArrayList<RealtimePloggerItem> realtimePloggerList;
     KakaoMapReadyCallback readyCallback2 = new KakaoMapReadyCallback() {
 
         @Override
@@ -181,6 +200,14 @@ public class PloggingActivity extends AppCompatActivity {
             setupTracking(startPosition);
 
 //            loadMarkersInView(locationMap);
+
+            layer = kakaoMap.getRouteLineManager().getLayer();
+            prefsHelper = new SharedPreferencesHelper(PloggingActivity.this);
+
+            if (prefsHelper.getRoute() != null) {
+                routeId = prefsHelper.getRoute().getId();
+                getRoutePoints();
+            }
 
             // 지도 이동 이벤트 설정
             map.setOnCameraMoveEndListener(new KakaoMap.OnCameraMoveEndListener() {
@@ -252,6 +279,8 @@ public class PloggingActivity extends AppCompatActivity {
 
 //        UUID uuid = UUID.fromString("36994BC9-E1BD-426B-AA36-99A1B31E9980");
 //        UUID uuid = UserManager.getInstance().getUserId();
+
+        Handler handler = new Handler();
 
         locationHandler = new Handler(Looper.getMainLooper());
 
@@ -340,11 +369,12 @@ public class PloggingActivity extends AppCompatActivity {
 
             // 이전 액티비티에서 전달된 데이터 받기
             Intent intent = getIntent();
-            ArrayList<RealtimePloggerItem> ploggingItems = (ArrayList<RealtimePloggerItem>) intent.getSerializableExtra("ploggingItems");
+//            ArrayList<RealtimePloggerItem> ploggingItems = (ArrayList<RealtimePloggerItem>) intent.getSerializableExtra("ploggingItems");
+            realtimePloggerList = (ArrayList<RealtimePloggerItem>) intent.getSerializableExtra("ploggingItems");
             trashcanVisible = intent.getBooleanExtra("trashcanVisible", true);
 
             // Adapter 설정
-            ploggerAdapter = new PloggerAdapter(ploggingItems);
+            ploggerAdapter = new PloggerAdapter(realtimePloggerList);
             recyclerView.setAdapter(ploggerAdapter);
 
             // 뒤로가기 버튼 초기화
@@ -546,16 +576,58 @@ public class PloggingActivity extends AppCompatActivity {
 //                    stopPlogging();
 //                    stopLocationUpdates();
 
+                    UUID uuid = UserManager.getInstance().getUserId();
+                    url = "http://15.164.152.246:8080/activitys/end/" + uuid;
+// JSON 문자열을 구성하기 위한 StringBuilder 사용
+                    StringBuilder data = new StringBuilder();
+
+                    int parsedTime = parseTime(timeTextView.getText().toString());
+                    double parsedDistance = parseDistance(distanceTextView.getText().toString());
+
+                    data.append("{");
+                    data.append("\"distance\":\"").append(parsedDistance).append("\",");
+                    data.append("\"activityTime\":\"").append(parsedTime).append("\"");
+                    data.append("}");
+
+                    // 최종적으로 생성된 JSON 문자열
+                    String jsonData = data.toString();
+
+                    // jsonData를 서버에 전송
+                    Log.d("data", jsonData);
+                    new Thread(() -> {
+                        String result = httpPostBodyConnectionFinish(url, jsonData);
+                        handler.post(() -> {
+                            seeNetworkResultFinish(result);
+                            if (result != null && !result.isEmpty()) {
+                                // Parse the result and update routePoints
+                                runRoutePoints.clear();  // Clear previous points if necessary
+
+                                List<LatLng> parsedRoutePoints = parseFinishData(result);
+
+// parsedRoutePoints 리스트를 돌면서 com.a2b2.plog.LatLng로 변환하여 추가
+                                for (LatLng point : parsedRoutePoints) {
+                                    com.a2b2.plog.LatLng plogPoint = new com.a2b2.plog.LatLng(point.getLatitude(), point.getLongitude());
+                                    runRoutePoints.add(plogPoint);
+                                }
+                            }
+
+//                            drawRouteOnMap(routePoints);
+
+                            // 결과 화면으로 이동
+                            Intent intent = new Intent(PloggingActivity.this, FinishActivity.class);
+                            intent.putExtra("trashCountMap", trashCountMap);
+                            intent.putExtra("time", timeTextView.getText().toString());
+                            intent.putExtra("distance", distanceTextView.getText().toString());
+                            intent.putExtra("runRoutePoints", runRoutePoints);
+                            intent.putExtra("activityId", activityId);
+                            startActivity(intent);
+                            overridePendingTransition(0, 0);
+                            finish();
+                        });
+                    }).start();
                     ///////
 
-                    // 결과 화면으로 이동
-                    Intent intent = new Intent(PloggingActivity.this, FinishActivity.class);
-                    intent.putExtra("trashCountMap", trashCountMap);
-                    intent.putExtra("time", timeTextView.getText().toString());
-                    intent.putExtra("distance", distanceTextView.getText().toString());
-                    startActivity(intent);
-                    overridePendingTransition(0, 0);
-                    finish();
+
 
                 }
             });
@@ -578,6 +650,34 @@ public class PloggingActivity extends AppCompatActivity {
 
     }
 
+    // 거리 문자열을 double로 변환하는 메서드
+    private double parseDistance(String distanceStr) {
+        try {
+            // " KM" 문자열 제거 후 double로 변환
+            return Double.parseDouble(distanceStr.replace(" KM", ""));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return 0.0;
+        }
+    }
+
+    // 시간 문자열을 초 단위로 변환하는 메서드
+    private int parseTime(String timeStr) {
+        try {
+            // 시간 문자열을 ":"로 분리
+            String[] parts = timeStr.split(":");
+            int hours = Integer.parseInt(parts[0]);
+            int minutes = Integer.parseInt(parts[1]);
+            int seconds = Integer.parseInt(parts[2]);
+
+            // 초 단위로 변환
+            return hours * 3600 + minutes * 60 + seconds;
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     private void addMarkersNearby(Map<String, com.a2b2.plog.Location> locationMap, LatLng centerPosition, int radius) {
         Log.d("addMarkersNearby", "addMarkersNearby executed");
 
@@ -598,6 +698,216 @@ public class PloggingActivity extends AppCompatActivity {
                 addMarker(location.getLatitude(), location.getLongitude());
             }
         }
+    }
+
+    public List<LatLng> parseFinishData(String json) {
+        List<LatLng> routePointList = new ArrayList<>();
+
+        try {
+            // JSON 전체 객체를 먼저 파싱합니다.
+            JSONObject jsonObject = new JSONObject(json);
+
+            // "data" 키에 있는 JSON 객체를 추출합니다.
+            JSONObject dataObject = jsonObject.getJSONObject("data");
+
+            // "locations" 배열을 추출합니다.
+            JSONArray locationsArray = dataObject.getJSONArray("locations");
+
+            activityId = dataObject.getInt("activityId");
+
+            for (int i = 0; i < locationsArray.length(); i++) {
+                JSONObject locationObject = locationsArray.getJSONObject(i);
+
+                // 필요한 데이터 추출
+                double latitude = locationObject.getDouble("latitude");
+                double longitude = locationObject.getDouble("longitude");
+
+                // LatLng 객체 생성 및 리스트에 추가
+                LatLng routePoint = LatLng.from(latitude,longitude); // LatLng(double, double) 사용
+                routePointList.add(routePoint);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return routePointList;
+    }
+
+
+    public String httpPostBodyConnectionFinish(String UrlData, String ParamData) {
+        String responseData = "";
+        BufferedReader br = null;
+
+        try {
+            URL url = new URL(UrlData);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] request_data = ParamData.getBytes("utf-8");
+                os.write(request_data);
+            }
+
+            conn.connect();
+
+            br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            while ((responseData = br.readLine()) != null) {
+                sb.append(responseData);
+            }
+
+            return sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return responseData;
+    }
+
+    public void seeNetworkResultFinish(String result) {
+        Log.d("NetworkResult", result);
+    }
+
+    private void drawRouteOnMap(List<LatLng> routePoints) {
+        if (map != null) {
+
+            RouteLineStyle style = RouteLineStyle.from(PloggingActivity.this,
+                    R.style.SimpleRouteLineStyle);
+            RouteLineOptions options = RouteLineOptions.from(
+                    Arrays.asList(RouteLineSegment.from(routePoints, style)));
+
+            routeLine = layer.addRouteLine(options);
+            map.moveCamera(CameraUpdateFactory.newCenterPosition(
+                    LatLng.from(37.338549743448546,127.09368565409382), 16));
+
+        }
+    }
+
+    // 더미 데이터 생성
+    private List<LatLng> getRoutePoints() {
+
+        List<LatLng> routePoints = new ArrayList<>();
+
+        UUID uuid = UserManager.getInstance().getUserId();
+
+        url = "http://15.164.152.246:8080/activitys/" + uuid + "/" + routeId;
+        String data = "";
+
+        new Thread(() -> {
+            String result = httpGetConnectionRoute(url);
+            handler.post(() -> {
+                seeNetworkResultRoute(result);
+                if (result != null && !result.isEmpty()) {
+                    // Parse the result and update routePoints
+                    routePoints.clear();  // Clear previous points if necessary
+                    routePoints.addAll(parseRouteAll(result));
+                }
+
+                drawRouteOnMap(routePoints);
+            });
+        }).start();
+
+
+//        List<LatLng> routePoints = Arrays.asList(
+//                LatLng.from(37.338549743448546,127.09368565409382),
+//                LatLng.from(37.33856778190988,127.093663107081),
+//                LatLng.from(37.33860015104726,127.09374891110167),
+//                LatLng.from(37.33866855056389,127.09384830168884),
+//                LatLng.from(37.33881977657985,127.09403355969684),
+//                LatLng.from(37.33881977657985,127.09403355969684),
+//                LatLng.from(37.338798130341964,127.09406061609467),
+//                LatLng.from(37.33874386013671,127.0943223542757),
+//                LatLng.from(37.33869695980336,127.09438097621258),
+//                LatLng.from(37.337824766739104,127.09437537101812),
+//                LatLng.from(37.33770221229771,127.09439327300674),
+//                LatLng.from(37.33770221229771,127.09439327300674),
+//                LatLng.from(37.3376974871616,127.09578804101909),
+//                LatLng.from(37.3376974871616,127.09578804101909),
+//                LatLng.from(37.336219787367654,127.0957997057665),
+//                LatLng.from(37.33621663148788,127.09524451138867),
+//                LatLng.from(37.336234684781665,127.09520391048807),
+//                LatLng.from(37.336234684781665,127.09520391048807),
+//                LatLng.from(37.33645497790997,127.09465351015245));
+
+        return routePoints;
+    }
+
+    public List<LatLng> parseRouteAll(String json) {
+        List<LatLng> RoutePointList = new ArrayList<>();
+
+        try {
+            // JSON 전체 객체를 먼저 파싱합니다.
+            JSONObject jsonObject = new JSONObject(json);
+
+            // "data" 키에 있는 JSON 객체를 추출합니다.
+            JSONObject dataObject = jsonObject.getJSONObject("data");
+
+            // "locations" 배열을 추출합니다.
+            JSONArray locationsArray = dataObject.getJSONArray("locations");
+
+            for (int i = 0; i < locationsArray.length(); i++) {
+                JSONObject locationObject = locationsArray.getJSONObject(i);
+
+                // 필요한 데이터 추출
+                double latitude = locationObject.getDouble("latitude");
+                double longitude = locationObject.getDouble("longitude");
+
+                // 객체 생성 및 리스트에 추가
+                LatLng routePoint = LatLng.from(latitude,longitude);
+                RoutePointList.add(routePoint);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return RoutePointList;
+    }
+
+    public String httpGetConnectionRoute(String UrlData) {
+        String responseData = "";
+        BufferedReader br = null;
+
+        try {
+            URL url = new URL(UrlData);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setRequestProperty("Accept", "application/json");
+
+            // 서버 응답 읽기
+            br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            while ((responseData = br.readLine()) != null) {
+                sb.append(responseData);
+            }
+
+            return sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void seeNetworkResultRoute(String result) {
+        Log.d("NetworkResult", result);
     }
 
     private void setupTracking(LatLng startPosition) {
@@ -634,6 +944,8 @@ public class PloggingActivity extends AppCompatActivity {
 
 
         locationRunnable = new Runnable() {
+            long lastOtherTaskTime = 0; // 30초 주기로 실행되는 작업의 마지막 실행 시간
+
             @Override
             public void run() {
                 if (location != null) {
@@ -644,11 +956,101 @@ public class PloggingActivity extends AppCompatActivity {
 
                     Log.d("startLocationSendingTask", "sendLocationToServer called");
                 }
+                // 현재 시간 체크
+                long currentTime = System.currentTimeMillis();
+
+                // 30초마다 다른 작업 수행
+                if (currentTime - lastOtherTaskTime >= 30000) {
+                    // 30초마다 실행할 작업
+                    getRealtimePloggers();
+                    lastOtherTaskTime = currentTime; // 마지막 실행 시간을 업데이트
+                }
                 locationHandler.postDelayed(this, 5000); // 5초마다 반복
 
             }
         };
         locationHandler.post(locationRunnable);
+    }
+
+    private void getRealtimePloggers() {
+
+        url = "http://15.164.152.246:8080/profile/active";
+        String data = "";
+        realtimePloggerList.clear();
+
+        new Thread(() -> {
+            result = httpGetConnection(url);
+            handler.post(() -> { seeNetworkResult(result);
+                if(result != null && !result.isEmpty())
+                    realtimePloggerList = parsePloggerList(result);
+
+                ploggerAdapter = new PloggerAdapter(realtimePloggerList);
+                recyclerView.setAdapter(ploggerAdapter);
+            });
+        }).start();
+    }
+    public ArrayList<RealtimePloggerItem> parsePloggerList(String json) {
+        ArrayList<RealtimePloggerItem> RealtimePloggerList = new ArrayList<>();
+
+        try {
+            // JSON 전체 객체를 먼저 파싱합니다.
+            JSONObject jsonObject = new JSONObject(json);
+
+            // "data" 키에 있는 JSON 배열을 추출합니다.
+            JSONArray dataArray = jsonObject.getJSONArray("data");
+
+            for (int i = 0; i < dataArray.length(); i++) {
+                JSONObject dataObject = dataArray.getJSONObject(i);
+
+                // 필요한 데이터 추출
+                int badgeId = dataObject.getInt("badgeId");
+                String userNickname = dataObject.getString("userNickname");
+
+                // 필요한 로그 출력
+                Log.d("배지아이디: ", String.valueOf(badgeId));
+                Log.d("유저 닉네임: ", userNickname);
+
+                // Route 객체 생성 및 리스트에 추가
+                RealtimePloggerItem plogger = new RealtimePloggerItem(badgeId, userNickname);
+                RealtimePloggerList.add(plogger);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return RealtimePloggerList;
+    }
+    public String httpGetConnection(String UrlData) {
+        String responseData = "";
+        BufferedReader br = null;
+
+        try {
+            URL url = new URL(UrlData);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setRequestProperty("Accept", "application/json");
+
+            // 서버 응답 읽기
+            br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            while ((responseData = br.readLine()) != null) {
+                sb.append(responseData);
+            }
+
+            return sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
     @Override
     protected void onDestroy() {

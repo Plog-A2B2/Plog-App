@@ -2,9 +2,8 @@ package com.a2b2.plog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,9 +27,20 @@ import com.kakao.vectormap.route.RouteLineOptions;
 import com.kakao.vectormap.route.RouteLineSegment;
 import com.kakao.vectormap.route.RouteLineStyle;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 
 public class RouteDialogFragment extends DialogFragment {
@@ -47,8 +57,11 @@ public class RouteDialogFragment extends DialogFragment {
     private RouteLine routeLine;
     MapView mapView;
     private Route selectedRoute;
+    String url;
+    Handler handler = new Handler();
+    String result;
 
-
+    int routeId;
     public static RouteDialogFragment newInstance(Route route) {
         RouteDialogFragment fragment = new RouteDialogFragment();
         Bundle args = new Bundle();
@@ -129,7 +142,8 @@ public class RouteDialogFragment extends DialogFragment {
             public void onMapReady(KakaoMap map) {
                 kakaoMap = map;
                 layer = kakaoMap.getRouteLineManager().getLayer();
-                fetchRoutePointsFromServer();
+//                fetchRoutePointsFromServer();
+                getRoutePoints();
             }
         });
 
@@ -156,9 +170,8 @@ public class RouteDialogFragment extends DialogFragment {
 //    }
 
     private void fetchRoutePointsFromServer() {
-        // 실제 서버에서 데이터를 받아오는 코드로 대체해야 합니다.
-        // 여기서는 더미 데이터를 사용합니다.
-        List<LatLng> fetchedPoints = getDummyRoutePoints();
+
+        List<LatLng> fetchedPoints = getRoutePoints();
 
         if (fetchedPoints != null && !fetchedPoints.isEmpty()) {
             routePoints.addAll(fetchedPoints);
@@ -184,28 +197,122 @@ public class RouteDialogFragment extends DialogFragment {
     }
 
     // 더미 데이터 생성
-    private List<LatLng> getDummyRoutePoints() {
-        List<LatLng> routePoints = Arrays.asList(
-                LatLng.from(37.338549743448546,127.09368565409382),
-                LatLng.from(37.33856778190988,127.093663107081),
-                LatLng.from(37.33860015104726,127.09374891110167),
-                LatLng.from(37.33866855056389,127.09384830168884),
-                LatLng.from(37.33881977657985,127.09403355969684),
-                LatLng.from(37.33881977657985,127.09403355969684),
-                LatLng.from(37.338798130341964,127.09406061609467),
-                LatLng.from(37.33874386013671,127.0943223542757),
-                LatLng.from(37.33869695980336,127.09438097621258),
-                LatLng.from(37.337824766739104,127.09437537101812),
-                LatLng.from(37.33770221229771,127.09439327300674),
-                LatLng.from(37.33770221229771,127.09439327300674),
-                LatLng.from(37.3376974871616,127.09578804101909),
-                LatLng.from(37.3376974871616,127.09578804101909),
-                LatLng.from(37.336219787367654,127.0957997057665),
-                LatLng.from(37.33621663148788,127.09524451138867),
-                LatLng.from(37.336234684781665,127.09520391048807),
-                LatLng.from(37.336234684781665,127.09520391048807),
-                LatLng.from(37.33645497790997,127.09465351015245));
+    private List<LatLng> getRoutePoints() {
+
+        List<LatLng> routePoints = new ArrayList<>();
+
+        UUID uuid = UserManager.getInstance().getUserId();
+        routeId = route.getId();
+
+        url = "http://15.164.152.246:8080/activitys/" + uuid + "/" + routeId;
+        String data = "";
+
+        new Thread(() -> {
+            String result = httpGetConnection(url);
+            handler.post(() -> {
+                seeNetworkResult(result);
+                if (result != null && !result.isEmpty()) {
+                    // Parse the result and update routePoints
+                    routePoints.clear();  // Clear previous points if necessary
+                    routePoints.addAll(parseRouteAll(result));
+                }
+
+                drawRouteOnMap(routePoints);
+            });
+        }).start();
+
+
+//        List<LatLng> routePoints = Arrays.asList(
+//                LatLng.from(37.338549743448546,127.09368565409382),
+//                LatLng.from(37.33856778190988,127.093663107081),
+//                LatLng.from(37.33860015104726,127.09374891110167),
+//                LatLng.from(37.33866855056389,127.09384830168884),
+//                LatLng.from(37.33881977657985,127.09403355969684),
+//                LatLng.from(37.33881977657985,127.09403355969684),
+//                LatLng.from(37.338798130341964,127.09406061609467),
+//                LatLng.from(37.33874386013671,127.0943223542757),
+//                LatLng.from(37.33869695980336,127.09438097621258),
+//                LatLng.from(37.337824766739104,127.09437537101812),
+//                LatLng.from(37.33770221229771,127.09439327300674),
+//                LatLng.from(37.33770221229771,127.09439327300674),
+//                LatLng.from(37.3376974871616,127.09578804101909),
+//                LatLng.from(37.3376974871616,127.09578804101909),
+//                LatLng.from(37.336219787367654,127.0957997057665),
+//                LatLng.from(37.33621663148788,127.09524451138867),
+//                LatLng.from(37.336234684781665,127.09520391048807),
+//                LatLng.from(37.336234684781665,127.09520391048807),
+//                LatLng.from(37.33645497790997,127.09465351015245));
 
         return routePoints;
+    }
+
+    public List<LatLng> parseRouteAll(String json) {
+        List<LatLng> RoutePointList = new ArrayList<>();
+
+        try {
+            // JSON 전체 객체를 먼저 파싱합니다.
+            JSONObject jsonObject = new JSONObject(json);
+
+            // "data" 키에 있는 JSON 객체를 추출합니다.
+            JSONObject dataObject = jsonObject.getJSONObject("data");
+
+            // "locations" 배열을 추출합니다.
+            JSONArray locationsArray = dataObject.getJSONArray("locations");
+
+            for (int i = 0; i < locationsArray.length(); i++) {
+                JSONObject locationObject = locationsArray.getJSONObject(i);
+
+                // 필요한 데이터 추출
+                double latitude = locationObject.getDouble("latitude");
+                double longitude = locationObject.getDouble("longitude");
+
+                // 객체 생성 및 리스트에 추가
+                LatLng routePoint = LatLng.from(latitude,longitude);
+                RoutePointList.add(routePoint);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return RoutePointList;
+    }
+
+
+
+    public String httpGetConnection(String UrlData) {
+        String responseData = "";
+        BufferedReader br = null;
+
+        try {
+            URL url = new URL(UrlData);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setRequestProperty("Accept", "application/json");
+
+            // 서버 응답 읽기
+            br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            while ((responseData = br.readLine()) != null) {
+                sb.append(responseData);
+            }
+
+            return sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void seeNetworkResult(String result) {
+        Log.d("NetworkResult", result);
     }
 }

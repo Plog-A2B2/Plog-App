@@ -73,6 +73,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class FinishActivity extends AppCompatActivity {
     HashMap<String, Integer> trashCountMap = new HashMap<>();
@@ -101,7 +102,8 @@ public class FinishActivity extends AppCompatActivity {
     private boolean isPhotoVisible = false;
     private ImageView switchViewButton;
     private ImageView photoImageView;
-
+    int activityId;
+    ArrayList<LatLng> runRoutePoints;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +122,15 @@ public class FinishActivity extends AppCompatActivity {
 
         String time = getIntent().getStringExtra("time");
         String distance = getIntent().getStringExtra("distance");
+        activityId = getIntent().getIntExtra("activityId", 0);
+        ArrayList<com.a2b2.plog.LatLng> getRoutePoints = (ArrayList<com.a2b2.plog.LatLng>) intent.getSerializableExtra("runRoutePoints");
+
+        for (com.a2b2.plog.LatLng point : getRoutePoints) {
+            LatLng plogPoint = LatLng.from(point.getLatitude(), point.getLongitude());
+            runRoutePoints.add(plogPoint);
+        }
+
+        UUID uuid = UserManager.getInstance().getUserId();
 
         tvFinalTime.setText(time);
         tvFinalDistance.setText(distance);
@@ -145,6 +156,19 @@ public class FinishActivity extends AppCompatActivity {
                 builder.setMessage("루트로 등록하시겠습니까?")
                         .setPositiveButton("네", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+
+                                String url;
+                                url = "http://15.164.152.246:8080/activitys/" + uuid + "/" + activityId + "/route";
+// JSON 문자열을 구성하기 위한 StringBuilder 사용
+                                String data = "";
+
+                                // jsonData를 서버에 전송
+                                Log.d("data", data);
+                                new Thread(() -> {
+                                    String result = httpPostBodyConnectionRouteCreate(url, data);
+                                    handler.post(() -> Log.d("FinishActivity", "routeCreate completed: " + result));
+                                }).start();
+
                                 // "네" 버튼 클릭 시 알림창 표시
                                 Toast.makeText(FinishActivity.this, "루트로 등록되었습니다", Toast.LENGTH_SHORT).show();
                                 // 다이얼로그 닫기
@@ -231,7 +255,9 @@ public class FinishActivity extends AppCompatActivity {
                 kakaoMap = map;
                 layer = kakaoMap.getRouteLineManager().getLayer();
 
-                fetchRoutePointsFromServer();
+//                fetchRoutePointsFromServer();
+                drawRouteOnMap(runRoutePoints);
+
             }
         });
 
@@ -255,8 +281,7 @@ public class FinishActivity extends AppCompatActivity {
 
                 try {
 
-                    String url = "http://15.164.152.246:8080/trash/C3B29059-A9EA-4B7C-B7FE-3C402BB38B47/record";
-                    //String url = "http://15.164.152.246:8080/trash/"+uuid;
+                    String url = "http://15.164.152.246:8080/trash/" + uuid + "/" + activityId + "/record";
                     String data = "{\"garbage\" : \""+trashCountMap.get("일반쓰레기")+"\",\"can\" : \""+trashCountMap.get("캔/고철류")+"\",\"plastic\" : \""+trashCountMap.get("플라스틱")+"\",\"paper\" : \""+trashCountMap.get("종이류")+"\", \"plastic_bag\" : \""+trashCountMap.get("비닐류")+"\", \"glass\" : \""+trashCountMap.get("종이류")+"\"}";
                     Log.d("쓰레기 전송값", data);
                     new Thread(() -> {
@@ -278,7 +303,45 @@ public class FinishActivity extends AppCompatActivity {
         });
 
     }
+    public String httpPostBodyConnectionRouteCreate(String UrlData, String ParamData) {
+        String responseData = "";
+        BufferedReader br = null;
 
+        try {
+            URL url = new URL(UrlData);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PATCH");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] request_data = ParamData.getBytes("utf-8");
+                os.write(request_data);
+            }
+
+            conn.connect();
+
+            br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            while ((responseData = br.readLine()) != null) {
+                sb.append(responseData);
+            }
+
+            return sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return responseData;
+    }
     private void requestCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -408,33 +471,13 @@ public class FinishActivity extends AppCompatActivity {
         }
     }
 
-    private void fetchRoutePointsFromServer() {
-        // 실제 서버에서 데이터를 받아오는 코드로 대체해야 합니다.
-        // 여기서는 더미 데이터를 사용합니다.
-        List<LatLng> fetchedPoints = getDummyRoutePoints();
-
-        if (fetchedPoints != null && !fetchedPoints.isEmpty()) {
-            routePoints.addAll(fetchedPoints);
-            drawRouteOnMap(routePoints);
-        } else {
-            Toast.makeText(this, "경로 데이터를 받아오는 데 실패했습니다.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void drawRouteOnMap(List<LatLng> routePoints) {
+    private void drawRouteOnMap(ArrayList<LatLng> routePoints) {
         if (kakaoMap != null) {
-//            PolylineOptions polylineOptions = new PolylineOptions()
-//                    .addAll(routePoints)
-//                    .color(0xFF0000FF) // 선 색상 (파란색)
-//                    .width(5); // 선 두께
 
-            RouteLineStyle style = RouteLineStyle.from(getBaseContext(),
+            RouteLineStyle style = RouteLineStyle.from(FinishActivity.this,
                     R.style.SimpleRouteLineStyle);
             RouteLineOptions options = RouteLineOptions.from(
                     Arrays.asList(RouteLineSegment.from(routePoints, style)));
-
-
-//            Polyline polyline = kakaoMap.addPolyline(polylineOptions);
 
             routeLine = layer.addRouteLine(options);
             kakaoMap.moveCamera(CameraUpdateFactory.newCenterPosition(

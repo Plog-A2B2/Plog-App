@@ -62,7 +62,7 @@ public class RouteListActivity extends AppCompatActivity implements RouteAdapter
         String data = "";
 
         new Thread(() -> {
-            result = httpPostBodyConnection(url, data);
+            result = httpGetConnection(url);
             handler.post(() -> { seeNetworkResult(result);
                 if(result != null && !result.isEmpty())
                     routeList = parseRouteAll(result);
@@ -171,25 +171,18 @@ public class RouteListActivity extends AppCompatActivity implements RouteAdapter
     }
 
 
-    public String httpPostBodyConnection(String UrlData, String ParamData) {
+    public String httpGetConnection(String UrlData) {
         String responseData = "";
         BufferedReader br = null;
 
         try {
             URL url = new URL(UrlData);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
+            conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-Type", "application/json; utf-8");
             conn.setRequestProperty("Accept", "application/json");
-            conn.setDoOutput(true);
 
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] request_data = ParamData.getBytes("utf-8");
-                os.write(request_data);
-            }
-
-            conn.connect();
-
+            // 서버 응답 읽기
             br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
             StringBuilder sb = new StringBuilder();
             while ((responseData = br.readLine()) != null) {
@@ -199,6 +192,7 @@ public class RouteListActivity extends AppCompatActivity implements RouteAdapter
             return sb.toString();
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         } finally {
             try {
                 if (br != null) {
@@ -208,8 +202,8 @@ public class RouteListActivity extends AppCompatActivity implements RouteAdapter
                 e.printStackTrace();
             }
         }
-        return responseData;
     }
+
 
     public void seeNetworkResult(String result) {
         Log.d("NetworkResult", result);
