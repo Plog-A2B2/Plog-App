@@ -6,4 +6,6 @@
     <color name="green">#ECF2D3</color>
     <color name="gray">#E5E5EC</color>
     <color name="deepRed">#9B111E</color>
+    <color name="joined">#4A6585</color>
+    <color name="liked">#DB7BB5</color>
 </resources>

@@ -54,7 +54,8 @@
             android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="등록된 게시글이 없습니다."/>
+            android:text="등록된 게시글이 없습니다."
+            android:visibility="gone"/>
 
 
         <androidx.recyclerview.widget.RecyclerView

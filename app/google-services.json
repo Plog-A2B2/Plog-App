@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "716528667886",
+    "project_id": "plog-97f27",
+    "storage_bucket": "plog-97f27.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:716528667886:android:011dd4e372189727a537ff",
+        "android_client_info": {
+          "package_name": "com.a2b2.plog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6foIkIBuTkfghGpghq7RlpF_vyD6rvos"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -36,6 +36,8 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -77,6 +79,17 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Firebase 초기화
+        FirebaseApp.initializeApp(this);
+        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
+            @Override
+            public void onSuccess(String token) {
+               // tb.setToken(token);
+                Log.d("FCM Log", "Refreshed token: "+token);
+
+            }
+        });
 
         logoImg = findViewById(R.id.logoImg);
         logoImg.setOnClickListener(new View.OnClickListener() {
@@ -130,8 +143,16 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
 
 // "data" 객체를 먼저 추출
                     JsonObject dataObject = jsonObject.getAsJsonObject("data");
+                    JsonObject message = jsonObject.getAsJsonObject("message");
 
-// "data" 객체에서 "userNickname"과 "userUUID" 추출
+                    if(dataObject.equals("로그인 실패")){
+                        TextView loginFail = findViewById(R.id.loginFail);
+                        loginFail.setVisibility(View.VISIBLE);
+                        Animation shake = AnimationUtils.loadAnimation(MainActivity.this, R.anim.shake_fast);
+                        loginFail.startAnimation(shake);
+                    }
+
+                    // "data" 객체에서 "userNickname"과 "userUUID" 추출
                     userNickname = dataObject.get("userNickname").getAsString();
                     String userUUIDStr = dataObject.get("userUUID").getAsString();
                     userUUID = UUID.fromString(userUUIDStr);
