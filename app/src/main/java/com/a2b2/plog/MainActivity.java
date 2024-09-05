@@ -19,6 +19,8 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -39,6 +41,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -118,30 +121,41 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                     JsonObject dataObject = jsonObject.getAsJsonObject("data");
 
 // "data" 객체에서 "userNickname"과 "userUUID" 추출
-                    String userNickname = dataObject.get("userNickname").getAsString();
+                    userNickname = dataObject.get("userNickname").getAsString();
                     String userUUIDStr = dataObject.get("userUUID").getAsString();
-                    UUID userUUID = UUID.fromString(userUUIDStr);
+                    userUUID = UUID.fromString(userUUIDStr);
 
 // UserManager 업데이트
-                    UserManager userManager = UserManager.getInstance();
-                    userManager.setUserNickname(userNickname);
-                    userManager.setUserId(userUUID);
+
 
 // 처리 결과 확인
-                    handler.post(() -> seeNetworkResult(result));
+                    handler.post(() -> {
+
+                        seeNetworkResult(result);
+                        if( UserManager.getInstance().getUserId() == null && UserManager.getInstance().getUserNickname() == null){
+//                        Toast.makeText(getApplicationContext(), "아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_LONG).show();
+                            TextView loginFail = findViewById(R.id.loginFail);
+                            loginFail.setVisibility(View.VISIBLE);
+                            Animation shake = AnimationUtils.loadAnimation(MainActivity.this, R.anim.shake_fast);
+                            loginFail.startAnimation(shake);
+
+                            Log.d("logintest", "로그인실패");
+                        } else{
+                            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                            startActivity(intent);
+                            overridePendingTransition(0, 0);
+                            finish();
+                        }
+                    });
+
+
+
 
                 }).start();
 
-                Log.d("logintest", userNickname+" "+userUUID);
 
-                if( UserManager.getInstance().getUserId() ==null && UserManager.getInstance().getUserNickname() == null){
-                    Toast.makeText(getApplicationContext(), "아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_LONG).show();
-                } else{
-                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                    startActivity(intent);
-                    overridePendingTransition(0, 0);
-                    finish();
-                }
+
+
 
 //                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
 //                startActivity(intent);
@@ -363,5 +377,15 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
     public void seeNetworkResult(String result) {
         // 네트워크 작업 완료 후
         Log.d(result, "network");
+        UserManager userManager = UserManager.getInstance();
+        userManager.setUserNickname(userNickname);
+        userManager.setUserId(userUUID);
+        Log.d("닉네임",userNickname);
+
+        Log.d("logintest", userNickname+" "+userUUID);
+
+        Log.d("UserManager.getUserId", String.valueOf(UserManager.getInstance().getUserId()));
+        Log.d("UserManager.getUserNickname", UserManager.getInstance().getUserNickname());
+//        Log.d("uuid",userUUIDStr);
     }
 }

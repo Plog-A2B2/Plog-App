@@ -119,6 +119,16 @@
                 android:background="@drawable/no_background"/>
         </LinearLayout>
         <TextView
+            android:id="@+id/loginFail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="로그인 실패"
+            android:textSize="17sp"
+            android:fontFamily="@font/nanumbarungothic"
+            android:textColor="@color/deepRed"
+            android:visibility="gone"/>
+
+        <TextView
             android:id="@+id/tv1"
             android:layout_marginTop="40dp"
             android:layout_width="match_parent"

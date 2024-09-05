@@ -47,6 +47,10 @@ public class CommunityActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_community);
         logo = findViewById(R.id.title);
+
+        // 싱글톤 인스턴스 가져오기
+//        UserManager userManager = UserManager.getInstance();
+//        String userId = userManager.getUserId();
         logo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
