@@ -1011,7 +1011,7 @@ public class PloggingActivity extends AppCompatActivity {
                 Log.d("유저 닉네임: ", userNickname);
 
                 // Route 객체 생성 및 리스트에 추가
-                RealtimePloggerItem plogger = new RealtimePloggerItem(badgeId, userNickname);
+                RealtimePloggerItem plogger = new RealtimePloggerItem(BadgeManager.getDrawableForBadgeId(badgeId), userNickname);
                 RealtimePloggerList.add(plogger);
             }
         } catch (JSONException e) {
