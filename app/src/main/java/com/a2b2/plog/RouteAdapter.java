@@ -52,10 +52,21 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.RouteViewHol
     @Override
     public void onBindViewHolder(RouteViewHolder holder, int position) {
         Route route = routeList.get(position);
-        holder.originTextView.setText(route.getOrigin());
-        holder.destinationTextView.setText(route.getDestination());
-        holder.distanceTextView.setText(route.getDistance());
-        holder.timeTextView.setText(route.getTime());
+        holder.originTextView.setText("출발지: :" + route.getOrigin());
+        holder.destinationTextView.setText("도착지: " + route.getDestination());
+        holder.distanceTextView.setText((int) route.getDistance() + "km");
+        // route.getTime()이 초 단위로 반환된다고 가정
+        int timeInSeconds = route.getTime();
+
+        // 초를 시와 분으로 변환
+        int hours = timeInSeconds / 3600;  // 1시간 = 3600초
+        int minutes = (timeInSeconds % 3600) / 60;  // 나머지 초를 분으로 변환
+
+        // 형식에 맞게 문자열로 변환
+        String timeFormatted = String.format("%dh %dm", hours, minutes);
+
+        // TextView에 설정
+        holder.timeTextView.setText(timeFormatted);
 
 //        // Highlight the selected route
 //        if (selectedRoute != null && selectedRoute.getId().equals(route.getId())) {
