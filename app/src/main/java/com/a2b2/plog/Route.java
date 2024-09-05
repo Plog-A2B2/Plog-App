@@ -5,11 +5,11 @@ import java.io.Serializable;
 public class Route implements Serializable {
     private String origin;
     private String destination;
-    private String distance;
-    private String time;
-    private String id;
+    private double distance;
+    private int time;
+    private int id;
 
-    public Route(String id, String origin, String destination, String distance, String time) {
+    public Route(int id, String origin, String destination, double distance, int time) {
         this.id = id;
         this.origin = origin;
         this.destination = destination;
@@ -17,7 +17,7 @@ public class Route implements Serializable {
         this.time = time;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
@@ -29,11 +29,11 @@ public class Route implements Serializable {
         return destination;
     }
 
-    public String getDistance() {
+    public double getDistance() {
         return distance;
     }
 
-    public String getTime() {
+    public int getTime() {
         return time;
     }
 

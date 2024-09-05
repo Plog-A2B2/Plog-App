@@ -88,7 +88,7 @@ public class RouteDialogFragment extends DialogFragment {
 //            Log.d("RouteDialogFragment", "prefsHelper is null");
 //        }
 
-        if (prefsHelper.getRoute() != null && prefsHelper.getRoute().getId().equals(route.getId())) {
+        if (prefsHelper.getRoute() != null && prefsHelper.getRoute().getId() == route.getId()) {
             isRouteSelected = true;
             buttonSelect.setText("선택 취소");
             buttonSelect.setBackground(getActivity().getDrawable(R.drawable.round_rectangle_realgreen));
