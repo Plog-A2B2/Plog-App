@@ -37,8 +37,8 @@ public class CommunityPostActivity extends AppCompatActivity {
     private ImageView backBtn;
     private EditText title, ploggingPlace, meetingDate, meetingPlace, text;
     private Button enterBtn;
-    private String f_title, f_ploggingPlace, f_meetingPlace, f_text;
-    private int f_meetingDate;
+    private String f_title, f_ploggingPlace, f_meetingPlace, f_text, f_meetingDate;
+
     private Handler handler;
     private SettingLocationDialog ploggingLocationDialog;
 
@@ -51,7 +51,7 @@ public class CommunityPostActivity extends AppCompatActivity {
         title = findViewById(R.id.title);
         ploggingPlace = findViewById(R.id.ploggingPlace);
         meetingDate = findViewById(R.id.meetingDate);
-//        meetingPlace = findViewById(R.id.meetingPlace);
+        meetingPlace = findViewById(R.id.meetingPlace);
         text = findViewById(R.id.text);
         enterBtn = findViewById(R.id.enterBtn);
 
@@ -91,14 +91,15 @@ public class CommunityPostActivity extends AppCompatActivity {
                 f_ploggingPlace = ploggingPlace.getText().toString();
                 f_meetingPlace = meetingPlace.getText().toString();
                 f_text = text.getText().toString();
-                f_meetingDate = Integer.parseInt(meetingDate.getText().toString());
+                f_meetingDate = meetingDate.getText().toString();
                 Log.d(f_title, f_title);
                 Log.d(f_ploggingPlace, f_ploggingPlace);
                 Log.d(f_meetingPlace, f_meetingPlace);
                 Log.d(f_text, f_text);
                 Log.d("f_meetingDate", String.valueOf(f_meetingDate));
 
-                UUID uuid = UUID.fromString("8D841B8A-C15A-4657-95AC-AB28ED6F0190");
+                UUID uuid = UserManager.getInstance().getUserId();
+                Log.d("uuid", String.valueOf(uuid));
                 String url = "http://15.164.152.246:8080/post/"+uuid+"/createpost";
                 String data = "{\"title\" : \""+f_title+"\",\"plogPlace\" : \""+f_ploggingPlace+"\", \"meetPlace\" :  \""+f_ploggingPlace+"\" , \"content\" : \""+f_text+"\", \"schedule\" : \""+f_meetingDate+"\"}";
                 new Thread(() -> {
