@@ -98,12 +98,14 @@ public class CommunityPostActivity extends AppCompatActivity {
                 Log.d(f_text, f_text);
                 Log.d("f_meetingDate", String.valueOf(f_meetingDate));
 
+                handler = new Handler();
                 UUID uuid = UserManager.getInstance().getUserId();
                 Log.d("uuid", String.valueOf(uuid));
                 String url = "http://15.164.152.246:8080/post/"+uuid+"/createpost";
                 String data = "{\"title\" : \""+f_title+"\",\"plogPlace\" : \""+f_ploggingPlace+"\", \"meetPlace\" :  \""+f_ploggingPlace+"\" , \"content\" : \""+f_text+"\", \"schedule\" : \""+f_meetingDate+"\"}";
                 new Thread(() -> {
                     String result = httpPostBodyConnection(url, data);
+                    Log.d("Server Response", result);  // 응답 로그 추가
                     // 처리 결과 확인
                     handler.post(() -> {
                         seeNetworkResult(result);
@@ -117,6 +119,9 @@ public class CommunityPostActivity extends AppCompatActivity {
                             // 추출한 userId 출력
                             System.out.println("받은 값" + message);
                             Toast.makeText(CommunityPostActivity.this,message+"완료",Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(CommunityPostActivity.this, CommunityActivity.class);
+                            startActivity(intent);
+                            finish();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

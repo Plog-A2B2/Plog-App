@@ -42,6 +42,7 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
         holder.title.setText(communityItem.getTitle());
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, CommunityPostShowActivity.class);
+            intent.putExtra("postId", communityItem.getPostId()); // postId를 Intent로 전달
             context.startActivity(intent);
         });
         GradientDrawable background = (GradientDrawable) ContextCompat.getDrawable(context, R.drawable.rounded_green_square);

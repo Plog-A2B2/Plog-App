@@ -50,6 +50,46 @@ public class CommunityActivity extends AppCompatActivity {
 
         handler = new Handler(Looper.getMainLooper());
 
+        //UUID uuid = UUID.fromString("8D841B8A-C15A-4657-95AC-AB28ED6F0190");
+        UUID uuid = UserManager.getInstance().getUserId();
+        Log.d("uuid", String.valueOf(uuid));
+        // GET 요청을 위한 ParamData 제거
+        String url = "http://15.164.152.246:8080/post/"+uuid+"/all";  // 예: http://example.com
+
+        new Thread(() -> {
+            String result = httpGetConnection(url, "");
+            // 처리 결과 확인
+            handler = new Handler(Looper.getMainLooper());
+            if (handler != null) {
+                handler.post(() -> {
+                    if(result != null && !result.isEmpty()) {
+
+                        if (communitylists == null) {
+                            communitylists = new ArrayList<>();
+                        } else{
+                            communitylists.clear();
+                        }
+                        communitylists.addAll(parseCommunityList(result));
+                        // tripPlans 초기화 및 데이터 파싱
+
+//                                tripPlans = parseTripPlan(result);
+//                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + tripPlans.size());
+
+                        // 데이터 확인 로그
+                        Log.d("TripPlansSize", "Size of tripPlans after parsing: " + communitylists.size());
+                        for (CommunityList clist : communitylists) {
+                            Log.d("TripPlan", "포스트아이디 : "+String.valueOf(clist.getPostId())+"제목 : "+clist.getTitle()+"시간 : "+clist.getTime()+"닉네임 :"+clist.getUserNickname());
+                        }
+                        // UI 갱신
+                        updateUI();
+                    } else {
+                        Log.e("Error", "Result is null or empty");
+                    }
+                    seeNetworkResult(result);
+                });
+            }
+        }).start();
+
 
         // 싱글톤 인스턴스 가져오기
 
@@ -195,44 +235,48 @@ public class CommunityActivity extends AppCompatActivity {
         ArrayList<CommunityList> communitylists = new ArrayList<>();
 
         try {
-            JSONArray jsonArray = new JSONArray(json);
+
+            // 전체 JSON 데이터는 JSONObject로 파싱
+            JSONObject jsonObject = new JSONObject(json);
+
+            // JSONObject에서 "data" 필드를 JSONArray로 추출
+            JSONArray jsonArray = jsonObject.getJSONArray("data");
 
             for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                JSONObject postObject = jsonArray.getJSONObject(i);
 
                 int postId = 0;
-                int badge = 0;
+                int badge = 1;
                 String title = null;
                 String time = null;
                 String userNickname = null;
 
-                if (jsonObject.has("postId")) {
-                    postId = jsonObject.getInt("postId");
+                if (postObject.has("postId")) {
+                    postId = postObject.getInt("postId");
                     Log.d("postId", String.valueOf(postId));
                 }
-                if (jsonObject.has("badge")) {
-                    badge = jsonObject.getInt("badge");
+                if (postObject.has("badge")) {
+                    badge = postObject.getInt("badge");
                     Log.d("badge", String.valueOf(badge));
                 }
-                if (jsonObject.has("title")) {
-                    title = jsonObject.getString("title");
+                if (postObject.has("title")) {
+                    title = postObject.getString("title");
                     Log.d("title", title);
                 }
-                if (jsonObject.has("time")) {
-                    time = jsonObject.getString("time");
+                if (postObject.has("time")) {
+                    time = postObject.getString("time");
                     Log.d("time", time);
                 }
-
-                if (jsonObject.has("userNickname")) {
-                    userNickname = jsonObject.getString("userNickname");
+                if (postObject.has("userNickname")) {
+                    userNickname = postObject.getString("userNickname");
                     Log.d("userNickname", userNickname);
                 }
 
-                if (postId !=0 && badge !=0 && title != null && time != null && userNickname!=null) {
-                    CommunityList communitylist = new CommunityList(postId,R.drawable.tiger,title,time,userNickname);
+                if (postId != 0 && badge != 0 && title != null && time != null && userNickname != null) {
+                    CommunityList communitylist = new CommunityList(postId, R.drawable.tiger, title, time, userNickname);
                     communitylists.add(communitylist);
                 } else {
-                    Log.e("JSONError", "Missing key in JSON object: " + jsonObject.toString());
+                    Log.e("JSONError", "Missing key in JSON object: " + postObject.toString());
                 }
             }
         } catch (JSONException e) {
