@@ -11,6 +11,17 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
 public class MyPageActivity extends AppCompatActivity {
 
     private ImageView rank, community, mission, home;
@@ -24,6 +35,8 @@ public class MyPageActivity extends AppCompatActivity {
 
     private Place location, standardLocation;
     private Button saveBtn;
+
+    Double latitude, longtitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +76,28 @@ public class MyPageActivity extends AppCompatActivity {
             public void onItemClick(Place document) {
                 if (document != null) {
                     location = document;
-                    standardLocation = new Place(location.getPlaceName(), location.getAddress(), 0, 0);
-                    standardLocationTextView.setText("기준 위치: " + document.getPlaceName());
+
+                    new Thread(() -> {
+                        try {
+                            // 네트워크 작업 수행
+                            getGeoDataByAddress("서울특별시 송파구 송파대로 570");
+
+                            // UI 업데이트를 메인 스레드에서 실행
+                            runOnUiThread(() -> {
+                                // 결과 처리
+
+                                standardLocation = new Place(location.getPlaceName(), location.getAddress(), latitude, longtitude);
+                                standardLocationTextView.setText("기준 위치: " + document.getPlaceName());
+                                Log.d("geoDataByAddress", String.valueOf(latitude) + ", " + longtitude);
+                            });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
+
+
+
+
                 }
             }
         });
@@ -144,5 +177,45 @@ public class MyPageActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private void getGeoDataByAddress(String completeAddress) {
+        try {
+            String API_KEY = "AIzaSyC6FB54gjhzW2wfkKqD8vo5OybyxW55k8M";
+            String surl = "https://maps.googleapis.com/maps/api/geocode/json?address=" + URLEncoder.encode(completeAddress, "UTF-8") + "&key=" + API_KEY;
+            URL url = new URL(surl);
+            InputStream is = url.openConnection().getInputStream();
+
+            BufferedReader streamReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+
+            StringBuilder responseStrBuilder = new StringBuilder();
+            String inputStr;
+            while ((inputStr = streamReader.readLine()) != null) {
+                responseStrBuilder.append(inputStr);
+            }
+
+            JSONObject jo = new JSONObject(responseStrBuilder.toString());
+            JSONArray results = jo.getJSONArray("results");
+            String region = null;
+            String province = null;
+            String zip = null;
+            if (results.length() > 0) {
+                JSONObject jsonObject;
+                jsonObject = results.getJSONObject(0);
+                Double lat = jsonObject.getJSONObject("geometry").getJSONObject("location").getDouble("lat");
+                Double lng = jsonObject.getJSONObject("geometry").getJSONObject("location").getDouble("lng");
+//                ret.put(lat);
+//                ret.put(lng);
+                latitude = lat;
+                longtitude = lng;
+
+                System.out.println("LAT:\t\t" + lat);
+                System.out.println("LNG:\t\t" + lng);
+                JSONArray ja = jsonObject.getJSONArray("address_components");
+
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 }
