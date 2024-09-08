@@ -47,32 +47,6 @@ public class MyPageActivity extends AppCompatActivity {
         if (isPushAlarmOn == true) {
             standardLocationTextView.setVisibility(View.VISIBLE);
             settingLocationDialog.show();
-            //fcm
-            Intent intent = getIntent();
-            if(intent != null) {//푸시알림을 선택해서 실행한것이 아닌경우 예외처리
-                String notificationData = intent.getStringExtra("test");
-                if(notificationData != null)
-                    Log.d("FCM_TEST", notificationData);
-            }
-
-            FirebaseMessaging.getInstance().getToken()
-                    .addOnCompleteListener(new OnCompleteListener<String>() {
-                        @Override
-                        public void onComplete(@NonNull Task<String> task) {
-                            if (!task.isSuccessful()) {
-                                System.out.println("Fetching FCM registration token failed");
-                                return;
-                            }
-
-                            // Get new FCM registration token
-                            String token = task.getResult();
-
-                            // Log and toast
-//                        System.out.println(token);
-//                        Toast.makeText(LoginActivity.this, "Your device registration token is" + token
-//                                , Toast.LENGTH_SHORT).show();
-                        }
-                    });
         } else {
             standardLocationTextView.setVisibility(View.GONE);
         }
