@@ -53,6 +53,7 @@ public class HomeActivity extends AppCompatActivity {
     private Button plggingStartBut;
     private SharedPreferencesHelper prefsHelper;
     Handler handler;
+    private ImageView logo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,17 +65,35 @@ public class HomeActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.ploggerRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        handler = new Handler();
+        logo = findViewById(R.id.logoImg);
+        logo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handler = new Handler();
+                String url = "http://15.164.152.246:8080/profile/active";
+                UUID uuid = UUID.fromString("57F7C28F-67A6-4091-B837-8C3168653B81");
 
-        String url = "http://15.164.152.246:8080/profile/active";
-        UUID uuid = UUID.fromString("57F7C28F-67A6-4091-B837-8C3168653B81");
+                new Thread(() -> {
+                    String result = httpGetConnection(url, "");
+                    ploggingItems = parseCommunityList(result);
+                    // 처리 결과 확인
+                    handler.post(() -> seeNetworkResult(result));
+                }).start();
+            }
+        });
 
-        new Thread(() -> {
-            String result = httpGetConnection(url, "");
-            ploggingItems = parseCommunityList(result);
-            // 처리 결과 확인
-            handler.post(() -> seeNetworkResult(result));
-        }).start();
+//        handler = new Handler();
+//
+//
+//        String url = "http://15.164.152.246:8080/profile/active";
+//        UUID uuid = UUID.fromString("57F7C28F-67A6-4091-B837-8C3168653B81");
+//
+//        new Thread(() -> {
+//            String result = httpGetConnection(url, "");
+//            ploggingItems = parseCommunityList(result);
+//            // 처리 결과 확인
+//            handler.post(() -> seeNetworkResult(result));
+//        }).start();
 
 
 //        ploggingItems = new ArrayList<>();

@@ -17,6 +17,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <Button
+        android:id="@+id/testBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/postBackground"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/testBtn2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/postBackground"
+        app:layout_constraintEnd_toStartOf="@+id/testBtn" />
+
+
     <LinearLayout
         android:id="@+id/postBackground"
         android:layout_width="match_parent"
@@ -141,6 +156,7 @@
         android:layout_marginTop="15dp">
 
         <TextView
+            android:id="@+id/editBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/nanumbarungothiclight"

@@ -1,5 +1,6 @@
 package com.a2b2.plog;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
@@ -10,6 +11,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MyPageActivity extends AppCompatActivity {
 
@@ -42,6 +47,32 @@ public class MyPageActivity extends AppCompatActivity {
         if (isPushAlarmOn == true) {
             standardLocationTextView.setVisibility(View.VISIBLE);
             settingLocationDialog.show();
+            //fcm
+            Intent intent = getIntent();
+            if(intent != null) {//푸시알림을 선택해서 실행한것이 아닌경우 예외처리
+                String notificationData = intent.getStringExtra("test");
+                if(notificationData != null)
+                    Log.d("FCM_TEST", notificationData);
+            }
+
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(new OnCompleteListener<String>() {
+                        @Override
+                        public void onComplete(@NonNull Task<String> task) {
+                            if (!task.isSuccessful()) {
+                                System.out.println("Fetching FCM registration token failed");
+                                return;
+                            }
+
+                            // Get new FCM registration token
+                            String token = task.getResult();
+
+                            // Log and toast
+//                        System.out.println(token);
+//                        Toast.makeText(LoginActivity.this, "Your device registration token is" + token
+//                                , Toast.LENGTH_SHORT).show();
+                        }
+                    });
         } else {
             standardLocationTextView.setVisibility(View.GONE);
         }
