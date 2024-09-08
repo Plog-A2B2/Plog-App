@@ -1,5 +1,6 @@
 package com.a2b2.plog;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -21,6 +23,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+
 
 public class MyPageActivity extends AppCompatActivity {
 

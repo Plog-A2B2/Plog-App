@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,6 +48,16 @@ public class CommunityActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_community);
         logo = findViewById(R.id.title);
+
+        Button nextBtn = findViewById(R.id.nextBtn);
+        nextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CommunityActivity.this, CommunityPostShowActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         handler = new Handler(Looper.getMainLooper());
 
