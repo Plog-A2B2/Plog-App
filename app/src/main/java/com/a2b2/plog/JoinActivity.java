@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -58,6 +59,17 @@ public class JoinActivity extends AppCompatActivity {
         idDuCheckBtn = findViewById(R.id.idDuCheckBtn);
         join = findViewById(R.id.join);
         fin = findViewById(R.id.fin);
+        ImageView back = findViewById(R.id.backBtn);
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(JoinActivity.this, MainActivity.class);
+                startActivity(intent);
+                overridePendingTransition(2, 0);
+                finish();
+            }
+        });
 
         // 닉네임 중복 확인 버튼 클릭 이벤트
         nickDu.setOnClickListener(v -> nickDuCheckTxt.setVisibility(View.VISIBLE));

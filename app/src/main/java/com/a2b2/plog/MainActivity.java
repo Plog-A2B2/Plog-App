@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 finish();
             }
         });
@@ -176,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                         } else{
                             Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                             startActivity(intent);
-                            overridePendingTransition(0, 0);
+                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                             finish();
                         }
                     });
@@ -202,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, JoinActivity.class);
                 startActivity(intent);
-                overridePendingTransition(0, 0);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 finish();
 
             }
