@@ -111,14 +111,13 @@
                 android:layout_gravity="center"
                 android:fontFamily="@font/nanumbarungothiclight"
                 android:textSize="15sp"/>
-            <EditText
+            <TextView
                 android:id="@+id/meetingPlace"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:background="@drawable/semiround_rectangle_white"
                 android:gravity="center"
                 android:hint="모임 장소를 적어주세요!"
-
                 android:fontFamily="@font/nanumbarungothiclight"
                 android:textSize="15sp"/>
         </LinearLayout>
