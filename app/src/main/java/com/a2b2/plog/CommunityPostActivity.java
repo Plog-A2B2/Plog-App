@@ -15,37 +15,44 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.UUID;
 
 //커뮤니티 게시글 작성 액티비티
 public class CommunityPostActivity extends AppCompatActivity {
 
     private ImageView backBtn;
-    private EditText title, ploggingPlace, meetingDate, meetingPlace, text;
+    private TextView meetingPlace;
+    private EditText title, ploggingPlace, meetingDate, text;
     private Button enterBtn;
     private String f_title, f_ploggingPlace, f_meetingPlace, f_text, f_meetingDate;
-
+    private SettingLocationDialog settingLocationDialog;
     private Handler handler;
-    private SettingLocationDialog ploggingLocationDialog;
-
+    private Double latitude, longtitude;
+    private Place location, standardLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_community_post);
+
+        settingLocationDialog = new SettingLocationDialog(this);
 
         backBtn = findViewById(R.id.backBtn);
         title = findViewById(R.id.title);
@@ -54,8 +61,41 @@ public class CommunityPostActivity extends AppCompatActivity {
         meetingPlace = findViewById(R.id.meetingPlace);
         text = findViewById(R.id.text);
         enterBtn = findViewById(R.id.enterBtn);
+        meetingPlace = findViewById(R.id.meetingPlace);
 
-        ploggingLocationDialog = new SettingLocationDialog(this);
+        meetingPlace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                settingLocationDialog.show();
+            }
+        });
+        settingLocationDialog.setOnItemClickListener(new SettingLocationDialog.OnItemClickListener() {
+            @Override
+            public void onItemClick(Place document) {
+                if (document != null) {
+                    location = document;
+
+                    new Thread(() -> {
+                        try {
+                            // 네트워크 작업 수행
+                            getGeoDataByAddress("서울특별시 송파구 송파대로 570");
+
+                            // UI 업데이트를 메인 스레드에서 실행
+                            runOnUiThread(() -> {
+                                // 결과 처리
+
+                                standardLocation = new Place(location.getPlaceName(), location.getAddress(), latitude, longtitude);
+                                meetingPlace.setText("기준 위치: " + document.getPlaceName());
+                                Log.d("geoDataByAddress", String.valueOf(latitude) + ", " + longtitude);
+                            });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
+                }
+            }
+        });
+
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,7 +129,8 @@ public class CommunityPostActivity extends AppCompatActivity {
 
                 f_title = title.getText().toString();
                 f_ploggingPlace = ploggingPlace.getText().toString();
-                f_meetingPlace = meetingPlace.getText().toString();
+                Log.d("meetingPlace",meetingPlace.toString());
+                //f_meetingPlace = meetingPlace.getText().toString();
                 f_text = text.getText().toString();
                 f_meetingDate = meetingDate.getText().toString();
                 Log.d(f_title, f_title);
@@ -102,7 +143,7 @@ public class CommunityPostActivity extends AppCompatActivity {
                 UUID uuid = UserManager.getInstance().getUserId();
                 Log.d("uuid", String.valueOf(uuid));
                 String url = "http://15.164.152.246:8080/post/"+uuid+"/createpost";
-                String data = "{\"title\" : \""+f_title+"\",\"plogPlace\" : \""+f_ploggingPlace+"\", \"meetPlace\" :  \""+f_ploggingPlace+"\" , \"content\" : \""+f_text+"\", \"schedule\" : \""+f_meetingDate+"\"}";
+                String data = "{\"title\" : \""+f_title+"\",\"plogPlace\" : \""+f_ploggingPlace+"\", \"meetPlace\" :  \""+meetingPlace.toString()+"\" , \"content\" : \""+f_text+"\", \"schedule\" : \""+f_meetingDate+"\"}";
                 new Thread(() -> {
                     String result = httpPostBodyConnection(url, data);
                     Log.d("Server Response", result);  // 응답 로그 추가
@@ -240,6 +281,45 @@ public class CommunityPostActivity extends AppCompatActivity {
     public void seeNetworkResult(String result) {
         // 네트워크 작업 완료 후
         Log.d(result, "network");
+    }
+    private void getGeoDataByAddress(String completeAddress) {
+        try {
+            String API_KEY = "AIzaSyC6FB54gjhzW2wfkKqD8vo5OybyxW55k8M";
+            String surl = "https://maps.googleapis.com/maps/api/geocode/json?address=" + URLEncoder.encode(completeAddress, "UTF-8") + "&key=" + API_KEY;
+            URL url = new URL(surl);
+            InputStream is = url.openConnection().getInputStream();
+
+            BufferedReader streamReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+
+            StringBuilder responseStrBuilder = new StringBuilder();
+            String inputStr;
+            while ((inputStr = streamReader.readLine()) != null) {
+                responseStrBuilder.append(inputStr);
+            }
+
+            JSONObject jo = new JSONObject(responseStrBuilder.toString());
+            JSONArray results = jo.getJSONArray("results");
+            String region = null;
+            String province = null;
+            String zip = null;
+            if (results.length() > 0) {
+                JSONObject jsonObject;
+                jsonObject = results.getJSONObject(0);
+                Double lat = jsonObject.getJSONObject("geometry").getJSONObject("location").getDouble("lat");
+                Double lng = jsonObject.getJSONObject("geometry").getJSONObject("location").getDouble("lng");
+//                ret.put(lat);
+//                ret.put(lng);
+                latitude = lat;
+                longtitude = lng;
+
+                System.out.println("LAT:\t\t" + lat);
+                System.out.println("LNG:\t\t" + lng);
+                JSONArray ja = jsonObject.getJSONArray("address_components");
+
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 }
