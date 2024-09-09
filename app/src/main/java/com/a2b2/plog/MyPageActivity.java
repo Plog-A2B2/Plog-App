@@ -13,6 +13,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -122,10 +126,36 @@ public class MyPageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("setting", "saved : " + isPushAlarmOn);
-
                 // 서버에 알림 허용여부 업데이트된 내용 저장(on/off - isPushAlarmOn, 기준위치 - standardLocation)
-
                 saveBtn.setVisibility(View.GONE);
+
+                //fcm
+                Intent intent = getIntent();
+                if(intent != null) {//푸시알림을 선택해서 실행한것이 아닌경우 예외처리
+                    String notificationData = intent.getStringExtra("test");
+                    if(notificationData != null)
+                        Log.d("FCM_TEST", notificationData);
+                }
+
+                FirebaseMessaging.getInstance().getToken()
+                        .addOnCompleteListener(new OnCompleteListener<String>() {
+                            @Override
+                            public void onComplete(@NonNull Task<String> task) {
+                                if (!task.isSuccessful()) {
+                                    System.out.println("Fetching FCM registration token failed");
+                                    return;
+                                }
+
+                                // Get new FCM registration token
+                                String token = task.getResult();
+                                Log.d("fcm in mypage", token);
+
+                                // Log and toast
+//                        System.out.println(token);
+//                        Toast.makeText(LoginActivity.this, "Your device registration token is" + token
+//                                , Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
 
