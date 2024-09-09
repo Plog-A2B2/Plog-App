@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
 
 // "data" 객체를 먼저 추출
                     JsonObject dataObject = jsonObject.getAsJsonObject("data");
-                    JsonObject message = jsonObject.getAsJsonObject("message");
+//                    JsonObject message = jsonObject.getAsJsonObject("message");
 
                     if(dataObject.equals("로그인 실패")){
                         TextView loginFail = findViewById(R.id.loginFail);

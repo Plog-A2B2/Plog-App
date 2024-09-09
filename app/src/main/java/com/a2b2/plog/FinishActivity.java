@@ -481,7 +481,7 @@ public class FinishActivity extends AppCompatActivity {
 
             routeLine = layer.addRouteLine(options);
             kakaoMap.moveCamera(CameraUpdateFactory.newCenterPosition(
-                    LatLng.from(37.338549743448546,127.09368565409382), 16));
+                    LatLng.from(routePoints.get(0).latitude,routePoints.get(0).longitude), 16));
 
         }
     }
