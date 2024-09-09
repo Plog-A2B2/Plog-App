@@ -171,6 +171,7 @@ public class PloggingActivity extends AppCompatActivity {
     boolean trashcanVisible;
     private RouteLine routeLine;
     private SharedPreferencesHelper prefsHelper;
+    final int[] taskNum = {0};
 
     TrackingManager trackingManager;
     String url;
@@ -323,7 +324,7 @@ public class PloggingActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, locationPermissions, LOCATION_PERMISSION_REQUEST_CODE);
         }
 
-        locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000L).build();
+        locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L).build();
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
@@ -584,13 +585,16 @@ public class PloggingActivity extends AppCompatActivity {
                     int parsedTime = parseTime(timeTextView.getText().toString());
                     double parsedDistance = parseDistance(distanceTextView.getText().toString());
 
-                    data.append("{");
-                    data.append("\"distance\":\"").append(parsedDistance).append("\",");
-                    data.append("\"activityTime\":\"").append(parsedTime).append("\"");
-                    data.append("}");
+                    String jsonData = "{\"distance\":"+parsedDistance+",\"activityTime\":"+parsedTime+"}";
 
-                    // 최종적으로 생성된 JSON 문자열
-                    String jsonData = data.toString();
+//                    data.append("{");
+//                    data.append("\"distance\":").append(parsedDistance).append(",");
+//                    data.append("\"activityTime\":").append(parsedTime);
+//                    data.append("}");
+//
+//
+//                    // 최종적으로 생성된 JSON 문자열
+//                    String jsonData = data.toString();
 
                     // jsonData를 서버에 전송
                     Log.d("data", jsonData);
@@ -739,6 +743,7 @@ public class PloggingActivity extends AppCompatActivity {
         BufferedReader br = null;
 
         try {
+            // URL 연결 설정
             URL url = new URL(UrlData);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -746,21 +751,42 @@ public class PloggingActivity extends AppCompatActivity {
             conn.setRequestProperty("Accept", "application/json");
             conn.setDoOutput(true);
 
+            // 요청 데이터 전송
             try (OutputStream os = conn.getOutputStream()) {
                 byte[] request_data = ParamData.getBytes("utf-8");
                 os.write(request_data);
             }
 
+            // 서버에 연결
             conn.connect();
 
-            br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-            StringBuilder sb = new StringBuilder();
-            while ((responseData = br.readLine()) != null) {
-                sb.append(responseData);
+            // 응답 코드 확인
+            int responseCode = conn.getResponseCode();
+            Log.d("PloggingActivity", "Response Code: " + responseCode);
+
+            if (responseCode == HttpURLConnection.HTTP_OK) { // 성공 응답인 경우
+                // 응답 데이터 처리
+                br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                StringBuilder sb = new StringBuilder();
+                while ((responseData = br.readLine()) != null) {
+                    sb.append(responseData);
+                }
+                return sb.toString();
+            } else {
+                // 오류가 발생한 경우 서버에서 오류 응답 처리
+                Log.e("PloggingActivity", "Error Response Code: " + responseCode);
+
+                // 에러 스트림 읽기
+                br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "UTF-8"));
+                StringBuilder errorResponse = new StringBuilder();
+                while ((responseData = br.readLine()) != null) {
+                    errorResponse.append(responseData);
+                }
+                Log.e("PloggingActivity", "Error Response: " + errorResponse.toString());
             }
 
-            return sb.toString();
         } catch (IOException e) {
+            Log.e("PloggingActivity", "IOException: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
@@ -768,11 +794,13 @@ public class PloggingActivity extends AppCompatActivity {
                     br.close();
                 }
             } catch (IOException e) {
+                Log.e("PloggingActivity", "BufferedReader close IOException: " + e.getMessage());
                 e.printStackTrace();
             }
         }
         return responseData;
     }
+
 
     public void seeNetworkResultFinish(String result) {
         Log.d("NetworkResult", result);
@@ -942,12 +970,13 @@ public class PloggingActivity extends AppCompatActivity {
             locationHandler.removeCallbacks(locationRunnable);
         }
 
-
         locationRunnable = new Runnable() {
             long lastOtherTaskTime = 0; // 30초 주기로 실행되는 작업의 마지막 실행 시간
 
+
             @Override
             public void run() {
+                taskNum[0]++;
                 if (location != null) {
 //                    UUID uuid  =UUID.fromString("11");
                     // 현재 위치를 서버에 전송
@@ -959,12 +988,18 @@ public class PloggingActivity extends AppCompatActivity {
                 // 현재 시간 체크
                 long currentTime = System.currentTimeMillis();
 
-                // 30초마다 다른 작업 수행
-                if (currentTime - lastOtherTaskTime >= 30000) {
-                    // 30초마다 실행할 작업
+//                // 30초마다 다른 작업 수행
+//                if (currentTime - lastOtherTaskTime >= 30000) {
+//                    // 30초마다 실행할 작업
+//                    getRealtimePloggers();
+//                    lastOtherTaskTime = currentTime; // 마지막 실행 시간을 업데이트
+//                }
+                if (taskNum[0] == 6) {
                     getRealtimePloggers();
-                    lastOtherTaskTime = currentTime; // 마지막 실행 시간을 업데이트
+                    taskNum[0] = 0;
                 }
+                Log.d("taskNum", String.valueOf(taskNum[0]));
+
                 locationHandler.postDelayed(this, 5000); // 5초마다 반복
 
             }
@@ -1098,8 +1133,9 @@ public class PloggingActivity extends AppCompatActivity {
 
     private void sendLocationToServer(double latitude, double longitude, UUID uuid) {
 
+        UUID real_uuid = UserManager.getInstance().getUserId();
         // 위도, 경도, UUID 값을 가진 DTO 객체 생성
-        LocationDTO locationDTO = new LocationDTO(latitude, longitude, UUID.fromString("42F57079-2DF3-416D-A22D-6C5AAF1D4A78"));
+        LocationDTO locationDTO = new LocationDTO(latitude, longitude, real_uuid);
 
         // DTO 객체를 JSON 문자열로 변환
         Gson gson = new Gson();
@@ -1121,7 +1157,7 @@ public class PloggingActivity extends AppCompatActivity {
 
     private void startPlogging() {
         startTime = SystemClock.uptimeMillis();
-        handler.postDelayed(updateTimeTask, 1000);
+        handler.postDelayed(updateTimeTask, 5000);
     }
 
     private void stopPlogging() {
