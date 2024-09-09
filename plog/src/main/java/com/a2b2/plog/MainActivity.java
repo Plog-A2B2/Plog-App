@@ -50,17 +50,27 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
         trashtotal.setText(total + "/0");
 
         trashcountItem = new TrashcountItem(trashtype,cnt);
+
+        //timer는 이미지 뷰, 타이머 종료 시 클릭하는 거 time은 running 클릭 시 시간 가는 거 확인용인 textView
+        //running 이미지 뷰, 타이머 시작 버튼
+
         ImageView running = findViewById(R.id.running);
         running.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SplashActivity.class);
-                startActivity(intent);
-                finish();
+                handler.sendEmptyMessage(0);
+                handler.sendEmptyMessage(1);
             }
         });
         timeThread = new Thread(new timeThread());
         timeThread.start();
+        ImageView timer = findViewById(R.id.timer);
+        timer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
 
         Wearable.getDataClient(this).addListener(this);
@@ -73,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
                         DataItem item = event.getDataItem();
                         if (item.getUri().getPath().compareTo("/path/to/data") == 0) {
                             DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                            String value = dataMap.getString("key");
+                            String value = dataMap.getString("key2");
                             Log.d("WatchApp", "Data item received: " + value);
                             time.setText(value);
                         }

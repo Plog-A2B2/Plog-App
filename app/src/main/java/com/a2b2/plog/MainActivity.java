@@ -60,6 +60,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+//로그인 실패 처리했던 거 날라감 화요일에 다시 해야 함
 public class MainActivity extends AppCompatActivity implements CapabilityClient.OnCapabilityChangedListener {
 
     Button loginBtn, idFindBtn, pwFindBtn, joinBtn;
