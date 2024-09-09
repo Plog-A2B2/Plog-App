@@ -585,16 +585,16 @@ public class PloggingActivity extends AppCompatActivity {
                     int parsedTime = parseTime(timeTextView.getText().toString());
                     double parsedDistance = parseDistance(distanceTextView.getText().toString());
 
-                    String jsonData = "{\"distance\":"+parsedDistance+",\"activityTime\":"+parsedTime+"}";
+//                    String jsonData = "{\"distance\":"+parsedDistance+",\"activityTime\":"+parsedTime+"}";
 
-//                    data.append("{");
-//                    data.append("\"distance\":").append(parsedDistance).append(",");
-//                    data.append("\"activityTime\":").append(parsedTime);
-//                    data.append("}");
-//
-//
-//                    // 최종적으로 생성된 JSON 문자열
-//                    String jsonData = data.toString();
+                    data.append("{");
+                    data.append("\"distance\":").append(parsedDistance).append(",");
+                    data.append("\"activityTime\":").append(parsedTime);
+                    data.append("}");
+
+
+                    // 최종적으로 생성된 JSON 문자열
+                    String jsonData = data.toString();
 
                     // jsonData를 서버에 전송
                     Log.d("data", jsonData);
@@ -815,8 +815,6 @@ public class PloggingActivity extends AppCompatActivity {
                     Arrays.asList(RouteLineSegment.from(routePoints, style)));
 
             routeLine = layer.addRouteLine(options);
-            map.moveCamera(CameraUpdateFactory.newCenterPosition(
-                    LatLng.from(37.338549743448546,127.09368565409382), 16));
 
         }
     }
@@ -971,8 +969,6 @@ public class PloggingActivity extends AppCompatActivity {
         }
 
         locationRunnable = new Runnable() {
-            long lastOtherTaskTime = 0; // 30초 주기로 실행되는 작업의 마지막 실행 시간
-
 
             @Override
             public void run() {
@@ -985,15 +981,7 @@ public class PloggingActivity extends AppCompatActivity {
 
                     Log.d("startLocationSendingTask", "sendLocationToServer called");
                 }
-                // 현재 시간 체크
-                long currentTime = System.currentTimeMillis();
 
-//                // 30초마다 다른 작업 수행
-//                if (currentTime - lastOtherTaskTime >= 30000) {
-//                    // 30초마다 실행할 작업
-//                    getRealtimePloggers();
-//                    lastOtherTaskTime = currentTime; // 마지막 실행 시간을 업데이트
-//                }
                 if (taskNum[0] == 6) {
                     getRealtimePloggers();
                     taskNum[0] = 0;
