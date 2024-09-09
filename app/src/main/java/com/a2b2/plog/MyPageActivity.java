@@ -40,6 +40,7 @@ public class MyPageActivity extends AppCompatActivity {
     private SwitchCompat pushAlarmSwitch;
     boolean isPushAlarmOn = false; // 서버에서 알림 허용 여부 받아와서 저장
 
+    private ImageView more;
     private Place location, standardLocation;
     private Button saveBtn;
 
@@ -55,6 +56,17 @@ public class MyPageActivity extends AppCompatActivity {
         standardLocationTextView = findViewById(R.id.standardLocationTextView);
         pushAlarmSwitch =findViewById(R.id.pushAlarmSwitch);
         saveBtn = findViewById(R.id.saveBtn);
+        more = findViewById(R.id.more);
+
+        more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MyPageActivity.this, MyPloggingActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                finish();
+            }
+        });
 
         pushAlarmSwitch.setChecked(false);
         saveBtn.setVisibility(View.GONE);
