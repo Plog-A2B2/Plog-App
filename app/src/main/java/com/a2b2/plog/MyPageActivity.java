@@ -1,14 +1,17 @@
 package com.a2b2.plog;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -55,6 +58,7 @@ public class MyPageActivity extends AppCompatActivity {
     Double latitude, longtitude;
     private UUID uuid = UserManager.getInstance().getUserId();
     private String url;
+    private ImageView coinInfoBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +72,15 @@ public class MyPageActivity extends AppCompatActivity {
         pushAlarmSwitch =findViewById(R.id.pushAlarmSwitch);
         saveBtn = findViewById(R.id.saveBtn);
         more = findViewById(R.id.more);
+        coinInfoBtn = findViewById(R.id.coinInfoBtn);
+
+        coinInfoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CoinInfoDialog dialog = new CoinInfoDialog(MyPageActivity.this);
+                dialog.show();
+            }
+        });
 
         more.setOnClickListener(new View.OnClickListener() {
             @Override

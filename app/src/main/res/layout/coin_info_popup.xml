@@ -65,6 +65,7 @@
         android:weightSum="2">
 
         <android.widget.Button
+            android:id="@+id/closeBtn1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:background="@drawable/round_rectangle_realblue"
@@ -75,6 +76,7 @@
             android:fontFamily="@font/nanumbarungothicbold"/>
 
         <android.widget.Button
+            android:id="@+id/closeBtn2"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:background="@drawable/round_rectangle_realyellow"
