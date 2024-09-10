@@ -30,6 +30,7 @@ public class MissionActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager badgeLayoutManager;
     private List<BadgeItem> badgeList;
 
+    private ImageView renewBtn;
 
 
     @Override
@@ -52,6 +53,8 @@ public class MissionActivity extends AppCompatActivity {
         questRecyclerView.setLayoutManager(layoutManager);
         adapter = new QuestAdapter(questList);
         questRecyclerView.setAdapter(adapter);
+
+        renewBtn = findViewById(R.id.renewBtn);
 
         // PagerSnapHelper를 사용하여 페이지 넘기기 기능을 추가합니다.
         PagerSnapHelper snapHelper = new PagerSnapHelper();
@@ -83,6 +86,17 @@ public class MissionActivity extends AppCompatActivity {
             public void onItemClick(int position) {
                 BadgeItem clickedBadge = badgeList.get(position);
                 showUnlockCondition(clickedBadge.getBadgeImage(), clickedBadge.getUnlockCondition());
+            }
+        });
+
+        renewBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!UserManager.getInstance().getIsMembership()) {
+                    // 광고 시청(구글 애드몹 테스트 광고)
+                }
+                // 이후 일일퀘스트 새로고침 하는 통신코드
+
             }
         });
 

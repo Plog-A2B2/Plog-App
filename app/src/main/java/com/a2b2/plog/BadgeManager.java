@@ -8,7 +8,7 @@ public class BadgeManager {
 
     static {
         badgeIdToDrawableMap = new SparseArray<>();
-        //1번부터 시작, 1은 뱃지 없는 기본이미지로 설정해야함 ⭐️
+        //1번부터 시작, 1은 뱃지 없는 기본이미지로 설정
         badgeIdToDrawableMap.put(1, R.drawable.basic_badge);
         badgeIdToDrawableMap.put(2, R.drawable.lion);
         badgeIdToDrawableMap.put(3, R.drawable.polarbear);
@@ -26,7 +26,6 @@ public class BadgeManager {
         badgeIdToDrawableMap.put(15, R.drawable.plastic_row);
         badgeIdToDrawableMap.put(16, R.drawable.plastic_middle);
         badgeIdToDrawableMap.put(17, R.drawable.plastic_high);
-        // 추가적인 배지 ID와 drawable 매핑을 여기에 추가
     }
 
     public static int getDrawableForBadgeId(int badgeId) {
