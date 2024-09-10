@@ -85,7 +85,8 @@ public class CommunityPostActivity extends AppCompatActivity {
                                 // 결과 처리
 
                                 standardLocation = new Place(location.getPlaceName(), location.getAddress(), latitude, longtitude);
-                                meetingPlace.setText("기준 위치: " + document.getPlaceName());
+                                meetingPlace.setText(document.getPlaceName());
+                                f_meetingPlace=document.getPlaceName();
                                 Log.d("geoDataByAddress", String.valueOf(latitude) + ", " + longtitude);
                             });
                         } catch (Exception e) {
@@ -143,7 +144,7 @@ public class CommunityPostActivity extends AppCompatActivity {
                 UUID uuid = UserManager.getInstance().getUserId();
                 Log.d("uuid", String.valueOf(uuid));
                 String url = "http://15.164.152.246:8080/post/"+uuid+"/createpost";
-                String data = "{\"title\" : \""+f_title+"\",\"plogPlace\" : \""+f_ploggingPlace+"\", \"meetPlace\" :  \""+meetingPlace.toString()+"\" , \"content\" : \""+f_text+"\", \"schedule\" : \""+f_meetingDate+"\"}";
+                String data = "{\"title\" : \""+f_title+"\",\"plogPlace\" : \""+f_ploggingPlace+"\", \"meetPlace\" :  \""+f_meetingPlace+"\" , \"content\" : \""+f_text+"\", \"schedule\" : \""+f_meetingDate+"\", \"ploggingLatitude\" : \""+latitude+"\", \"ploggingLongitude\" : \""+longtitude+"\"}";
                 new Thread(() -> {
                     String result = httpPostBodyConnection(url, data);
                     Log.d("Server Response", result);  // 응답 로그 추가

@@ -39,8 +39,10 @@ import com.google.android.gms.wearable.Wearable;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.kakao.sdk.user.model.User;
 
 import org.json.JSONObject;
 import org.w3c.dom.Text;
@@ -145,42 +147,74 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
 
 // "data" 객체를 먼저 추출
                     JsonObject dataObject = jsonObject.getAsJsonObject("data");
-//                    JsonObject message = jsonObject.getAsJsonObject("message");
+                    JsonElement message = jsonObject.get("message");
+                    Log.d("message", message.getAsString());
 
-                    if(dataObject.equals("로그인 실패")){
-                        TextView loginFail = findViewById(R.id.loginFail);
-                        loginFail.setVisibility(View.VISIBLE);
-                        Animation shake = AnimationUtils.loadAnimation(MainActivity.this, R.anim.shake_fast);
-                        loginFail.startAnimation(shake);
+                    if(message.getAsString().equals("로그인 실패")){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                TextView loginFail = findViewById(R.id.loginFail);
+                                loginFail.setVisibility(View.VISIBLE);
+                                Animation shake = AnimationUtils.loadAnimation(MainActivity.this, R.anim.shake_fast);
+                                loginFail.startAnimation(shake);
+                            }
+                        });
+                    } else{
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                // "data" 객체에서 "userNickname"과 "userUUID" 추출
+//                                userNickname = dataObject.get("userNickname").getAsString();
+//                                String userUUIDStr = dataObject.get("userUUID").getAsString();
+//                                userUUID = UUID.fromString(userUUIDStr);
+//                                Log.d("userNickname", userNickname);
+//                                Log.d("userUUIDStr", String.valueOf(userUUID));
+//
+//                                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+//                                startActivity(intent);
+//                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//                                finish();
+//                            }
+//                        });
+                        // "data" 객체에서 "userNickname"과 "userUUID" 추출
+                        userNickname = dataObject.get("userNickname").getAsString();
+                        String userUUIDStr = dataObject.get("userUUID").getAsString();
+                        userUUID = UUID.fromString(userUUIDStr);
+                        seeNetworkResult(result);
+
+
+                        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                        finish();
                     }
 
-                    // "data" 객체에서 "userNickname"과 "userUUID" 추출
-                    userNickname = dataObject.get("userNickname").getAsString();
-                    String userUUIDStr = dataObject.get("userUUID").getAsString();
-                    userUUID = UUID.fromString(userUUIDStr);
+
+
 
 // UserManager 업데이트
 
 
 // 처리 결과 확인
-                    handler.post(() -> {
-
-                        seeNetworkResult(result);
-                        if( UserManager.getInstance().getUserId() == null && UserManager.getInstance().getUserNickname() == null){
-//                        Toast.makeText(getApplicationContext(), "아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_LONG).show();
-                            TextView loginFail = findViewById(R.id.loginFail);
-                            loginFail.setVisibility(View.VISIBLE);
-                            Animation shake = AnimationUtils.loadAnimation(MainActivity.this, R.anim.shake_fast);
-                            loginFail.startAnimation(shake);
-
-                            Log.d("logintest", "로그인실패");
-                        } else{
-                            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                            startActivity(intent);
-                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                            finish();
-                        }
-                    });
+//                    handler.post(() -> {
+//
+//                        seeNetworkResult(result);
+//                        if( UserManager.getInstance().getUserId() == null && UserManager.getInstance().getUserNickname() == null){
+////                        Toast.makeText(getApplicationContext(), "아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_LONG).show();
+//                            TextView loginFail = findViewById(R.id.loginFail);
+//                            loginFail.setVisibility(View.VISIBLE);
+//                            Animation shake = AnimationUtils.loadAnimation(MainActivity.this, R.anim.shake_fast);
+//                            loginFail.startAnimation(shake);
+//
+//                            Log.d("logintest", "로그인실패");
+//                        } else{
+//                            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+//                            startActivity(intent);
+//                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//                            finish();
+//                        }
+//                    });
 
 
 
