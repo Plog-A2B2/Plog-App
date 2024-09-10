@@ -161,6 +161,7 @@ public class MyPageActivity extends AppCompatActivity {
                                 // Get new FCM registration token
                                 String token = task.getResult();
                                 Log.d("fcm in mypage", token);
+                                //통신할 때 알람설정여부,위도,경도, 토큰값 보내기 (post)
 
                                 // Log and toast
 //                        System.out.println(token);
