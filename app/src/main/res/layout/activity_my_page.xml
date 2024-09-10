@@ -45,15 +45,34 @@
                 android:layout_marginLeft="20dp"
                 android:fontFamily="@font/nanumbarungothicbold"/>
 
-            <TextView
-                android:id="@+id/coinNumTextView"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:text="0코인"
-                android:textSize="22sp"
-                android:layout_marginLeft="20dp"
-                android:fontFamily="@font/nanumbarungothic"/>
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp">
+
+                <TextView
+                    android:id="@+id/coinNumTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:text="0코인"
+                    android:textSize="22sp"
+                    android:layout_marginLeft="20dp"
+                    android:fontFamily="@font/nanumbarungothic"/>
+
+                <ImageView
+                    android:id="@+id/coinInfoBtn"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/helpcircle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </LinearLayout>
+
 
         </LinearLayout>
 

@@ -643,7 +643,19 @@ public class PloggingActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        mapView.resume();     // MapView 의 resume 호출
+        // MapView 객체를 확인하고 null이 아닌지 확인합니다.
+        if (mapView != null) {
+            // MapView가 올바르게 초기화되었는지 확인
+            try {
+                mapView.resume();
+            } catch (Exception e) {
+                e.printStackTrace();
+                // 예외 처리: MapView 객체가 null이거나 올바르게 초기화되지 않은 경우
+            }
+        } else {
+            // mapView가 null인 경우에 대한 처리
+            Log.e("MapViewError", "MapView is not initialized.");
+        }
     }
 
     @Override

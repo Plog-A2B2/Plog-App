@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -103,7 +104,7 @@ public class FinishActivity extends AppCompatActivity {
     private ImageView switchViewButton;
     private ImageView photoImageView;
     int activityId;
-    ArrayList<LatLng> runRoutePoints;
+    ArrayList<LatLng> runRoutePoints = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +148,7 @@ public class FinishActivity extends AppCompatActivity {
         nextBtn = findViewById(R.id.nextBtn);
         routeCreateBtn = findViewById(R.id.routeBtn);
 
+        handler = new Handler();
         // routeBtn 버튼 클릭 리스너 설정
         routeCreateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,6 +168,9 @@ public class FinishActivity extends AppCompatActivity {
                                 Log.d("data", data);
                                 new Thread(() -> {
                                     String result = httpPostBodyConnectionRouteCreate(url, data);
+                                    if (handler == null) {
+                                        handler = new Handler(Looper.getMainLooper());
+                                    }
                                     handler.post(() -> Log.d("FinishActivity", "routeCreate completed: " + result));
                                 }).start();
 
