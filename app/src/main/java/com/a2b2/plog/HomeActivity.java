@@ -146,7 +146,9 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Intent intent = new Intent(HomeActivity.this, PloggingActivity.class);
-                intent.putExtra("ploggingItems", new ArrayList<>(ploggingItems));
+                if(ploggingItems != null) {
+                    intent.putExtra("ploggingItems", new ArrayList<>(ploggingItems));
+                }
                 intent.putExtra("trashcanVisible", trashcanVisible);
 
                 startActivity(intent);
