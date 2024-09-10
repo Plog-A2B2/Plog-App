@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -45,12 +46,15 @@ public class MyPageActivity extends AppCompatActivity {
     private TextView standardLocationTextView;
     private SwitchCompat pushAlarmSwitch;
     boolean isPushAlarmOn = false; // 서버에서 알림 허용 여부 받아와서 저장
+    boolean isDialogCheck = true;
 
     private ImageView more;
     private Place location, standardLocation;
     private Button saveBtn;
     private Handler handler;
     Double latitude, longtitude;
+    private UUID uuid = UserManager.getInstance().getUserId();
+    private String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +62,7 @@ public class MyPageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my_page);
 
         settingLocationDialog = new SettingLocationDialog(this);
+        handler = new Handler(Looper.getMainLooper());
 
         standardLocationTextView = findViewById(R.id.standardLocationTextView);
         pushAlarmSwitch =findViewById(R.id.pushAlarmSwitch);
@@ -77,24 +82,77 @@ public class MyPageActivity extends AppCompatActivity {
         pushAlarmSwitch.setChecked(false);
         saveBtn.setVisibility(View.GONE);
 
-        if (isPushAlarmOn == true) {
-            standardLocationTextView.setVisibility(View.VISIBLE);
-            settingLocationDialog.show();
-        } else {
-            standardLocationTextView.setVisibility(View.GONE);
-        }
 
+        Log.d("유유아이디 확인", String.valueOf(uuid));
+        url = "http://15.164.152.246:8080/profile/"+uuid+"/MyPage";
+        Log.d("주소 확인",url);
+        new Thread(()->{
+            String result = httpGetConnection(url, "");
+
+            if (handler != null) {
+                handler.post(() -> {
+                    try {
+                        // JSON 문자열을 JSONObject로 변환
+                        JSONObject jsonObject = new JSONObject(result);
+
+                        // "message" 키에 해당하는 값을 추출
+                        String message = jsonObject.getString("message");
+                        if (jsonObject.has("data")) {
+                            // "data" 객체를 추출
+                            JSONObject dataObject = jsonObject.getJSONObject("data");
+
+                            // "location"과 "notificationEnabled" 값을 추출
+                            String location1 = dataObject.getString("location");
+                            isPushAlarmOn = dataObject.getBoolean("notificationEnabled");
+                            //isPushAlarmOn = jsonObject.getBoolean("notificationEnabled");
+                            //isPushAlarmOn = Boolean.parseBoolean(isPushAlarmOntoString);
+                            Log.d("message", message);
+                            Log.d("알람설정여부", String.valueOf(isPushAlarmOn));
+
+                            if (isPushAlarmOn == true) {
+                                standardLocationTextView.setVisibility(View.VISIBLE);
+                                isDialogCheck = false;
+                                pushAlarmSwitch.setChecked(true);
+
+//                                settingLocationDialog.show();
+                                standardLocationTextView.setText("기준 위치: " + location1);
+                            } else {
+                                standardLocationTextView.setVisibility(View.GONE);
+                                pushAlarmSwitch.setChecked(false);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    seeNetworkResult(result);
+                });
+            }
+        }).start();
+
+//        if (isPushAlarmOn == true && isDialogCheck == true) {
+//            standardLocationTextView.setVisibility(View.VISIBLE);
+//            settingLocationDialog.show();
+//        } else {
+//            standardLocationTextView.setVisibility(View.GONE);
+//        }
+
+        Log.d("다이얼로그 상태 확인", String.valueOf(isDialogCheck));
         // 스위치 상태 변경 리스너 설정
         pushAlarmSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             isPushAlarmOn = isChecked;
-            if (isPushAlarmOn == true) {
+
+            if (isPushAlarmOn == true && isDialogCheck == true) {
                 standardLocationTextView.setVisibility(View.VISIBLE);
                 settingLocationDialog.show();
+                saveBtn.setVisibility(View.VISIBLE);
+
+            } else if (isPushAlarmOn == true && isDialogCheck == false) {
+                standardLocationTextView.setVisibility(View.VISIBLE);
+                isDialogCheck = true;
             } else {
                 standardLocationTextView.setVisibility(View.GONE);
-                UUID uuid = UserManager.getInstance().getUserId();
-                String url = "http://15.164.152.246:8080/post/"+uuid+"/notice";
-                String data = "{\"latitude\" : \"0\",\"longitude\" : \"0\",\"notificationEnabled\" : \""+isPushAlarmOn+"\"}";
+                url = "http://15.164.152.246:8080/api/fcm/"+uuid+"/notice";
+                String data = "{\"latitude\" : \"0\",\"longitude\" : \"0\",\"notificationEnabled\" : \""+isPushAlarmOn+"\",\"location\" : \"장소없음\"}";
                 Log.d("알람설정", String.valueOf(isPushAlarmOn));
                 new Thread(()->{
                     String result = httpPostBodyConnection(url, data);
@@ -112,9 +170,9 @@ public class MyPageActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                });
+                }).start();
+
             }
-            saveBtn.setVisibility(View.VISIBLE);
         });
 
         settingLocationDialog.setOnItemClickListener(new SettingLocationDialog.OnItemClickListener() {
@@ -126,13 +184,12 @@ public class MyPageActivity extends AppCompatActivity {
                     new Thread(() -> {
                         try {
                             // 네트워크 작업 수행
-                            getGeoDataByAddress("서울특별시 송파구 송파대로 570");
 
                             // UI 업데이트를 메인 스레드에서 실행
                             runOnUiThread(() -> {
                                 // 결과 처리
 
-                                standardLocation = new Place(location.getPlaceName(), location.getAddress(), latitude, longtitude);
+                                standardLocation = new Place(location.getPlaceName(), location.getAddress(), 0.0, 0.0);
                                 standardLocationTextView.setText("기준 위치: " + document.getPlaceName());
                                 Log.d("geoDataByAddress", String.valueOf(latitude) + ", " + longtitude);
                             });
@@ -140,10 +197,6 @@ public class MyPageActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }).start();
-
-
-
-
                 }
             }
         });
@@ -160,11 +213,17 @@ public class MyPageActivity extends AppCompatActivity {
                 saveBtn.setVisibility(View.VISIBLE);
             }
         });
-
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("setting", "saved : " + isPushAlarmOn);
+                //fcm
+                Intent intent = getIntent();
+                if(intent != null) {//푸시알림을 선택해서 실행한것이 아닌경우 예외처리
+                    String notificationData = intent.getStringExtra("test");
+                    if(notificationData != null)
+                        Log.d("FCM_TEST", notificationData);
+                }
                 FirebaseMessaging.getInstance().getToken()
                         .addOnCompleteListener(new OnCompleteListener<String>() {
                             @Override
@@ -188,11 +247,16 @@ public class MyPageActivity extends AppCompatActivity {
 
                 // 서버에 알림 허용여부 업데이트된 내용 저장(on/off - isPushAlarmOn, 기준위치 - standardLocation)
                 UUID uuid = UserManager.getInstance().getUserId();
-                String url = "http://15.164.152.246:8080/post/"+uuid+"/notice";
-                String data = "{\"latitude\" : \""+latitude+"\",\"longitude\" : \""+longtitude+"\",\"notificationEnabled\" : \""+isPushAlarmOn+"\",\"location\" : \""+location.getPlaceName()+"\"}";
+                Log.d("유유아이디 확인", String.valueOf(uuid));
+                String url = "http://15.164.152.246:8080/api/fcm/"+uuid+"/notice";
+                Log.d("주소 확인",url);
                 new Thread(()->{
+                    getGeoDataByAddress(standardLocation.getAddress());
+
+                    String data = "{\"latitude\" : \""+standardLocation.getLatitude()+"\",\"longitude\" : \""+standardLocation.getLongitude()+"\",\"notificationEnabled\" : \""+isPushAlarmOn+"\",\"location\" : \""+location.getPlaceName()+"\"}";
+                    Log.d("데이터 확인", data);
                     String result = httpPostBodyConnection(url, data);
-                    handler = new Handler(Looper.getMainLooper());
+
                     if (handler != null) {
                         handler.post(() -> {
                             try {
@@ -212,18 +276,8 @@ public class MyPageActivity extends AppCompatActivity {
                         });
                     }
 
-                });
+                }).start();
                 saveBtn.setVisibility(View.GONE);
-
-                //fcm
-                Intent intent = getIntent();
-                if(intent != null) {//푸시알림을 선택해서 실행한것이 아닌경우 예외처리
-                    String notificationData = intent.getStringExtra("test");
-                    if(notificationData != null)
-                        Log.d("FCM_TEST", notificationData);
-                }
-
-
             }
         });
 
@@ -241,7 +295,6 @@ public class MyPageActivity extends AppCompatActivity {
                 finish();
             }
         });
-
         community.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -309,6 +362,9 @@ public class MyPageActivity extends AppCompatActivity {
 //                ret.put(lng);
                 latitude = lat;
                 longtitude = lng;
+
+                standardLocation.setLatitude(latitude);
+                standardLocation.setLongitude(longtitude);
 
                 System.out.println("LAT:\t\t" + lat);
                 System.out.println("LNG:\t\t" + lng);
@@ -404,5 +460,65 @@ public class MyPageActivity extends AppCompatActivity {
         Log.d(result, "result");
 
 //        Log.d("uuid",userUUIDStr);
+    }
+    public String httpGetConnection(String UrlData, String s) {
+        String totalUrl = UrlData.trim();
+
+        //http 통신을 하기위한 객체 선언 실시
+        URL url = null;
+        HttpURLConnection conn = null;
+
+        //http 통신 요청 후 응답 받은 데이터를 담기 위한 변수
+        String responseData = "";
+        BufferedReader br = null;
+        StringBuffer sb = null;
+
+        //메소드 호출 결과값을 반환하기 위한 변수
+        String returnData = "";
+
+        try {
+            //파라미터로 들어온 url을 사용해 connection 실시
+            url = new URL(totalUrl);
+            conn = (HttpURLConnection) url.openConnection();
+
+            //http 요청에 필요한 타입 정의 실시
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json; utf-8");
+
+            //http 요청 실시
+            conn.connect();
+            System.out.println("http 요청 방식 : " + "GET");
+            System.out.println("http 요청 주소 : " + totalUrl);
+            System.out.println("");
+
+            //http 요청 후 응답 받은 데이터를 버퍼에 쌓는다
+            br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            sb = new StringBuffer();
+            while ((responseData = br.readLine()) != null) {
+                sb.append(responseData); //StringBuffer에 응답받은 데이터 순차적으로 저장 실시
+            }
+
+            //메소드 호출 완료 시 반환하는 변수에 버퍼 데이터 삽입 실시
+            returnData = sb.toString();
+            Log.d("TAG2", returnData);
+            //http 요청 응답 코드 확인 실시
+            String responseCode = String.valueOf(conn.getResponseCode());
+            System.out.println("http 응답 코드 : " + responseCode);
+            System.out.println("http 응답 데이터 : " + returnData);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            //http 요청 및 응답 완료 후 BufferedReader를 닫아줍니다
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return returnData; // 네트워크 요청 결과를 반환
     }
 }
