@@ -67,11 +67,6 @@
             android:padding="10dp"/>
 
     </LinearLayout>
-    <TextView
-        android:id="@+id/check"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="mytext"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="wrap_content"

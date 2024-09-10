@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
     TextView tv1;
     private static final String CAPABILITY_1_NAME = "capability_1";
     private ImageView logoImg;
+    private String getToken;
 
 
     @Override
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
             public void onSuccess(String token) {
                // tb.setToken(token);
                 Log.d("FCM Log", "Refreshed token: "+token);
+                getToken = token;
 
             }
         });
@@ -123,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
             e.printStackTrace();
         }
 
+
         loginBtn = findViewById(R.id.loginBtn);
         idFindBtn = findViewById(R.id.idFindBtn);
         pwFindBtn = findViewById(R.id.pwFindBtn);
@@ -132,13 +135,15 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
         id = findViewById(R.id.idTxt);
         pw = findViewById(R.id.pwTxt);
 
+//        ,\"deviceToken\" : \""+getToken+"\"
+
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 String url = "http://15.164.152.246:8080/user/signin";
-                String data = "{\"userAccount\" : \""+id.getText()+"\",\"userPw\" : \""+pw.getText()+"\"}";
+                String data = "{\"userAccount\" : \""+id.getText()+"\",\"userPw\" : \""+pw.getText()+"\",\"deviceToken\" : \""+getToken+"\"}";
                 new Thread(() -> {
                     String result = httpPostBodyConnection(url, data);
 // JSON 파싱

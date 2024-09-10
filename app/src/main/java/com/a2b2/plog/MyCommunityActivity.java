@@ -47,6 +47,8 @@ public class MyCommunityActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_community);
 
+        handler = new Handler(Looper.getMainLooper());
+
         communitylists = new ArrayList<>();
 //        MycommunityList.add(new CommunityItem(R.drawable.tiger,"지구지킴이","2024.08.18(일)","8월 30일에 같이 플로깅 하실 분 있나요?"));
 //        MycommunityList.add(new CommunityItem(R.drawable.tiger,"지구지킴이","2024.08.18(일)","8월 30일에 같이 플로깅 하실 분 있나요?"));
@@ -72,123 +74,9 @@ public class MyCommunityActivity extends AppCompatActivity {
         // GET 요청을 위한 ParamData 제거
         url = "http://15.164.152.246:8080/post/"+uuid+"/post_list";  // 예: http://example.com
 
-        mytext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                url = "http://15.164.152.246:8080/post/"+uuid+"/post_list";
-                new Thread(() -> {
-                    String result = httpGetConnection(url, "");
-                    // 처리 결과 확인
-                    handler = new Handler(Looper.getMainLooper());
-                    if (handler != null) {
-                        handler.post(() -> {
-                            if(result != null && !result.isEmpty()) {
-
-                                if (communitylists == null) {
-                                    communitylists = new ArrayList<>();
-                                } else{
-                                    communitylists.clear();
-                                }
-                                communitylists.addAll(parseCommunityList(result));
-
-                                // 데이터 확인 로그
-                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + communitylists.size());
-                                for (CommunityList clist : communitylists) {
-                                    Log.d("TripPlan", "포스트아이디 : "+String.valueOf(clist.getPostId())+"제목 : "+clist.getTitle()+"시간 : "+clist.getTime()+"닉네임 :"+clist.getUserNickname());
-                                }
-                                // UI 갱신
-                                updateUI();
-                            } else {
-                                Log.e("Error", "Result is null or empty");
-                            }
-                            seeNetworkResult(result);
-
-
-                        });
-                    }
-                }).start();
-            }
-        });
-        finish.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                url = "http://15.164.152.246:8080/post/"+uuid+"/joincheck";
-                new Thread(() -> {
-                    String result = httpGetConnection(url, "");
-                    // 처리 결과 확인
-                    handler = new Handler(Looper.getMainLooper());
-                    if (handler != null) {
-                        handler.post(() -> {
-                            if(result != null && !result.isEmpty()) {
-
-                                if (communitylists == null) {
-                                    communitylists = new ArrayList<>();
-                                } else{
-                                    communitylists.clear();
-                                }
-                                communitylists.addAll(parseCommunityList(result));
-
-                                // 데이터 확인 로그
-                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + communitylists.size());
-                                for (CommunityList clist : communitylists) {
-                                    Log.d("TripPlan", "포스트아이디 : "+String.valueOf(clist.getPostId())+"제목 : "+clist.getTitle()+"시간 : "+clist.getTime()+"닉네임 :"+clist.getUserNickname());
-                                }
-                                // UI 갱신
-                                updateUI();
-                            } else {
-                                Log.e("Error", "Result is null or empty");
-                            }
-                            seeNetworkResult(result);
-
-
-                        });
-                    }
-                }).start();
-            }
-        });
-        like.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                url = "http://15.164.152.246:8080/post/"+uuid+"/likecheck";
-                new Thread(() -> {
-                    String result = httpGetConnection(url, "");
-                    // 처리 결과 확인
-                    handler = new Handler(Looper.getMainLooper());
-                    if (handler != null) {
-                        handler.post(() -> {
-                            if(result != null && !result.isEmpty()) {
-
-                                if (communitylists == null) {
-                                    communitylists = new ArrayList<>();
-                                } else{
-                                    communitylists.clear();
-                                }
-                                communitylists.addAll(parseCommunityList(result));
-
-                                // 데이터 확인 로그
-                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + communitylists.size());
-                                for (CommunityList clist : communitylists) {
-                                    Log.d("TripPlan", "포스트아이디 : "+String.valueOf(clist.getPostId())+"제목 : "+clist.getTitle()+"시간 : "+clist.getTime()+"닉네임 :"+clist.getUserNickname());
-                                }
-                                // UI 갱신
-                                updateUI();
-                            } else {
-                                Log.e("Error", "Result is null or empty");
-                            }
-                            seeNetworkResult(result);
-
-
-                        });
-                    }
-                }).start();
-
-            }
-        });
-
         new Thread(() -> {
             String result = httpGetConnection(url, "");
             // 처리 결과 확인
-            handler = new Handler(Looper.getMainLooper());
             if (handler != null) {
                 handler.post(() -> {
                     if(result != null && !result.isEmpty()) {
@@ -226,18 +114,44 @@ public class MyCommunityActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-        TextView check = findViewById(R.id.check);
-
-        if (check.getText() == "mytext"){
-            setButtonPressedState(mytext,true);
-        }
         mytext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mytext.setBackgroundResource(R.drawable.round_white);
                 finish.setBackgroundResource(R.drawable.round_gray);
                 like.setBackgroundResource(R.drawable.round_gray);
+                url = "http://15.164.152.246:8080/post/"+uuid+"/post_list";
+                new Thread(() -> {
+                    String result = httpGetConnection(url, "");
+                    handler = new Handler(Looper.getMainLooper());
+                    // 처리 결과 확인
+                    if (handler != null) {
+                        handler.post(() -> {
+                            if(result != null && !result.isEmpty()) {
+
+                                if (communitylists == null) {
+                                    communitylists = new ArrayList<>();
+                                } else{
+                                    communitylists.clear();
+                                }
+                                communitylists.addAll(parseCommunityList(result));
+
+                                // 데이터 확인 로그
+                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + communitylists.size());
+                                for (CommunityList clist : communitylists) {
+                                    Log.d("TripPlan", "포스트아이디 : "+String.valueOf(clist.getPostId())+"제목 : "+clist.getTitle()+"시간 : "+clist.getTime()+"닉네임 :"+clist.getUserNickname());
+                                }
+                                // UI 갱신
+                                updateUI();
+                            } else {
+                                Log.e("Error", "Result is null or empty");
+                            }
+                            seeNetworkResult(result);
+
+
+                        });
+                    }
+                }).start();
             }
         });
         finish.setOnClickListener(new View.OnClickListener() {
@@ -246,6 +160,38 @@ public class MyCommunityActivity extends AppCompatActivity {
                 finish.setBackgroundResource(R.drawable.round_white);
                 mytext.setBackgroundResource(R.drawable.round_gray);
                 like.setBackgroundResource(R.drawable.round_gray);
+                url = "http://15.164.152.246:8080/post/"+uuid+"/joincheck";
+                new Thread(() -> {
+                    String result = httpGetConnection(url, "");
+                    handler = new Handler(Looper.getMainLooper());
+                    // 처리 결과 확인
+                    if (handler != null) {
+                        handler.post(() -> {
+                            if(result != null && !result.isEmpty()) {
+
+                                if (communitylists == null) {
+                                    communitylists = new ArrayList<>();
+                                } else{
+                                    communitylists.clear();
+                                }
+                                communitylists.addAll(parseCommunityList(result));
+
+                                // 데이터 확인 로그
+                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + communitylists.size());
+                                for (CommunityList clist : communitylists) {
+                                    Log.d("TripPlan", "포스트아이디 : "+String.valueOf(clist.getPostId())+"제목 : "+clist.getTitle()+"시간 : "+clist.getTime()+"닉네임 :"+clist.getUserNickname());
+                                }
+                                // UI 갱신
+                                updateUI();
+                            } else {
+                                Log.e("Error", "Result is null or empty");
+                            }
+                            seeNetworkResult(result);
+
+
+                        });
+                    }
+                }).start();
             }
         });
         like.setOnClickListener(new View.OnClickListener() {
@@ -254,6 +200,37 @@ public class MyCommunityActivity extends AppCompatActivity {
                 like.setBackgroundResource(R.drawable.round_white);
                 finish.setBackgroundResource(R.drawable.round_gray);
                 mytext.setBackgroundResource(R.drawable.round_gray);
+                url = "http://15.164.152.246:8080/post/"+uuid+"/likecheck";
+                new Thread(() -> {
+                    String result = httpGetConnection(url, "");
+                    // 처리 결과 확인
+                    if (handler != null) {
+                        handler.post(() -> {
+                            if(result != null && !result.isEmpty()) {
+
+                                if (communitylists == null) {
+                                    communitylists = new ArrayList<>();
+                                } else{
+                                    communitylists.clear();
+                                }
+                                communitylists.addAll(parseCommunityList(result));
+
+                                // 데이터 확인 로그
+                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + communitylists.size());
+                                for (CommunityList clist : communitylists) {
+                                    Log.d("TripPlan", "포스트아이디 : "+String.valueOf(clist.getPostId())+"제목 : "+clist.getTitle()+"시간 : "+clist.getTime()+"닉네임 :"+clist.getUserNickname());
+                                }
+                                // UI 갱신
+                                updateUI();
+                            } else {
+                                Log.e("Error", "Result is null or empty");
+                            }
+                            seeNetworkResult(result);
+
+
+                        });
+                    }
+                }).start();
             }
         });
 

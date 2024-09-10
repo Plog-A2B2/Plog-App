@@ -118,8 +118,9 @@ public class CommunityPostShowActivity extends AppCompatActivity {
                 isLikeCheck = !isLikeCheck;
                 updateLikeButton();
                 String likeState = likeBtn.getText().toString();
+                Log.d("likeState", likeState);
 
-                if(likeState.equals("찜완료")){
+                if(likeState.equals("찜하기")){
                     int postId =getIntent().getIntExtra("postId", 0);;
 
                     UUID uuid = UserManager.getInstance().getUserId();
@@ -169,7 +170,7 @@ public class CommunityPostShowActivity extends AppCompatActivity {
                 updateJoinButton();
                 String joinState = joinBtn.getText().toString();
 
-                if(joinState.equals("참여완료")){
+                if(joinState.equals("참여하기")){
                     int postId =getIntent().getIntExtra("postId", 0);;
 
                     UUID uuid = UserManager.getInstance().getUserId();
@@ -189,7 +190,7 @@ public class CommunityPostShowActivity extends AppCompatActivity {
                         }
                     }).start();
                 } else{
-                    Toast.makeText(getApplicationContext(),"참여 완료!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"참여완료!", Toast.LENGTH_SHORT).show();
                     int postId =getIntent().getIntExtra("postId", 0);;
 
                     UUID uuid = UserManager.getInstance().getUserId();
@@ -302,6 +303,7 @@ public class CommunityPostShowActivity extends AppCompatActivity {
                 meetingDate.setText(schedule);
                 meetingPlace.setText(meetPlace);
                 posting.setText(content);
+                isLikeCheck = liked;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
