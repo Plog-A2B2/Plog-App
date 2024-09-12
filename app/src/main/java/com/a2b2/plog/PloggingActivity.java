@@ -1011,7 +1011,9 @@ public class PloggingActivity extends AppCompatActivity {
 
         url = "http://15.164.152.246:8080/profile/active";
         String data = "";
-        realtimePloggerList.clear();
+        if(realtimePloggerList != null) {
+            realtimePloggerList.clear();
+        }
 
         new Thread(() -> {
             result = httpGetConnection(url);
