@@ -34,12 +34,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.storage.UploadTask;
 import com.kakao.vectormap.GestureType;
 import com.kakao.vectormap.KakaoMap;
 import com.kakao.vectormap.KakaoMapReadyCallback;
@@ -110,6 +114,8 @@ public class FinishActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finish);
+
+        FirebaseApp.initializeApp(this);
 
         Intent intent = getIntent();
         trashCountMap = (HashMap<String, Integer>) intent.getSerializableExtra("trashCountMap");
@@ -463,6 +469,7 @@ public class FinishActivity extends AppCompatActivity {
             File file = new File(currentPhotoPath);
             out = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            uploadImageToFirebase(file);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -474,6 +481,24 @@ public class FinishActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+    private void uploadImageToFirebase(File imageFile) {
+        Uri fileUri = Uri.fromFile(imageFile);
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+        StorageReference imageRef = storageRef.child("images/" + fileUri.getLastPathSegment());
+
+        UploadTask uploadTask = imageRef.putFile(fileUri);
+        uploadTask.addOnSuccessListener(taskSnapshot -> {
+            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                String imageUrl = uri.toString();
+                Log.d("Image URL", imageUrl);
+                // 이 URL을 서버에 저장하거나 UI에서 활용할 수 있습니다.
+            });
+        }).addOnFailureListener(exception -> {
+            Log.e("Upload Failed", exception.getMessage());
+        });
     }
 
     private void drawRouteOnMap(ArrayList<LatLng> routePoints) {
