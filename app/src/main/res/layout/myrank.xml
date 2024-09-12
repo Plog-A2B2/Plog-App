@@ -7,22 +7,50 @@
     android:layout_height="60dp"
     android:background="@drawable/rounded_deepgreen_square">
 
-    <TextView
-        android:id="@+id/myrankTxt"
+    <LinearLayout
+        android:id="@+id/background"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:background="@drawable/rounded_white_square"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:gravity="center"
-        android:text="15등         장징징         589점"
-        android:padding="5dp"
-        android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:fontFamily="@font/nanumbarungothic"/>
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/MYrank"
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:layout_weight="1"
+            android:text="15등"
+            android:fontFamily="@font/nanumbarungothic"
+            android:textSize="25sp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="30dp"/>
+        <TextView
+            android:id="@+id/mynickname"
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:layout_weight="1"
+            android:text="username"
+            android:fontFamily="@font/nanumbarungothic"
+            android:textSize="25sp"/>
+        <TextView
+            android:id="@+id/myscore"
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:layout_weight="1"
+            android:text="234점"
+            android:fontFamily="@font/nanumbarungothic"
+            android:textSize="25sp"/>
+
+
+    </LinearLayout>
+
 
 
 
