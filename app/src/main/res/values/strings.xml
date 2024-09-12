@@ -4,5 +4,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="underline"><u>달린 거리(m) x 주운 쓰레기 개수</u></string>
     <string name="connected_nodes">Nodes: %1$s</string>
+    <string name="admob_app_id">ca-app-pub-7888452363830484~9361763620</string>
+    <string name="ad_unit_id">ca-app-pub-3940256099942544/5224354917</string>
+    <string name="ad_unit_id_for_test">ca-app-pub-3940256099942544/5224354917</string>
     <string name="no_device">No device provides the requested capabilities(요청한 capability_1이란 이름을 가진 device가 없어요</string>
 </resources>

@@ -1,18 +1,28 @@
 package com.a2b2.plog;
 
+import static android.content.ContentValues.TAG;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.gms.ads.AdRequest;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +41,16 @@ public class MissionActivity extends AppCompatActivity {
     private List<BadgeItem> badgeList;
 
     private ImageView renewBtn;
+    private RewardedAd rewardedAd;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mission);
+
+        // 구글 애드몹 초기화
+        MobileAds.initialize(this);
 
         questList = new ArrayList<>();
         // 여기에 퀘스트 아이템을 추가합니다.
@@ -89,11 +103,27 @@ public class MissionActivity extends AppCompatActivity {
             }
         });
 
+
+
         renewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!UserManager.getInstance().getIsMembership()) {
                     // 광고 시청(구글 애드몹 테스트 광고)
+                    // 보상형 광고 로드
+                    loadRewardedAd();
+
+                    if (rewardedAd != null) {
+                        rewardedAd.show(MissionActivity.this, rewardItem -> {
+                            // 보상 지급 코드 처리
+                            int rewardAmount = rewardItem.getAmount();
+                            String rewardType = rewardItem.getType();
+                            // 보상 처리 로직을 추가
+
+                            Log.d("adtest", "reward get!");
+
+                        });
+                    }
                 }
                 // 이후 일일퀘스트 새로고침 하는 통신코드
 
@@ -160,5 +190,22 @@ public class MissionActivity extends AppCompatActivity {
                 .setPositiveButton("확인", null);
         CustomBadgeDialog dlg = new CustomBadgeDialog(MissionActivity.this);
         dlg.show();
+    }
+
+    // 보상형 광고 로드 메소드
+    private void loadRewardedAd() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        RewardedAd.load(MissionActivity.this, "ca-app-pub-3940256099942544/5224354917", adRequest, new RewardedAdLoadCallback() {
+            @Override
+            public void onAdLoaded(RewardedAd ad) {
+                rewardedAd = ad;
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError adError) {
+                // 광고 로드 실패 처리
+                rewardedAd = null;
+            }
+        });
     }
 }
