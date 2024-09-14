@@ -283,20 +283,23 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
         try {
             // JSON 객체 생성
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("key1", "value1");
+            jsonObject.put("key1", true);
             jsonObject.put("key2", 123);
 
             // JSON을 문자열로 변환
             String jsonString = jsonObject.toString();
 
-            // PutDataMapRequest를 사용하여 데이터 전송
-            PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/path/to/data");
-            putDataMapReq.getDataMap().putString("json_data", jsonString);
-            PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
-
-            Wearable.getDataClient(this).putDataItem(putDataReq)
-                    .addOnSuccessListener(dataItem -> Log.d("MobileApp", "JSON data sent successfully"))
-                    .addOnFailureListener(e -> Log.e("MobileApp", "Failed to send JSON data", e));
+            // Node ID 가져오기 (단말과 워치 간의 연결된 노드)
+            Task<List<Node>> nodeListTask = Wearable.getNodeClient(this).getConnectedNodes();
+            nodeListTask.addOnSuccessListener(nodes -> {
+                for (Node node : nodes) {
+                    // MessageClient를 통해 데이터 전송
+                    Wearable.getMessageClient(this)
+                            .sendMessage(node.getId(), "/path/to/startPlogging", jsonString.getBytes())
+                            .addOnSuccessListener(aVoid -> Log.d("MobileApp", "Message sent successfully"))
+                            .addOnFailureListener(e -> Log.e("MobileApp", "Failed to send message", e));
+                }
+            });
         } catch (Exception e) {
             Log.e("MobileApp", "Failed to create JSON data", e);
         }

@@ -5,8 +5,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.wearable.DataClient;
@@ -15,14 +17,17 @@ import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.MessageClient;
+import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrashCountActivity extends AppCompatActivity implements DataClient.OnDataChangedListener{
+public class TrashCountActivity extends AppCompatActivity implements DataClient.OnDataChangedListener, TrashcountAdapter.OnTrashTypeUpdateListener {
 
     private RecyclerView trashcountRecyclerView;
     //private RecyclerView.Adapter adapter;
@@ -31,7 +36,7 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
     private String[] trashTypes = {"종이류", "유리류", "일반쓰레기", "플라스틱", "캔/고철류", "비닐류"};
     private String trashType;
     public int total = 0;
-    private int cnt = 0;
+    private int count = 0;
 
 
     @Override
@@ -47,7 +52,45 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
             dataList.add(0);
         }
 
-        adapter = new TrashcountAdapter(dataList, trashTypes);
+        // MessageClient를 통해 데이터 수신 리스너 설정
+        Wearable.getMessageClient(this).addListener(new MessageClient.OnMessageReceivedListener() {
+            @Override
+            public void onMessageReceived(MessageEvent messageEvent) {
+                if (messageEvent.getPath().equals("/path/to/EachTrashGet")) {
+                    String jsonString = new String(messageEvent.getData());
+                    try {
+                        JSONObject jsonObject = new JSONObject(jsonString);
+
+                        for (int i = 0; i < trashTypes.length; i++) {
+                            String trashType = trashTypes[i];
+                            if (jsonObject.has(trashType)) {
+                                int newCount = jsonObject.getInt(trashType);
+                                // 해당 trashType의 index를 찾기
+                                int index = -1;
+                                for (int j = 0; j < trashTypes.length; j++) {
+                                    if (trashTypes[j].equals(trashType)) {
+                                        index = j;
+                                        break;
+                                    }
+                                }
+                                if (index != -1) {
+                                    // dataList와 어댑터의 값을 업데이트
+                                    dataList.set(index, newCount);
+                                    adapter.notifyItemChanged(index); // 특정 아이템만 갱신
+                                    total = adapter.getTotalCount(); // 총합 업데이트
+                                    // totalTxt.setText("Total: " + total); // 총합 UI 업데이트 (필요 시)
+                                }
+                            }
+                        }
+                        adapter.notifyDataSetChanged();
+                    } catch (JSONException e) {
+                        Log.e("WatchApp", "Failed to parse JSON", e);
+                    }
+                }
+            }
+        });
+
+        adapter = new TrashcountAdapter(dataList, trashTypes, this);
         trashcountRecyclerView.setAdapter(adapter);
 
         //total = dataList.get()
@@ -56,22 +99,6 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
         adapter.setOnTotalChangeListener(total -> {
             this.total = total;
             //totalTxt.setText("Total: " + total);
-        });
-        Wearable.getDataClient(this).addListener(new DataClient.OnDataChangedListener() {
-            @Override
-            public void onDataChanged(DataEventBuffer dataEvents) {
-                for (DataEvent event : dataEvents) {
-                    if (event.getType() == DataEvent.TYPE_CHANGED) {
-                        DataItem item = event.getDataItem();
-                        if (item.getUri().getPath().compareTo("/path/to/data") == 0) {
-                            DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                            String value = dataMap.getString("key");
-                            Log.d("WatchApp", "Data item received: " + value);
-
-                        }
-                    }
-                }
-            }
         });
 
         DataClient dataClient = Wearable.getDataClient(this);
@@ -138,14 +165,15 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
         }
     }
 
-    @Override //백버튼 누를 시 메인으로 값 전달
+    @Override
     public void onBackPressed() {
+        total = adapter.getTotalCount(); // 총합을 가져옴
         Intent resultIntent = new Intent();
-        int total = adapter.getTotalCount(); // adapter에서 총합을 가져옴
-        resultIntent.putExtra("total", total);
-        setResult(RESULT_OK, resultIntent);
-        super.onBackPressed();
+        resultIntent.putExtra("totalCount", total); // 값을 전달
+        setResult(RESULT_OK, resultIntent); // 결과 설정
+        super.onBackPressed(); // 기본 동작인 finish()를 호출하여 액티비티 종료
     }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -163,11 +191,29 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
             }
         }
     }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        total = adapter.getTotalCount(); // 총합을 가져옴
+        saveTotalToPreferences(total); // SharedPreferences에 저장
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Wearable.getDataClient(this).removeListener(this);
+        total = adapter.getTotalCount(); // 총합을 가져옴
+        saveTotalToPreferences(total); // SharedPreferences에 저장
     }
 
+    private void saveTotalToPreferences(int total) {
+        SharedPreferences sharedPreferences = getSharedPreferences("trashData", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("total", total);
+        editor.apply(); // 데이터 저장
+    }
+
+    @Override
+    public void onTrashTypeUpdate(String trashType, int count) {
+
+    }
 }

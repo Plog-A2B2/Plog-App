@@ -17,6 +17,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.Wearable;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -54,6 +57,7 @@ public class HomeActivity extends AppCompatActivity {
     private SharedPreferencesHelper prefsHelper;
     Handler handler;
     private ImageView logo;
+    private boolean isPloggingStart = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +154,9 @@ public class HomeActivity extends AppCompatActivity {
                     intent.putExtra("ploggingItems", new ArrayList<>(ploggingItems));
                 }
                 intent.putExtra("trashcanVisible", trashcanVisible);
+                isPloggingStart = true;
+                sendJsonData(isPloggingStart);
+                Log.d("isPloggingSstart", String.valueOf(isPloggingStart));
 
                 startActivity(intent);
                 overridePendingTransition(0, 0);
@@ -302,6 +309,30 @@ public class HomeActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return ploggerList;
+    }
+    private void sendJsonData(boolean isPloggingStart) {
+        try {
+            // JSON 객체 생성
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("key1", isPloggingStart);
+
+            // JSON을 문자열로 변환
+            String jsonString = jsonObject.toString();
+
+            // Node ID 가져오기 (단말과 워치 간의 연결된 노드)
+            Task<List<Node>> nodeListTask = Wearable.getNodeClient(this).getConnectedNodes();
+            nodeListTask.addOnSuccessListener(nodes -> {
+                for (Node node : nodes) {
+                    // MessageClient를 통해 데이터 전송
+                    Wearable.getMessageClient(this)
+                            .sendMessage(node.getId(), "/path/to/startPlogging", jsonString.getBytes())
+                            .addOnSuccessListener(aVoid -> Log.d("MobileApp", "Message sent successfully"))
+                            .addOnFailureListener(e -> Log.e("MobileApp", "Failed to send message", e));
+                }
+            });
+        } catch (Exception e) {
+            Log.e("MobileApp", "Failed to create JSON data", e);
+        }
     }
 
 }

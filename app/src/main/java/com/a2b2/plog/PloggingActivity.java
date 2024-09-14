@@ -48,6 +48,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
@@ -492,29 +494,31 @@ public class PloggingActivity extends AppCompatActivity {
                         count++;
                         trashCountMap.put(trashType, count);
                         etTrashAmount.setText(String.valueOf(count));
-
-                        //워치로 값 보내기
-                        try {
-                            // JSON 객체 생성
-                            JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("\""+trashType+"\"", count);
-                            Log.d(trashType, Integer.toString(count));
+                        sendJsonData(trashType,count);
 
 
-                            // JSON을 문자열로 변환
-                            String jsonString = jsonObject.toString();
-
-                            // PutDataMapRequest를 사용하여 데이터 전송
-                            PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/path/to/data");
-                            putDataMapReq.getDataMap().putString("json_data", jsonString);
-                            PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
-
-                            Wearable.getDataClient(getApplicationContext()).putDataItem(putDataReq)
-                                    .addOnSuccessListener(dataItem -> Log.d("MobileApp", "JSON data sent successfully"))
-                                    .addOnFailureListener(e -> Log.e("MobileApp", "Failed to send JSON data", e));
-                        } catch (Exception e) {
-                            Log.e("MobileApp", "Failed to create JSON data", e);
-                        }
+//                        //워치로 값 보내기
+//                        try {
+//                            // JSON 객체 생성
+//                            JSONObject jsonObject = new JSONObject();
+//                            jsonObject.put("\""+trashType+"\"", count);
+//                            Log.d(trashType, Integer.toString(count));
+//
+//
+//                            // JSON을 문자열로 변환
+//                            String jsonString = jsonObject.toString();
+//
+//                            // PutDataMapRequest를 사용하여 데이터 전송
+//                            PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/path/to/data");
+//                            putDataMapReq.getDataMap().putString("json_data", jsonString);
+//                            PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+//
+//                            Wearable.getDataClient(getApplicationContext()).putDataItem(putDataReq)
+//                                    .addOnSuccessListener(dataItem -> Log.d("MobileApp", "JSON data sent successfully"))
+//                                    .addOnFailureListener(e -> Log.e("MobileApp", "Failed to send JSON data", e));
+//                        } catch (Exception e) {
+//                            Log.e("MobileApp", "Failed to create JSON data", e);
+//                        }
 
 
                     }
@@ -529,6 +533,7 @@ public class PloggingActivity extends AppCompatActivity {
                             count--;
                             trashCountMap.put(trashType, count);
                             etTrashAmount.setText(String.valueOf(count));
+                            sendJsonData(trashType,count);
                         }
                     }
                 });
@@ -1419,6 +1424,31 @@ public class PloggingActivity extends AppCompatActivity {
     public void seeNetworkResult(String result) {
         // 네트워크 작업 완료 후
         Log.d(result, "network");
+    }
+    private void sendJsonData(String trashType, int count) {
+        try {
+            // JSON 객체 생성
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(trashType, count);
+            Log.d("각각의 쓰레기 값 보내기", trashType + count);
+
+            // JSON을 문자열로 변환
+            String jsonString = jsonObject.toString();
+
+            // Node ID 가져오기 (단말과 워치 간의 연결된 노드)
+            Task<List<Node>> nodeListTask = Wearable.getNodeClient(this).getConnectedNodes();
+            nodeListTask.addOnSuccessListener(nodes -> {
+                for (Node node : nodes) {
+                    // MessageClient를 통해 데이터 전송
+                    Wearable.getMessageClient(this)
+                            .sendMessage(node.getId(), "/path/to/EachTrashGet", jsonString.getBytes())
+                            .addOnSuccessListener(aVoid -> Log.d("MobileApp", "Message sent successfully"))
+                            .addOnFailureListener(e -> Log.e("MobileApp", "Failed to send message", e));
+                }
+            });
+        } catch (Exception e) {
+            Log.e("MobileApp", "Failed to create JSON data", e);
+        }
     }
 
 }
