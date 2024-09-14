@@ -58,7 +58,7 @@ public class MyPageActivity extends AppCompatActivity {
     Double latitude, longtitude;
     private UUID uuid = UserManager.getInstance().getUserId();
     private String url;
-    private ImageView coinInfoBtn;
+    private ImageView coinInfoBtn, profileImg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +73,7 @@ public class MyPageActivity extends AppCompatActivity {
         saveBtn = findViewById(R.id.saveBtn);
         more = findViewById(R.id.more);
         coinInfoBtn = findViewById(R.id.coinInfoBtn);
+        profileImg = findViewById(R.id.profileImg);
 
         coinInfoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,6 +92,14 @@ public class MyPageActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        profileImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
 
         pushAlarmSwitch.setChecked(false);
         saveBtn.setVisibility(View.GONE);

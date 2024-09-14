@@ -61,12 +61,15 @@ import com.kakao.vectormap.route.RouteLineStyle;
 import com.kakao.vectormap.shape.Polyline;
 import com.kakao.vectormap.shape.PolylineOptions;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -78,6 +81,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 public class FinishActivity extends AppCompatActivity {
@@ -109,7 +113,8 @@ public class FinishActivity extends AppCompatActivity {
     private ImageView photoImageView;
     int activityId;
     ArrayList<LatLng> runRoutePoints = new ArrayList<>();
-
+    String message = null;
+    String presignedUrl = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -286,34 +291,137 @@ public class FinishActivity extends AppCompatActivity {
 
         switchViewButton.setOnClickListener(v -> toggleMapAndPhoto());
 
+//        nextBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                try {
+//
+//                    String url = "http://15.164.152.246:8080/trash/" + uuid + "/" + activityId + "/record";
+//                    String data = "{\"garbage\" : \""+trashCountMap.get("일반쓰레기")+"\",\"can\" : \""+trashCountMap.get("캔/고철류")+"\",\"plastic\" : \""+trashCountMap.get("플라스틱")+"\",\"paper\" : \""+trashCountMap.get("종이류")+"\", \"plastic_bag\" : \""+trashCountMap.get("비닐류")+"\", \"glass\" : \""+trashCountMap.get("종이류")+"\"}";
+//                    Log.d("쓰레기 전송값", data);
+//                    new Thread(() -> {
+//                        String result = httpPostBodyConnection(url, data);
+//
+//                        // 처리 결과 확인
+//                       // handler.post(() -> seeNetworkResult(result));
+//                    }).start();
+//                } catch (Exception e) {
+//                    Log.e("서버로 전송 실패", "Failed to create JSON data", e);
+//                }
+//
+//                // 분리수거 확인 화면으로 이동
+//                Intent intent = new Intent(FinishActivity.this, RecyclingInfoActivity.class);
+//                startActivity(intent);
+//                overridePendingTransition(0, 0);
+//                finish();
+//            }
+//        });
+
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 try {
+                    String url = "http://15.164.152.246:8080/trash/" + uuid + "/" + activityId;
 
-                    String url = "http://15.164.152.246:8080/trash/" + uuid + "/" + activityId + "/record";
-                    String data = "{\"garbage\" : \""+trashCountMap.get("일반쓰레기")+"\",\"can\" : \""+trashCountMap.get("캔/고철류")+"\",\"plastic\" : \""+trashCountMap.get("플라스틱")+"\",\"paper\" : \""+trashCountMap.get("종이류")+"\", \"plastic_bag\" : \""+trashCountMap.get("비닐류")+"\", \"glass\" : \""+trashCountMap.get("종이류")+"\"}";
-                    Log.d("쓰레기 전송값", data);
+                    // JSON 데이터 생성
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("garbage", String.valueOf(trashCountMap.get("일반쓰레기")));
+                    jsonObject.put("can", String.valueOf(trashCountMap.get("캔/고철류")));
+                    jsonObject.put("plastic", String.valueOf(trashCountMap.get("플라스틱")));
+                    jsonObject.put("paper", String.valueOf(trashCountMap.get("종이류")));
+                    jsonObject.put("plastic_bag", String.valueOf(trashCountMap.get("비닐류")));
+                    jsonObject.put("glass", String.valueOf(trashCountMap.get("유리류")));
+
+                    File imageFile = (currentPhotoPath != null) ? new File(currentPhotoPath) : null;
+
+                    // 새로운 스레드에서 네트워크 작업 실행
                     new Thread(() -> {
-                        String result = httpPostBodyConnection(url, data);
+                        String result = MultipartUtility.uploadFile(url, jsonObject.toString(), imageFile);
+                        Log.d("서버 응답", result);
 
-                        // 처리 결과 확인
-                       // handler.post(() -> seeNetworkResult(result));
+                        parseImageResponse(result);
+                        uploadFileToS3(presignedUrl, imageFile);
+                        // 처리 결과 확인 (네트워크 처리 결과를 메인 스레드에서 처리)
+                        handler.post(() -> {
+
+                            if (result.contains("success")) {
+                                // 성공 시 다음 액티비티로 이동
+                                Intent intent = new Intent(FinishActivity.this, RecyclingInfoActivity.class);
+                                startActivity(intent);
+                                overridePendingTransition(0, 0);
+                                finish();
+                            }
+                        });
                     }).start();
-                } catch (Exception e) {
-                    Log.e("서버로 전송 실패", "Failed to create JSON data", e);
-                }
 
-                // 분리수거 확인 화면으로 이동
-                Intent intent = new Intent(FinishActivity.this, RecyclingInfoActivity.class);
-                startActivity(intent);
-                overridePendingTransition(0, 0);
-                finish();
+                } catch (Exception e) {
+                    Log.e("서버로 전송 실패", "Error while uploading data", e);
+                }
             }
         });
 
     }
+
+    public void parseImageResponse(String jsonResponse) {
+        // JSON 응답을 파싱
+        JSONObject responseObject = null;
+        try {
+            responseObject = new JSONObject(jsonResponse);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        // message와 data의 presignedUrl을 추출
+
+        try {
+            message = responseObject.getString("message");
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            presignedUrl = responseObject.getJSONObject("data").getString("presignedUrl");
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("Message: " + message);
+        System.out.println("Presigned URL: " + presignedUrl);
+    }
+
+    public void uploadFileToS3(String presignedUrl, File file) {
+        try {
+            URL url = new URL(presignedUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("PUT");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "image/jpeg"); // 파일 타입에 맞게 설정
+
+            // 파일 데이터 전송
+            try (InputStream fileInputStream = new FileInputStream(file)) {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                try (OutputStream outputStream = connection.getOutputStream()) {
+                    while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+                }
+            }
+
+            // 응답 코드 확인
+            int responseCode = connection.getResponseCode();
+            System.out.println("Response Code: " + responseCode);
+
+            // 응답 처리 (필요 시)
+            // InputStream responseStream = connection.getInputStream();
+            // ... 응답 스트림 읽기
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public String httpPostBodyConnectionRouteCreate(String UrlData, String ParamData) {
         String responseData = "";
         BufferedReader br = null;
@@ -469,7 +577,7 @@ public class FinishActivity extends AppCompatActivity {
             File file = new File(currentPhotoPath);
             out = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            uploadImageToFirebase(file);
+//            uploadImageToFirebase(file);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -482,24 +590,24 @@ public class FinishActivity extends AppCompatActivity {
             }
         }
     }
-    private void uploadImageToFirebase(File imageFile) {
-        Uri fileUri = Uri.fromFile(imageFile);
-
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
-        StorageReference imageRef = storageRef.child("images/" + fileUri.getLastPathSegment());
-
-        UploadTask uploadTask = imageRef.putFile(fileUri);
-        uploadTask.addOnSuccessListener(taskSnapshot -> {
-            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                String imageUrl = uri.toString();
-                Log.d("Image URL", imageUrl);
-                // 이 URL을 서버에 저장하거나 UI에서 활용할 수 있습니다.
-            });
-        }).addOnFailureListener(exception -> {
-            Log.e("Upload Failed", exception.getMessage());
-        });
-    }
+//    private void uploadImageToFirebase(File imageFile) {
+//        Uri fileUri = Uri.fromFile(imageFile);
+//
+//        FirebaseStorage storage = FirebaseStorage.getInstance();
+//        StorageReference storageRef = storage.getReference();
+//        StorageReference imageRef = storageRef.child("images/" + fileUri.getLastPathSegment());
+//
+//        UploadTask uploadTask = imageRef.putFile(fileUri);
+//        uploadTask.addOnSuccessListener(taskSnapshot -> {
+//            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+//                String imageUrl = uri.toString();
+//                Log.d("Image URL", imageUrl);
+//                // 이 URL을 서버에 저장하거나 UI에서 활용할 수 있습니다.
+//            });
+//        }).addOnFailureListener(exception -> {
+//            Log.e("Upload Failed", exception.getMessage());
+//        });
+//    }
 
     private void drawRouteOnMap(ArrayList<LatLng> routePoints) {
         if (kakaoMap != null) {
