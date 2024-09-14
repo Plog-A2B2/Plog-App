@@ -24,12 +24,16 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
 
     private List<Integer> tData;
     private String[] trashTypes;
-
-    public TrashcountAdapter(List<Integer> data, String[] trashTypes) {
+    private OnTrashTypeUpdateListener updateListener;
+    public TrashcountAdapter(List<Integer> data, String[] trashTypes,  OnTrashTypeUpdateListener updateListener) {
         this.tData = data;
+        this.updateListener = updateListener;
+
         this.trashTypes = trashTypes;
     }
-
+    public interface OnTrashTypeUpdateListener {
+        void onTrashTypeUpdate(String trashType, int count);
+    }
     @NonNull
     @Override
     public TrashcountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -46,6 +50,7 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
             if (count > 0) {
                 tData.set(position, count - 1);
                 notifyItemChanged(position);
+                updateListener.onTrashTypeUpdate(trashTypes[position], count-1);
                 updateTotal();
             }
 
@@ -53,6 +58,7 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
         holder.plus.setOnClickListener(v -> {
             tData.set(position, count + 1);
             notifyItemChanged(position);
+            updateListener.onTrashTypeUpdate(trashTypes[position], count+1);
             updateTotal();
         });
     }
@@ -91,7 +97,7 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
             super(itemView);
             trashtype = itemView.findViewById(R.id.trashtype);
             min = itemView.findViewById(R.id.min);
-            cnt = itemView.findViewById(R.id.cnt);
+            cnt = itemView.findViewById(R.id.cntTxt);
             plus = itemView.findViewById(R.id.plus);
 
         }

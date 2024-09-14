@@ -5,6 +5,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,12 +21,19 @@ import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.MessageClient;
+import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements DataClient.OnDataChangedListener {
     private static final int REQUEST_CODE = 1;
+    private static final int TRASH_COUNT_REQUEST = 1;
+
     private TextView time, km,trashtotal;
     private ConstraintLayout background;
     private static final String CAPABILITY_1_NAME = "capability_1";
@@ -47,58 +55,48 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
         trashtotal = findViewById(R.id.trash);
         ImageView trashEdit = findViewById(R.id.trashEdit);
 
-        trashtotal.setText(total + "/0");
-
         trashcountItem = new TrashcountItem(trashtype,cnt);
 
-        //timer는 이미지 뷰, 타이머 종료 시 클릭하는 거 time은 running 클릭 시 시간 가는 거 확인용인 textView
-        //running 이미지 뷰, 타이머 시작 버튼
+//        if(adapter.getTotalCount() !=0){
+//            total = adapter.getTotalCount();
+//            Log.d("받아라 좀", String.valueOf(total));
+//
+//            trashtotal.setText(String.valueOf(total));
+//        }
 
-        ImageView running = findViewById(R.id.running);
-        running.setOnClickListener(new View.OnClickListener() {
+
+
+        // SharedPreferences 초기화
+        SharedPreferences sharedPreferences = getSharedPreferences("trashData", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear(); // 초기화
+        editor.apply();
+
+        // MessageClient 리스너 등록
+        Wearable.getMessageClient(this).addListener(new MessageClient.OnMessageReceivedListener() {
             @Override
-            public void onClick(View v) {
-                handler.sendEmptyMessage(0);
-                handler.sendEmptyMessage(1);
-            }
-        });
-        timeThread = new Thread(new timeThread());
-        timeThread.start();
-        ImageView timer = findViewById(R.id.timer);
-        timer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-
-        Wearable.getDataClient(this).addListener(this);
-
-        Wearable.getDataClient(this).addListener(new DataClient.OnDataChangedListener() {
-            @Override
-            public void onDataChanged(DataEventBuffer dataEvents) {
-                for (DataEvent event : dataEvents) {
-                    if (event.getType() == DataEvent.TYPE_CHANGED) {
-                        DataItem item = event.getDataItem();
-                        if (item.getUri().getPath().compareTo("/path/to/data") == 0) {
-                            DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                            String value = dataMap.getString("key2");
-                            Log.d("WatchApp", "Data item received: " + value);
-                            time.setText(value);
-                        }
+            public void onMessageReceived(MessageEvent messageEvent) {
+                if (messageEvent.getPath().equals("/path/to/data")) {
+                    String jsonString = new String(messageEvent.getData());
+                    try {
+                        JSONObject jsonObject = new JSONObject(jsonString);
+                        String value = jsonObject.getString("key1");
+                        Log.d("WatchApp", "Message received: " + value);
+                        km.setText(value);
+                    } catch (JSONException e) {
+                        Log.e("WatchApp", "Failed to parse JSON", e);
                     }
                 }
             }
         });
 
         findViewById(R.id.trashEdit).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, TrashCountActivity.class);
-            startActivityForResult(intent, REQUEST_CODE);
+            Intent intent1 = new Intent(MainActivity.this, TrashCountActivity.class);
+            startActivityForResult(intent1, REQUEST_CODE);
         });
         findViewById(R.id.trashCount).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, TrashCountActivity.class);
-            startActivityForResult(intent, REQUEST_CODE);
+            Intent intent2 = new Intent(MainActivity.this, TrashCountActivity.class);
+            startActivityForResult(intent2, REQUEST_CODE);
         });
 
 //        trashEdit.setOnClickListener(new View.OnClickListener() {
@@ -141,60 +139,23 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
             }
         }
     }
+    //액티비티 전환 시 값 받아오는 거
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-            if (data != null && data.hasExtra("total")) {
-                total = data.getIntExtra("total", 0);
-                trashtotal.setText(total + "/0");
-            }
+        if (requestCode == TRASH_COUNT_REQUEST && resultCode == RESULT_OK) {
+            // TrashCountActivity로부터 값을 받아옴
+            total = data.getIntExtra("totalCount", 0);
+            Log.d("total", String.valueOf(total));
+            trashtotal.setText(String.valueOf(total)); // 값 설정
         }
     }
-    @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            int mSec = msg.arg1 % 100;
-            int sec = (msg.arg1 / 100) % 60;
-            int min = (msg.arg1 / 100) / 60;
-            int hour = (msg.arg1 / 100) / 360;
-            //1000이 1초 1000*60 은 1분 1000*60*10은 10분 1000*60*60은 한시간
-
-//            @SuppressLint("DefaultLocale") String result = String.format("%02d:%02d:%02d:%02d", hour, min, sec, mSec);
-//            if (result.equals("00:01:15:00")) {
-//                Toast.makeText(MainActivity.this, "1분 15초가 지났습니다.", Toast.LENGTH_SHORT).show();
-//            }
-//            time.setText(result);
-        }
-    };
-    public class timeThread implements Runnable {
-        @Override
-        public void run() {
-            int i = 0;
-
-            while (true) {
-                while (isRunning) { //일시정지를 누르면 멈춤
-                    Message msg = new Message();
-                    msg.arg1 = i++;
-                    handler.sendMessage(msg);
-
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        runOnUiThread(new Runnable(){
-                            @Override
-                            public void run() {
-                                time.setText("");
-                                time.setText("00:00:00:00");
-                            }
-                        });
-                        return; // 인터럽트 받을 경우 return
-                    }
-                }
-            }
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // SharedPreferences에서 total 값을 가져옴
+        SharedPreferences sharedPreferences = getSharedPreferences("trashData", MODE_PRIVATE);
+        total = sharedPreferences.getInt("total", 0);
+        trashtotal.setText(String.valueOf(total)); // TextView 업데이트
     }
 }

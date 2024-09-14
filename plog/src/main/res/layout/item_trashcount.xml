@@ -38,7 +38,7 @@
             android:layout_height="20dp"
             android:src="@drawable/min"/>
         <TextView
-            android:id="@+id/cnt"
+            android:id="@+id/cntTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"

@@ -103,7 +103,7 @@ public class RankActivity extends AppCompatActivity {
         UUID uuid = UserManager.getInstance().getUserId();
         Log.d("uuid", String.valueOf(uuid));
         //주소 삽입해야함⭐⭐⭐⭐
-        String url = "";
+        String url = "http://15.164.152.246:8080/rank/"+uuid+"/inquiry";
         new Thread(() -> {
             String result = httpGetConnection(url, "");
             if (handler != null) {
@@ -116,6 +116,7 @@ public class RankActivity extends AppCompatActivity {
                             rankList.clear();
                         }
                         rankList.addAll(parseCommunityList(result));
+                        adapter.notifyDataSetChanged();
                         // tripPlans 초기화 및 데이터 파싱
 
 //                                tripPlans = parseTripPlan(result);
@@ -270,8 +271,10 @@ public class RankActivity extends AppCompatActivity {
             // 전체 JSON 데이터는 JSONObject로 파싱
             JSONObject jsonObject = new JSONObject(json);
 
+            JSONObject dataObject = jsonObject.getJSONObject("data");
+
             // JSONObject에서 "data" 필드를 JSONArray로 추출
-            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            JSONArray jsonArray = dataObject.getJSONArray("ranking");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject postObject = jsonArray.getJSONObject(i);
 
@@ -288,9 +291,9 @@ public class RankActivity extends AppCompatActivity {
                     rank = postObject.getInt("rank");
                     Log.d("rank", String.valueOf(rank));
                 }
-                if (postObject.has("userName")) {
-                    userName = postObject.getString("userName");
-                    Log.d("userName", userName);
+                if (postObject.has("userNickname")) {
+                    userName = postObject.getString("userNickname");
+                    Log.d("userNickname", userName);
                 }
                 if (postObject.has("score")) {
                     score = postObject.getInt("score");
@@ -303,21 +306,21 @@ public class RankActivity extends AppCompatActivity {
                         final int finalScore = score;
                         runOnUiThread(() -> {
                             first_username.setText(finalUserName);
-                            first_score.setText(finalScore);
+                            first_score.setText(String.valueOf(finalScore));
                         });
                     } else if (rank == 2) {
                         final String finalUserName = userName;
                         final int finalScore = score;
                         runOnUiThread(() -> {
                             sec_username.setText(finalUserName);
-                            sec_score.setText(finalScore);
+                            sec_score.setText(String.valueOf(finalScore));
                         });
                     } else if (rank == 3) {
                         final String finalUserName = userName;
                         final int finalScore = score;
                         runOnUiThread(() -> {
                             third_username.setText(finalUserName);
-                            third_score.setText(finalScore);
+                            third_score.setText(String.valueOf(finalScore));
                         });
                     } else if (rank >= 4){
                         RankItem rankitem = new RankItem(badge, rank, userName, score);
@@ -328,14 +331,14 @@ public class RankActivity extends AppCompatActivity {
                 }
             }
 
-            JSONObject mydataObject = jsonObject.getJSONObject("mydata");
-            int myrank = mydataObject.optInt(("Myrank"),0);
-            String mynickname = mydataObject.optString("userNickname", "");
-            int myscore = mydataObject.optInt(("Myscore"),0);
+            JSONObject mydataObject = dataObject.getJSONObject("mydata");
+            int myrank = mydataObject.optInt(("myRank"),0);
+            String mynickname = mydataObject.optString("myUsername", "");
+            int myscore = mydataObject.optInt(("myScore"),0);
             runOnUiThread(() -> {
-                MYrank.setText(myrank + "등");
+                MYrank.setText(String.valueOf(myrank) + "등");
                 Mynickname.setText(mynickname);
-                Myscore.setText(myscore + "점");
+                Myscore.setText(String.valueOf(myscore) + "점");
             });
 
         } catch (JSONException e) {
