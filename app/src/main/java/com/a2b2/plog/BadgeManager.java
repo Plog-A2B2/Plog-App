@@ -32,4 +32,8 @@ public class BadgeManager {
         Integer drawableId = badgeIdToDrawableMap.get(badgeId);
         return drawableId != null ? drawableId : R.drawable.basic_badge; // 기본 배지 이미지 설정
     }
+
+    public static int getBadgeMapSize() {
+        return badgeIdToDrawableMap.size();
+    }
 }

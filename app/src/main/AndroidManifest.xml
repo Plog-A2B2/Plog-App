@@ -33,9 +33,6 @@
             android:value="ca-app-pub-7888452363830484~9361763620"/>
 
         <activity
-            android:name=".AdActivity"
-            android:exported="false" />
-        <activity
             android:name=".MyPloggingActivity"
             android:exported="false" />
 
