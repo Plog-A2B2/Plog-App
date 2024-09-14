@@ -2,12 +2,15 @@ package com.a2b2.plog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.bumptech.glide.Glide;
 import com.kakao.vectormap.LatLng;
 
 import org.json.JSONArray;
@@ -23,6 +27,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -94,7 +99,7 @@ public class MyPloggingDialogFragment extends DialogFragment {
         UUID uuid = UserManager.getInstance().getUserId();
         activityId = activity.getActivityId();
 
-        url = "http://15.164.152.246:8080/activitys/" + uuid + "/" + activityId + "/plogging/details";
+        url = "http://15.164.152.246:8080/trash/" + uuid + "/" + activityId;
 
         new Thread(() -> {
             String result = httpGetConnection(url);
@@ -102,7 +107,7 @@ public class MyPloggingDialogFragment extends DialogFragment {
                 seeNetworkResult(result);
                 if (result != null && !result.isEmpty()) {
                     // Parse the result and update trashCountMap
-                    trashCountMap = parseTrashData(result);
+                    trashCountMap = parseTrashData(result, view);
                 }
 
                 setTrashCount(inflater, view);  // 뷰와 인플레이터 전달
@@ -110,13 +115,14 @@ public class MyPloggingDialogFragment extends DialogFragment {
         }).start();
     }
 
-    public HashMap<String, Integer> parseTrashData(String json) {
+    public HashMap<String, Integer> parseTrashData(String json, View view) {
         HashMap<String, Integer> trashDataMap = new HashMap<>();
 
         try {
             JSONObject jsonObject = new JSONObject(json);
             JSONObject dataObject = jsonObject.getJSONObject("data");
 
+            String photoUrl;
             // 각 쓰레기 유형 및 수량을 HashMap에 저장
             trashDataMap.put("일반쓰레기", dataObject.getInt("garbage"));
             trashDataMap.put("캔/고철류", dataObject.getInt("can"));
@@ -124,6 +130,25 @@ public class MyPloggingDialogFragment extends DialogFragment {
             trashDataMap.put("종이류", dataObject.getInt("paper"));
             trashDataMap.put("비닐류", dataObject.getInt("plastic_bag"));
             trashDataMap.put("유리류", dataObject.getInt("glass"));
+
+            photoUrl = dataObject.getString("photo");
+            ImageView ploggingPhoto = view.findViewById(R.id.ploggingPhoto);
+
+            if (!photoUrl.equals("none")) {
+                Log.d("photoUrl is", "none X");
+                Log.d("photoUrl is", photoUrl);
+                ploggingPhoto.setVisibility(View.VISIBLE);
+                Glide.with(this)
+                        .load(photoUrl)
+                        .placeholder(R.drawable.logotest2) // 로딩 중 보여줄 이미지
+                        .error(R.drawable.logotest2) // 오류 발생 시 보여줄 이미지
+                        .fitCenter()
+                        .into(ploggingPhoto);
+            } else {
+                Log.d("photoUrl is", "none O");
+                ploggingPhoto.setVisibility(View.GONE);
+            }
+
 
         } catch (JSONException e) {
             e.printStackTrace();

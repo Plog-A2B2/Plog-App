@@ -337,6 +337,8 @@ public class FinishActivity extends AppCompatActivity {
 
                     // 새로운 스레드에서 네트워크 작업 실행
                     new Thread(() -> {
+                        Log.d("보내는 데이터", jsonObject.toString());
+
                         String result = MultipartUtility.uploadFile(url, jsonObject.toString(), imageFile);
                         Log.d("서버 응답", result);
 

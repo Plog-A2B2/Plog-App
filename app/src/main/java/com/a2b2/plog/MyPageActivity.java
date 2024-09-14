@@ -46,6 +46,7 @@ public class MyPageActivity extends AppCompatActivity {
     private android.widget.Button  myCommunityBtn;
 
     private SettingLocationDialog settingLocationDialog;
+    private SettingProfileDialog settingProfileDialog;
     private TextView standardLocationTextView;
     private SwitchCompat pushAlarmSwitch;
     boolean isPushAlarmOn = false; // 서버에서 알림 허용 여부 받아와서 저장
@@ -65,7 +66,9 @@ public class MyPageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_page);
 
+        UserManager userManager = UserManager.getInstance();
         settingLocationDialog = new SettingLocationDialog(this);
+        settingProfileDialog = new SettingProfileDialog(this, userManager);
         handler = new Handler(Looper.getMainLooper());
 
         standardLocationTextView = findViewById(R.id.standardLocationTextView);
@@ -92,14 +95,6 @@ public class MyPageActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-        profileImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
 
         pushAlarmSwitch.setChecked(false);
         saveBtn.setVisibility(View.GONE);
@@ -150,6 +145,21 @@ public class MyPageActivity extends AppCompatActivity {
                 });
             }
         }).start();
+
+        profileImg.setImageResource(BadgeManager.getDrawableForBadgeId(userManager.getBadgeId()));
+//        profileImg.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                settingProfileDialog.show();
+//            }
+//        });
+
+        profileImg.setOnClickListener(view -> {
+            settingProfileDialog.setOnItemClickListener(dialogInterface -> {
+                updateProfileImage(userManager.getBadgeId());
+            });
+            settingProfileDialog.show();
+        });
 
 //        if (isPushAlarmOn == true && isDialogCheck == true) {
 //            standardLocationTextView.setVisibility(View.VISIBLE);
@@ -355,6 +365,11 @@ public class MyPageActivity extends AppCompatActivity {
         });
     }
 
+    public void updateProfileImage(int badgeId) {
+        Log.d("updateProfileImage", "updateProfileImage executed");
+        Log.d("updateProfileImage", String.valueOf(badgeId));
+        profileImg.setImageResource(BadgeManager.getDrawableForBadgeId(badgeId));
+    }
     private void getGeoDataByAddress(String completeAddress) {
         try {
             String API_KEY = "AIzaSyC6FB54gjhzW2wfkKqD8vo5OybyxW55k8M";

@@ -77,16 +77,19 @@ public class MissionActivity extends AppCompatActivity {
 
         // 배지 RecyclerView 설정
         badgeList = new ArrayList<>();
-        badgeList.add(new BadgeItem(R.drawable.tiger, "normal"));
-        badgeList.add(new BadgeItem(R.drawable.elephant, "normal"));
-        badgeList.add(new BadgeItem(R.drawable.lion, "normal"));
-        badgeList.add(new BadgeItem(R.drawable.polarbear, "normal"));
-        badgeList.add(new BadgeItem(R.drawable.sturgeon, "normal"));
-        badgeList.add(new BadgeItem(R.drawable.red_wolf, "normal"));
-        badgeList.add(new BadgeItem(R.drawable.stork, "normal"));
-        badgeList.add(new BadgeItem(R.drawable.humpback_whale, "normal"));
-        badgeList.add(new BadgeItem(R.drawable.small_clawed_otter, "normal"));
-
+//        badgeList.add(new BadgeItem(R.drawable.tiger, "normal"));
+//        badgeList.add(new BadgeItem(R.drawable.elephant, "normal"));
+//        badgeList.add(new BadgeItem(R.drawable.lion, "normal"));
+//        badgeList.add(new BadgeItem(R.drawable.polarbear, "normal"));
+//        badgeList.add(new BadgeItem(R.drawable.sturgeon, "normal"));
+//        badgeList.add(new BadgeItem(R.drawable.red_wolf, "normal"));
+//        badgeList.add(new BadgeItem(R.drawable.stork, "normal"));
+//        badgeList.add(new BadgeItem(R.drawable.humpback_whale, "normal"));
+//        badgeList.add(new BadgeItem(R.drawable.small_clawed_otter, "normal"));
+        for (int i=1; i<BadgeManager.getBadgeMapSize() + 1; i++) {
+            int drawableResId = BadgeManager.getDrawableForBadgeId(i);
+            badgeList.add(new BadgeItem(i, drawableResId));
+        }
 
         badgeRecyclerView = findViewById(R.id.badgeRecyclerView);
         badgeRecyclerView.setHasFixedSize(true);

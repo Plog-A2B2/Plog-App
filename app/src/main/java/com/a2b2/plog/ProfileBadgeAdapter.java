@@ -14,6 +14,12 @@ public class ProfileBadgeAdapter extends RecyclerView.Adapter<ProfileBadgeAdapte
     private List<BadgeItem> badgeList;
     private OnItemClickListener listener;
 
+
+    public void setBadgeList(List<BadgeItem> badgeList) {
+        this.badgeList = badgeList;
+        notifyDataSetChanged();
+    }
+
     public interface OnItemClickListener {
         void onItemClick(int position);
     }
