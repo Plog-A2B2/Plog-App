@@ -22,10 +22,10 @@ import java.util.List;
 
 public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.TrashcountViewHolder>  {
 
-    private List<Integer> tData;
+    private List<TrashcountItem> tData;
     private String[] trashTypes;
     private OnTrashTypeUpdateListener updateListener;
-    public TrashcountAdapter(List<Integer> data, String[] trashTypes,  OnTrashTypeUpdateListener updateListener) {
+    public TrashcountAdapter(List<TrashcountItem> data, String[] trashTypes,  OnTrashTypeUpdateListener updateListener) {
         this.tData = data;
         this.updateListener = updateListener;
 
@@ -43,25 +43,29 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
 
     @Override
     public void onBindViewHolder(@NonNull TrashcountViewHolder holder, int position) {
-        int count = tData.get(position);
+        TrashcountItem item = tData.get(position);
+        int count = item.getCnt();
+
         holder.cnt.setText(String.valueOf(count));
-        holder.trashtype.setText(trashTypes[position]);
+        holder.trashtype.setText(item.getTrashtype());
+
         holder.min.setOnClickListener(v -> {
             if (count > 0) {
-                tData.set(position, count - 1);
+                item.setCnt(count - 1);
                 notifyItemChanged(position);
-                updateListener.onTrashTypeUpdate(trashTypes[position], count-1);
+                updateListener.onTrashTypeUpdate(item.getTrashtype(), count - 1);
                 updateTotal();
             }
-
         });
+
         holder.plus.setOnClickListener(v -> {
-            tData.set(position, count + 1);
+            item.setCnt(count + 1);
             notifyItemChanged(position);
-            updateListener.onTrashTypeUpdate(trashTypes[position], count+1);
+            updateListener.onTrashTypeUpdate(item.getTrashtype(), count + 1);
             updateTotal();
         });
     }
+
 
     @Override
     public int getItemCount() {
@@ -69,8 +73,8 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
     }
     public int getTotalCount() {
         int total = 0;
-        for (int count : tData) {
-            total += count;
+        for (TrashcountItem item : tData) {
+            total += item.getCnt();
         }
         return total;
     }
@@ -102,13 +106,17 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
 
         }
     }
-    public List<Integer> getData() {
+    public List<TrashcountItem> getData() {
         return tData;
     }
 
-    public void setData(List<Integer> data) {
+    public void setData(List<TrashcountItem> data) {
         this.tData = data;
         notifyDataSetChanged();
-
+    }
+    public void updateData(List<TrashcountItem> newList) {
+        this.tData.clear();
+        this.tData.addAll(newList);
+        notifyDataSetChanged();
     }
 }
