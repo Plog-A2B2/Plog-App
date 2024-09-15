@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
     private int cnt;
     private Thread timeThread = null;
     private Boolean isRunning = true;
+    private Boolean isPloggingChecked = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,8 +82,11 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
                     try {
                         JSONObject jsonObject = new JSONObject(jsonString);
                         String value = jsonObject.getString("key1");
+                        isPloggingChecked = jsonObject.getBoolean("key2");
+                        Log.d("isPloggingChecked", String.valueOf(isPloggingChecked));
                         Log.d("WatchApp", "Message received: " + value);
                         km.setText(value);
+
                     } catch (JSONException e) {
                         Log.e("WatchApp", "Failed to parse JSON", e);
                     }
