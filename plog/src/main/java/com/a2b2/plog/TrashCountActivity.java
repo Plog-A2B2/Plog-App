@@ -1,5 +1,6 @@
 package com.a2b2.plog;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,7 +33,7 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
     private RecyclerView trashcountRecyclerView;
     //private RecyclerView.Adapter adapter;
     private TrashcountAdapter adapter;
-    private List<Integer> dataList;
+    private List<TrashcountItem> dataList;
     private String[] trashTypes = {"종이류", "유리류", "일반쓰레기", "플라스틱", "캔/고철류", "비닐류"};
     private String trashType;
     public int total = 0;
@@ -49,7 +50,7 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
 
         dataList = new ArrayList<>();
         for (int i = 0; i < trashTypes.length; i++) {
-            dataList.add(0);
+            dataList.add(new TrashcountItem(trashTypes[i],0));
         }
 
         // MessageClient를 통해 데이터 수신 리스너 설정
@@ -60,29 +61,18 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
                     String jsonString = new String(messageEvent.getData());
                     try {
                         JSONObject jsonObject = new JSONObject(jsonString);
+                        List<TrashcountItem> trashList = new ArrayList<>();
 
-                        for (int i = 0; i < trashTypes.length; i++) {
-                            String trashType = trashTypes[i];
+                        for (String trashType : trashTypes) {
                             if (jsonObject.has(trashType)) {
-                                int newCount = jsonObject.getInt(trashType);
-                                // 해당 trashType의 index를 찾기
-                                int index = -1;
-                                for (int j = 0; j < trashTypes.length; j++) {
-                                    if (trashTypes[j].equals(trashType)) {
-                                        index = j;
-                                        break;
-                                    }
-                                }
-                                if (index != -1) {
-                                    // dataList와 어댑터의 값을 업데이트
-                                    dataList.set(index, newCount);
-                                    adapter.notifyItemChanged(index); // 특정 아이템만 갱신
-                                    total = adapter.getTotalCount(); // 총합 업데이트
-                                    // totalTxt.setText("Total: " + total); // 총합 UI 업데이트 (필요 시)
-                                }
+                                int count = jsonObject.getInt(trashType);
+                                trashList.add(new TrashcountItem(trashType, count));
                             }
                         }
-                        adapter.notifyDataSetChanged();
+
+                        // 어댑터에 데이터 갱신
+                        adapter.updateData(trashList);
+
                     } catch (JSONException e) {
                         Log.e("WatchApp", "Failed to parse JSON", e);
                     }
@@ -116,54 +106,54 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
         // 워치로부터 데이터를 요청하는 로직을 여기에 추가
     }
 
-    @Override //핸드폰에서 값 받아오는 거
-    public void onDataChanged(DataEventBuffer dataEvents) {
-        Log.d("WatchApp", "onDataChanged called, checking for data events...");
-
-        for (DataEvent event : dataEvents) {
-            if (event.getType() == DataEvent.TYPE_CHANGED) {
-                DataItem item = event.getDataItem();
-                Log.d("WatchApp", "Data event received. Path: " + item.getUri().getPath());
-
-                if (item.getUri().getPath().equals("/path/to/data")) {
-                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                    String jsonString = dataMap.getString("json_data");
-                    Log.d("WatchApp", "Received JSON string: " + jsonString);
-
-                    try {
-                        // JSON 문자열을 JSONObject로 변환
-                        JSONObject jsonObject = new JSONObject(jsonString);
-
-                        if(jsonObject != null) {
-                            for (int i = 0; i < trashTypes.length; i++) {
-                                int value = jsonObject.getInt(trashTypes[i]); // 쓰레기 종류별 개수를 가져옴
-                                Log.d("WatchApp", "Updating " + trashTypes[i] + " with value: " + value);
-
-                                dataList.set(i, value); // 해당 리스트 항목을 업데이트
-                            }
-
-                            // 어댑터를 통해 RecyclerView를 업데이트
-                            adapter.notifyDataSetChanged();
-                            Log.d("WatchApp", "RecyclerView updated with new data");
-
-                            // 총합 업데이트
-                            total = adapter.getTotalCount();
-                        } else {
-                            Log.w("WatchApp", "Received null JSONObject, resetting dataList to zeros.");
-
-                            for (int i = 0; i < trashTypes.length; i++) {
-                                dataList.set(i, 0); // 해당 리스트 항목을 업데이트
-                            }
-                        }
-
-                        //totalTxt.setText("Total: " + total); // UI에 총합 반영
-                    } catch (Exception e) {
-                        Log.e("WatchApp", "Failed to parse JSON data", e);
-                    }
-                }
-            }
-        }
-    }
+//    @Override //핸드폰에서 값 받아오는 거
+//    public void onDataChanged(DataEventBuffer dataEvents) {
+//        Log.d("WatchApp", "onDataChanged called, checking for data events...");
+//
+//        for (DataEvent event : dataEvents) {
+//            if (event.getType() == DataEvent.TYPE_CHANGED) {
+//                DataItem item = event.getDataItem();
+//                Log.d("WatchApp", "Data event received. Path: " + item.getUri().getPath());
+//
+//                if (item.getUri().getPath().equals("/path/to/data")) {
+//                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+//                    String jsonString = dataMap.getString("json_data");
+//                    Log.d("WatchApp", "Received JSON string: " + jsonString);
+//
+//                    try {
+//                        // JSON 문자열을 JSONObject로 변환
+//                        JSONObject jsonObject = new JSONObject(jsonString);
+//
+//                        if(jsonObject != null) {
+//                            for (int i = 0; i < trashTypes.length; i++) {
+//                                int value = jsonObject.getInt(trashTypes[i]); // 쓰레기 종류별 개수를 가져옴
+//                                Log.d("WatchApp", "Updating " + trashTypes[i] + " with value: " + value);
+//
+//                                dataList.set(i, value); // 해당 리스트 항목을 업데이트
+//                            }
+//
+//                            // 어댑터를 통해 RecyclerView를 업데이트
+//                            adapter.notifyDataSetChanged();
+//                            Log.d("WatchApp", "RecyclerView updated with new data");
+//
+//                            // 총합 업데이트
+//                            total = adapter.getTotalCount();
+//                        } else {
+//                            Log.w("WatchApp", "Received null JSONObject, resetting dataList to zeros.");
+//
+//                            for (int i = 0; i < trashTypes.length; i++) {
+//                                dataList.set(i, 0); // 해당 리스트 항목을 업데이트
+//                            }
+//                        }
+//
+//                        //totalTxt.setText("Total: " + total); // UI에 총합 반영
+//                    } catch (Exception e) {
+//                        Log.e("WatchApp", "Failed to parse JSON data", e);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public void onBackPressed() {
@@ -177,14 +167,15 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putIntegerArrayList("tData", new ArrayList<>(adapter.getData()));
+        ArrayList<TrashcountItem> itemList = new ArrayList<>(adapter.getData());
+        outState.putParcelableArrayList("tData", itemList);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
-            List<Integer> restoredData = savedInstanceState.getIntegerArrayList("mData");
+            ArrayList<TrashcountItem> restoredData = savedInstanceState.getParcelableArrayList("tData");
             if (restoredData != null) {
                 adapter.setData(restoredData);
                 adapter.notifyDataSetChanged();
@@ -214,6 +205,11 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
 
     @Override
     public void onTrashTypeUpdate(String trashType, int count) {
+
+    }
+
+    @Override
+    public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
 
     }
 }

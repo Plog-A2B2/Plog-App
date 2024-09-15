@@ -271,6 +271,7 @@ public class PloggingActivity extends AppCompatActivity {
     private boolean isUserLabelInitialized = false;
 
     private StompClient stompClient;
+    final HashMap<String, Integer> trashCountMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -468,7 +469,7 @@ public class PloggingActivity extends AppCompatActivity {
 
 
             // 쓰레기 종류와 개수를 저장할 변수 초기화
-            final HashMap<String, Integer> trashCountMap = new HashMap<>();
+//            final HashMap<String, Integer> trashCountMap = new HashMap<>();
 
             LinearLayout trashContainer = findViewById(R.id.trashContainer);
             String[] trashTypes = {"종이류","유리류","일반쓰레기", "플라스틱",  "캔/고철류",  "비닐류"};
@@ -1429,8 +1430,10 @@ public class PloggingActivity extends AppCompatActivity {
         try {
             // JSON 객체 생성
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put(trashType, count);
-            Log.d("각각의 쓰레기 값 보내기", trashType + count);
+
+            for (Map.Entry<String, Integer> entry : trashCountMap.entrySet()) {
+                jsonObject.put(entry.getKey(), entry.getValue());
+            }
 
             // JSON을 문자열로 변환
             String jsonString = jsonObject.toString();
@@ -1439,7 +1442,6 @@ public class PloggingActivity extends AppCompatActivity {
             Task<List<Node>> nodeListTask = Wearable.getNodeClient(this).getConnectedNodes();
             nodeListTask.addOnSuccessListener(nodes -> {
                 for (Node node : nodes) {
-                    // MessageClient를 통해 데이터 전송
                     Wearable.getMessageClient(this)
                             .sendMessage(node.getId(), "/path/to/EachTrashGet", jsonString.getBytes())
                             .addOnSuccessListener(aVoid -> Log.d("MobileApp", "Message sent successfully"))
