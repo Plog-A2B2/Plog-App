@@ -135,9 +135,6 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
         id = findViewById(R.id.idTxt);
         pw = findViewById(R.id.pwTxt);
 
-//        ,\"deviceToken\" : \""+getToken+"\"
-
-
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -195,41 +192,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                         finish();
                     }
 
-
-
-
-// UserManager 업데이트
-
-
-// 처리 결과 확인
-//                    handler.post(() -> {
-//
-//                        seeNetworkResult(result);
-//                        if( UserManager.getInstance().getUserId() == null && UserManager.getInstance().getUserNickname() == null){
-////                        Toast.makeText(getApplicationContext(), "아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_LONG).show();
-//                            TextView loginFail = findViewById(R.id.loginFail);
-//                            loginFail.setVisibility(View.VISIBLE);
-//                            Animation shake = AnimationUtils.loadAnimation(MainActivity.this, R.anim.shake_fast);
-//                            loginFail.startAnimation(shake);
-//
-//                            Log.d("logintest", "로그인실패");
-//                        } else{
-//                            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-//                            startActivity(intent);
-//                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-//                            finish();
-//                        }
-//                    });
-
-
-
-
                 }).start();
-
-
-
-
-
 //                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
 //                startActivity(intent);
 //                overridePendingTransition(0, 0);
@@ -284,7 +247,8 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
             // JSON 객체 생성
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("key1", true);
-            jsonObject.put("key2", 123);
+            jsonObject.put("key2", false);
+            //key1은 스플래시에서 메인으로 넘어갈 때 key2는 플로깅 종료했을 시 스톱워치 종료하게
 
             // JSON을 문자열로 변환
             String jsonString = jsonObject.toString();
