@@ -1,27 +1,32 @@
 package com.a2b2.plog;
 
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-
-import android.annotation.SuppressLint;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import com.google.android.gms.location.LocationRequest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationManager;
+import android.Manifest;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.View;
 import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.wearable.DataClient;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -35,12 +40,10 @@ import com.google.android.gms.wearable.Wearable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener, DataClient.OnDataChangedListener {
+public class MainActivity extends AppCompatActivity implements DataClient.OnDataChangedListener{
     private static final int REQUEST_CODE = 1;
     private static final int TRASH_COUNT_REQUEST = 1;
-
     private TextView  km,trashtotal;
     private ConstraintLayout background;
     private static final String CAPABILITY_1_NAME = "capability_1";
@@ -48,15 +51,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TrashcountItem trashcountItem;
     private String trashtype;
     private int cnt;
-    private Thread timeThread = null;
     private Boolean isRunning = true;
     private Chronometer chronometer;
     private long pauseOffset;
-    private SensorManager sensorManager;
-    private Sensor accelerometer;
-    private float totalDistance = 0f;
-    private float lastX, lastY, lastZ;
-    private boolean isFirstUpdate = true;
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
+    private TextView distanceTextView;
+
+    private double lastLatitude = 0.0;
+    private double lastLongitude = 0.0;
+    private double totalDistance = 0.0;
+    // 권한 요청 메소드
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,23 +77,61 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         trashtotal = findViewById(R.id.trash);
         ImageView trashEdit = findViewById(R.id.trashEdit);
 
-        // SensorManager 및 가속도계 설정
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000); // 10 seconds
+        locationRequest.setFastestInterval(5000); // 5 seconds
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+//        locationCallback = new LocationCallback() {
+//            @Override
+//            public void onLocationResult(@NonNull LocationResult locationResult) {
+//                if (locationResult == null) {
+//                    return;
+//                }
+//                for (android.location.Location location : locationResult.getLocations()) {
+//                    double latitude = location.getLatitude();
+//                    double longitude = location.getLongitude();
+//                    if (lastLatitude != 0.0 && lastLongitude != 0.0) {
+//                        totalDistance += calculateDistance(lastLatitude, lastLongitude, latitude, longitude);
+//                        km.setText(String.format("%.2f KM", totalDistance / 1000.0));
+//                    }
+//                    lastLatitude = latitude;
+//                    lastLongitude = longitude;
+//                }
+//            }
+//        };
+
+        requestLocationPermission();
 
         trashcountItem = new TrashcountItem(trashtype,cnt);
+
         if(isRunning){
             chronometer.setBase(SystemClock.elapsedRealtime() - pauseOffset);
             chronometer.start();
             isRunning = true;
 
-            isFirstUpdate = true; // 초기값 설정
-            totalDistance = 0f;   // 거리 초기화
-            km.setText("0.00 KM");
-            sensorManager.registerListener((SensorEventListener) MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(@NonNull LocationResult locationResult) {
+                    if (locationResult == null) {
+                        return;
+                    }
+                    for (android.location.Location location : locationResult.getLocations()) {
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
+                        if (lastLatitude != 0.0 && lastLongitude != 0.0) {
+                            totalDistance += calculateDistance(lastLatitude, lastLongitude, latitude, longitude);
+                            km.setText(String.format("%.2f KM", totalDistance / 1000.0));
+                        }
+                        lastLatitude = latitude;
+                        lastLongitude = longitude;
+                    }
+                }
+            };
+
+           // km.setText("0.00 KM");
         }
-
-
 
         // SharedPreferences 초기화
         SharedPreferences sharedPreferences = getSharedPreferences("trashData", MODE_PRIVATE);
@@ -106,7 +152,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         if(!isRunning){
                             chronometer.stop();
                             pauseOffset = SystemClock.elapsedRealtime() - chronometer.getBase();
-                            sensorManager.unregisterListener(MainActivity.this);
+
+                            fusedLocationClient.removeLocationUpdates(locationCallback);
                             Intent intent = new Intent(MainActivity.this,FinishActivity.class);
                             startActivity(intent);
                             finish();
@@ -129,21 +176,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Intent intent2 = new Intent(MainActivity.this, TrashCountActivity.class);
             startActivityForResult(intent2, REQUEST_CODE);
         });
-
-//        trashEdit.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(getApplicationContext(), TrashCountActivity.class);
-//                startActivity(intent);
-//            }
-//        });
-//        background.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(getApplicationContext(), TrashCountActivity.class);
-//                startActivity(intent);
-//            }
-//        });
 
     }
     @Override
@@ -188,48 +220,82 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         SharedPreferences sharedPreferences = getSharedPreferences("trashData", MODE_PRIVATE);
         total = sharedPreferences.getInt("total", 0);
         trashtotal.setText(String.valueOf(total)); // TextView 업데이트
+
+        startLocationUpdates();
     }
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (isRunning && event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
 
-            if (!isFirstUpdate) {
-                float deltaX = x - lastX;
-                float deltaY = y - lastY;
-                float deltaZ = z - lastZ;
-
-                // 움직임 변화량 계산 (단순한 방식으로 거리 추정)
-                float deltaDistance = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-
-                // 너무 작은 변화는 무시
-                if (deltaDistance > 0.1f) {
-                    totalDistance += deltaDistance;
-
-                    // Meter를 Kilometer로 변환해서 표시 (1km = 1000m)
-                    float distanceInKm = totalDistance / 1000;
-                    km.setText(String.format("%.2f KM", distanceInKm));
-                }
-            }
-
-            lastX = x;
-            lastY = y;
-            lastZ = z;
-            isFirstUpdate = false;
+    private void requestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        } else {
+            startLocationUpdates();
         }
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // 센서 정확도 변경 시 호출되지만 이 예시에서는 사용하지 않음
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 권한이 허용됨
+                startLocationUpdates();
+            } else {
+                // 권한이 거부됨
+                // 사용자에게 권한이 필요하다는 메시지를 표시할 수 있습니다.
+                Toast.makeText(MainActivity.this,"위치 권한을 허용해주세요",Toast.LENGTH_SHORT).show();
+            }
+        }
     }
+
+    private void startLocationUpdates() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+        }
+    }
+
+    private double calculateDistance(double startLat, double startLng, double endLat, double endLng) {
+        float[] results = new float[1];
+        android.location.Location.distanceBetween(startLat, startLng, endLat, endLng, results);
+        return results[0];
+    }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        startLocationUpdates();
+//    }
 
     @Override
     protected void onPause() {
         super.onPause();
-        // 앱이 일시 중지되면 센서 리스너 해제
-        sensorManager.unregisterListener(this);
+        //fusedLocationClient.removeLocationUpdates(locationCallback);
     }
+//    private void requestLocationPermission() {
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//                    REQUEST_LOCATION_PERMISSION);
+//        }
+//    }
+
+    // 권한 요청 결과 처리
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // 권한이 허용됨
+//                startLocationUpdates();
+//            } else {
+//                // 권한이 거부됨
+//                // 사용자에게 권한이 필요하다는 메시지를 표시할 수 있습니다.
+//            }
+//        }
+//    }
+
 }
