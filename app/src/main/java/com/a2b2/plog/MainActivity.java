@@ -237,8 +237,39 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                 sendJsonData();
             }
         });
+        kakaoLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopPlogging();
+            }
+        });
 
 
+    }
+    private void stopPlogging() {
+        try {
+            // JSON 객체 생성
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("stop", false);
+            //key1은 스플래시에서 메인으로 넘어갈 때 key2는 플로깅 종료했을 시 스톱워치 종료하게
+
+            // JSON을 문자열로 변환
+            String jsonString = jsonObject.toString();
+
+            // Node ID 가져오기 (단말과 워치 간의 연결된 노드)
+            Task<List<Node>> nodeListTask = Wearable.getNodeClient(this).getConnectedNodes();
+            nodeListTask.addOnSuccessListener(nodes -> {
+                for (Node node : nodes) {
+                    // MessageClient를 통해 데이터 전송
+                    Wearable.getMessageClient(this)
+                            .sendMessage(node.getId(), "/path/to/stopPlogging", jsonString.getBytes())
+                            .addOnSuccessListener(aVoid -> Log.d("MobileApp", "Message sent successfully"))
+                            .addOnFailureListener(e -> Log.e("MobileApp", "Failed to send message", e));
+                }
+            });
+        } catch (Exception e) {
+            Log.e("MobileApp", "Failed to create JSON data", e);
+        }
     }
 
     //앱 -> 워치 json 형식 값 전달 확인
@@ -247,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
             // JSON 객체 생성
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("key1", true);
-            jsonObject.put("key2", false);
             //key1은 스플래시에서 메인으로 넘어갈 때 key2는 플로깅 종료했을 시 스톱워치 종료하게
 
             // JSON을 문자열로 변환

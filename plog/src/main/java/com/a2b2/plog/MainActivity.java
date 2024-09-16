@@ -6,11 +6,18 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,11 +37,11 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements DataClient.OnDataChangedListener {
+public class MainActivity extends AppCompatActivity implements SensorEventListener, DataClient.OnDataChangedListener {
     private static final int REQUEST_CODE = 1;
     private static final int TRASH_COUNT_REQUEST = 1;
 
-    private TextView time, km,trashtotal;
+    private TextView  km,trashtotal;
     private ConstraintLayout background;
     private static final String CAPABILITY_1_NAME = "capability_1";
     private int total = 0;
@@ -43,27 +50,40 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
     private int cnt;
     private Thread timeThread = null;
     private Boolean isRunning = true;
-    private Boolean isPloggingChecked = true;
+    private Chronometer chronometer;
+    private long pauseOffset;
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+    private float totalDistance = 0f;
+    private float lastX, lastY, lastZ;
+    private boolean isFirstUpdate = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        chronometer = findViewById(R.id.chronometer);
+        chronometer.setFormat(" %s");
         background = findViewById(R.id.trashCount);
-
-        time = findViewById(R.id.time);
         km = findViewById(R.id.km);
         trashtotal = findViewById(R.id.trash);
         ImageView trashEdit = findViewById(R.id.trashEdit);
 
-        trashcountItem = new TrashcountItem(trashtype,cnt);
+        // SensorManager 및 가속도계 설정
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-//        if(adapter.getTotalCount() !=0){
-//            total = adapter.getTotalCount();
-//            Log.d("받아라 좀", String.valueOf(total));
-//
-//            trashtotal.setText(String.valueOf(total));
-//        }
+        trashcountItem = new TrashcountItem(trashtype,cnt);
+        if(isRunning){
+            chronometer.setBase(SystemClock.elapsedRealtime() - pauseOffset);
+            chronometer.start();
+            isRunning = true;
+
+            isFirstUpdate = true; // 초기값 설정
+            totalDistance = 0f;   // 거리 초기화
+            km.setText("0.00 KM");
+            sensorManager.registerListener((SensorEventListener) MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        }
 
 
 
@@ -77,15 +97,22 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
         Wearable.getMessageClient(this).addListener(new MessageClient.OnMessageReceivedListener() {
             @Override
             public void onMessageReceived(MessageEvent messageEvent) {
-                if (messageEvent.getPath().equals("/path/to/data")) {
+                if (messageEvent.getPath().equals("/path/to/stopPlogging")) {
                     String jsonString = new String(messageEvent.getData());
                     try {
                         JSONObject jsonObject = new JSONObject(jsonString);
-                        String value = jsonObject.getString("key1");
-                        isPloggingChecked = jsonObject.getBoolean("key2");
-                        Log.d("isPloggingChecked", String.valueOf(isPloggingChecked));
-                        Log.d("WatchApp", "Message received: " + value);
-                        km.setText(value);
+                        Boolean result = jsonObject.getBoolean("stop");
+                        isRunning = result;
+                        if(!isRunning){
+                            chronometer.stop();
+                            pauseOffset = SystemClock.elapsedRealtime() - chronometer.getBase();
+                            sensorManager.unregisterListener(MainActivity.this);
+                            Intent intent = new Intent(MainActivity.this,FinishActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                        Log.d("isRunning", String.valueOf(isRunning));
+                        Log.d("WatchApp", "Message received: " + result);
 
                     } catch (JSONException e) {
                         Log.e("WatchApp", "Failed to parse JSON", e);
@@ -161,5 +188,48 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
         SharedPreferences sharedPreferences = getSharedPreferences("trashData", MODE_PRIVATE);
         total = sharedPreferences.getInt("total", 0);
         trashtotal.setText(String.valueOf(total)); // TextView 업데이트
+    }
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (isRunning && event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+
+            if (!isFirstUpdate) {
+                float deltaX = x - lastX;
+                float deltaY = y - lastY;
+                float deltaZ = z - lastZ;
+
+                // 움직임 변화량 계산 (단순한 방식으로 거리 추정)
+                float deltaDistance = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+
+                // 너무 작은 변화는 무시
+                if (deltaDistance > 0.1f) {
+                    totalDistance += deltaDistance;
+
+                    // Meter를 Kilometer로 변환해서 표시 (1km = 1000m)
+                    float distanceInKm = totalDistance / 1000;
+                    km.setText(String.format("%.2f KM", distanceInKm));
+                }
+            }
+
+            lastX = x;
+            lastY = y;
+            lastZ = z;
+            isFirstUpdate = false;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // 센서 정확도 변경 시 호출되지만 이 예시에서는 사용하지 않음
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // 앱이 일시 중지되면 센서 리스너 해제
+        sensorManager.unregisterListener(this);
     }
 }
