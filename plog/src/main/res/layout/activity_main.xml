@@ -30,7 +30,7 @@
             android:id="@+id/km"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0.0KM"
+            android:text="0.00KM"
             android:textColor="#000000"
             android:textSize="30sp"
             android:fontFamily="@font/nanumbarungothic"/>
@@ -52,14 +52,22 @@
             android:src="@drawable/timeicon"
             android:layout_marginRight="10dp"/>
 
-        <TextView
+        <Chronometer
+            android:id="@+id/chronometer"
+            android:textSize="30sp"
+            android:fontFamily="@font/nanumbarungothic"
+            android:layout_width="wrap_content"
+            android:textColor="#F24879"
+            android:layout_height="wrap_content"/>
+
+        <!--<TextView
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00:00:00"
+            android:text="00:00"
             android:textSize="30sp"
             android:textColor="#F24879"
-            android:fontFamily="@font/nanumbarungothic"/>
+            android:fontFamily="@font/nanumbarungothic"/>!-->
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

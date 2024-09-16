@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FinishActivity"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@drawable/mainback">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/nanumbarungothic"
+        android:gravity="center"
+        android:text="🏃플로깅 완료!️😆"
+        android:textColor="#000000"
+        android:textSize="25sp"
+        />
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="플로깅 결과"
+            android:textColor="#F24879"
+            android:textSize="17sp"
+            android:fontFamily="@font/nanumbarungothic"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="는 모바일에서"
+            android:textSize="17sp"
+            android:textColor="#000000"
+            android:fontFamily="@font/nanumbarungothic"/>
+    </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="확인해주세요"
+        android:gravity="center"
+        android:textSize="17sp"
+        android:fontFamily="@font/nanumbarungothic"
+        android:textColor="#000000"/>
+
+
+
+</LinearLayout>
