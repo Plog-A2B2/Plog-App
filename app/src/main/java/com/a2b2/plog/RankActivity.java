@@ -46,12 +46,20 @@ public class RankActivity extends AppCompatActivity {
     private TextView first_username,sec_username,third_username,first_score,sec_score,third_score, helpTxt, MYrank, Mynickname, Myscore;
     private ConstraintLayout background;
     private Handler handler;
+    private ConstraintLayout rank_third_all;
+    private ConstraintLayout rank_sec_all;
+    private ConstraintLayout rank_first_all;
+    private TextView rankclear;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rank);
 
+        rank_third_all = findViewById(R.id.rank_third_all);
+        rank_sec_all = findViewById(R.id.rank_sec_all);
+        rank_first_all = findViewById(R.id.rank_first_all);
+        rankclear = findViewById(R.id.rankcleartxt);
         background = findViewById(R.id.rank_background);
 
         mission = findViewById(R.id.mission);
@@ -279,7 +287,7 @@ public class RankActivity extends AppCompatActivity {
                 JSONObject postObject = jsonArray.getJSONObject(i);
 
                 int badge = 0;
-                int rank = 1;
+                int rank = -1;
                 String userName = null;
                 int score = -1;
 
@@ -300,34 +308,44 @@ public class RankActivity extends AppCompatActivity {
                     Log.d("score", String.valueOf(score));
                 }
                 if (badge != 0 && userName != null && score != -1) {
-                    if (rank == 1) {
-                        // userName 값을 final 변수에 복사
-                        final String finalUserName = userName;
-                        final int finalScore = score;
-                        runOnUiThread(() -> {
-                            first_username.setText(finalUserName);
-                            first_score.setText(String.valueOf(finalScore));
-                        });
-                    } else if (rank == 2) {
-                        final String finalUserName = userName;
-                        final int finalScore = score;
-                        runOnUiThread(() -> {
-                            sec_username.setText(finalUserName);
-                            sec_score.setText(String.valueOf(finalScore));
-                        });
-                    } else if (rank == 3) {
-                        final String finalUserName = userName;
-                        final int finalScore = score;
-                        runOnUiThread(() -> {
-                            third_username.setText(finalUserName);
-                            third_score.setText(String.valueOf(finalScore));
-                        });
-                    } else if (rank >= 4){
-                        RankItem rankitem = new RankItem(badge, rank, userName, score);
-                        rankItems.add(rankitem);
-                    } else{
-                        Log.e("JSONError", "Missing key in JSON object: " + postObject.toString());
+                    if(rank ==0){
+
+                        rankclear.setVisibility(View.VISIBLE);
+                        rank_third_all.setVisibility(View.INVISIBLE);
+                        rank_sec_all.setVisibility(View.INVISIBLE);
+                        rank_first_all.setVisibility(View.INVISIBLE);
+                    } else {
+                        rankclear.setVisibility(View.INVISIBLE);
+                        if (rank == 1) {
+                            // userName 값을 final 변수에 복사
+                            final String finalUserName = userName;
+                            final int finalScore = score;
+                            runOnUiThread(() -> {
+                                first_username.setText(finalUserName);
+                                first_score.setText(String.valueOf(finalScore));
+                            });
+                        } else if (rank == 2) {
+                            final String finalUserName = userName;
+                            final int finalScore = score;
+                            runOnUiThread(() -> {
+                                sec_username.setText(finalUserName);
+                                sec_score.setText(String.valueOf(finalScore));
+                            });
+                        } else if (rank == 3) {
+                            final String finalUserName = userName;
+                            final int finalScore = score;
+                            runOnUiThread(() -> {
+                                third_username.setText(finalUserName);
+                                third_score.setText(String.valueOf(finalScore));
+                            });
+                        } else if (rank >= 4){
+                            RankItem rankitem = new RankItem(badge, rank, userName, score);
+                            rankItems.add(rankitem);
+                        } else{
+                            Log.e("JSONError", "Missing key in JSON object: " + postObject.toString());
+                        }
                     }
+
                 }
             }
 
