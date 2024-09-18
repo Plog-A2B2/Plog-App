@@ -6,8 +6,12 @@ import static androidx.core.app.PendingIntentCompat.getActivity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -31,7 +35,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.CapabilityClient;
 import com.google.android.gms.wearable.CapabilityInfo;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
@@ -44,6 +53,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kakao.sdk.user.model.User;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
@@ -62,8 +72,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-//로그인 실패 처리했던 거 날라감 화요일에 다시 해야 함
-public class MainActivity extends AppCompatActivity implements CapabilityClient.OnCapabilityChangedListener {
+
+public class MainActivity extends AppCompatActivity implements CapabilityClient.OnCapabilityChangedListener, DataClient.OnDataChangedListener {
 
     Button loginBtn, idFindBtn, pwFindBtn, joinBtn;
     ImageView kakaoLogin;
@@ -243,9 +253,22 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                 stopPlogging();
             }
         });
-
-
     }
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        for (DataEvent event : dataEvents) {
+            if (event.getType() == DataEvent.TYPE_CHANGED) {
+                DataItem item = event.getDataItem();
+                if (item.getUri().getPath().equals("/json_data")) {
+                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                    String jsonString = dataMap.getString("json_key");
+                    tv1.setText(jsonString);
+                    // 받은 JSON 데이터를 처리
+                }
+            }
+        }
+    }
+
     private void stopPlogging() {
         try {
             // JSON 객체 생성
@@ -356,12 +379,15 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
         super.onResume();
         Wearable.getCapabilityClient(this)
                 .addListener(this, Uri.parse("wear://"), CapabilityClient.FILTER_REACHABLE);
+
+        Wearable.getDataClient(this).addListener(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Wearable.getCapabilityClient(this).removeListener(this);
+        Wearable.getDataClient(this).removeListener(this);
     }
 
     public String httpPostBodyConnection(String UrlData, String ParamData) {
