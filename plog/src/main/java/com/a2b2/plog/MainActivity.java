@@ -14,14 +14,33 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 import android.Manifest;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
 import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataClient.OnDataChangedListener;
+import com.google.android.gms.wearable.Wearable;
+import com.google.android.gms.tasks.Task;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -35,10 +54,13 @@ import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.nio.charset.StandardCharsets;
 
 
 public class MainActivity extends AppCompatActivity implements DataClient.OnDataChangedListener{
@@ -58,17 +80,25 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
-    private TextView distanceTextView;
-
     private double lastLatitude = 0.0;
     private double lastLongitude = 0.0;
     private double totalDistance = 0.0;
+    private ImageView running;
+    private DataClient dataClient;
     // 권한 요청 메소드
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        running = findViewById(R.id.running);
+        dataClient = Wearable.getDataClient(this);
+        running.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendDataToPhone("tlqkf");
+            }
+        });
 
         chronometer = findViewById(R.id.chronometer);
         chronometer.setFormat(" %s");
@@ -83,24 +113,24 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
         locationRequest.setFastestInterval(5000); // 5 seconds
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-//        locationCallback = new LocationCallback() {
-//            @Override
-//            public void onLocationResult(@NonNull LocationResult locationResult) {
-//                if (locationResult == null) {
-//                    return;
-//                }
-//                for (android.location.Location location : locationResult.getLocations()) {
-//                    double latitude = location.getLatitude();
-//                    double longitude = location.getLongitude();
-//                    if (lastLatitude != 0.0 && lastLongitude != 0.0) {
-//                        totalDistance += calculateDistance(lastLatitude, lastLongitude, latitude, longitude);
-//                        km.setText(String.format("%.2f KM", totalDistance / 1000.0));
-//                    }
-//                    lastLatitude = latitude;
-//                    lastLongitude = longitude;
-//                }
-//            }
-//        };
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (android.location.Location location : locationResult.getLocations()) {
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    if (lastLatitude != 0.0 && lastLongitude != 0.0) {
+                        totalDistance += calculateDistance(lastLatitude, lastLongitude, latitude, longitude);
+                        km.setText(String.format("%.2f KM", totalDistance / 1000.0));
+                    }
+                    lastLatitude = latitude;
+                    lastLongitude = longitude;
+                }
+            }
+        };
 
         requestLocationPermission();
 
@@ -110,25 +140,6 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
             chronometer.setBase(SystemClock.elapsedRealtime() - pauseOffset);
             chronometer.start();
             isRunning = true;
-
-            locationCallback = new LocationCallback() {
-                @Override
-                public void onLocationResult(@NonNull LocationResult locationResult) {
-                    if (locationResult == null) {
-                        return;
-                    }
-                    for (android.location.Location location : locationResult.getLocations()) {
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
-                        if (lastLatitude != 0.0 && lastLongitude != 0.0) {
-                            totalDistance += calculateDistance(lastLatitude, lastLongitude, latitude, longitude);
-                            km.setText(String.format("%.2f KM", totalDistance / 1000.0));
-                        }
-                        lastLatitude = latitude;
-                        lastLongitude = longitude;
-                    }
-                }
-            };
 
            // km.setText("0.00 KM");
         }
@@ -178,6 +189,18 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
         });
 
     }
+    private void sendDataToPhone(String jsonString) {
+        Log.d("sendDataToPhone","클릭됨");
+        // JSON 데이터를 "/json_data" 경로로 전송
+        PutDataMapRequest dataMap = PutDataMapRequest.create("/json_data");
+        dataMap.getDataMap().putString("json_key", jsonString);
+        PutDataRequest request = dataMap.asPutDataRequest();
+
+        // DataClient 사용하여 데이터 전송
+        DataClient dataClient = Wearable.getDataClient(this);
+        dataClient.putDataItem(request);
+    }
+
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
         for (DataEvent event : dataEvents) {
@@ -224,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
         startLocationUpdates();
     }
 
+    //km
     private void requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -253,49 +277,32 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
     private void startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
         }
     }
-
     private double calculateDistance(double startLat, double startLng, double endLat, double endLng) {
         float[] results = new float[1];
         android.location.Location.distanceBetween(startLat, startLng, endLat, endLng, results);
         return results[0];
     }
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        startLocationUpdates();
-//    }
-
     @Override
     protected void onPause() {
         super.onPause();
-        //fusedLocationClient.removeLocationUpdates(locationCallback);
     }
-//    private void requestLocationPermission() {
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                    REQUEST_LOCATION_PERMISSION);
-//        }
-//    }
-
-    // 권한 요청 결과 처리
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                // 권한이 허용됨
-//                startLocationUpdates();
-//            } else {
-//                // 권한이 거부됨
-//                // 사용자에게 권한이 필요하다는 메시지를 표시할 수 있습니다.
-//            }
-//        }
+//    private void sendDataToPhone(String jsonData) {
+//        PutDataRequest putDataRequest = PutDataRequest.create("/data_path");
+//        // JSON 문자열을 바이트 배열로 변환합니다.
+//        byte[] jsonDataBytes = jsonData.getBytes(StandardCharsets.UTF_8);
+//        // 바이트 배열을 PutDataRequest에 추가합니다.
+//        putDataRequest.putByteArray("json_data", jsonDataBytes);
+//
+//        dataClient.putDataItem(putDataRequest)
+//                .addOnSuccessListener(dataItem -> {
+//                    // 데이터 전송 성공
+//                })
+//                .addOnFailureListener(exception -> {
+//                    // 데이터 전송 실패
+//                });
 //    }
 
 }
