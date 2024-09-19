@@ -6,6 +6,7 @@ public class BadgeItem {
     private String badgeType;   //여기에 배지 종류 적기..
 
     private String unlockCondition = "플로깅 누적 시간 50H 달성";
+    private int cost=0;
 
 
     public BadgeItem(int badgeImage, String badgeName) {
@@ -31,6 +32,14 @@ public class BadgeItem {
         this.unlockCondition = unlockCondition;
     }
 
+    public int getCost() {
+        return cost;
+    }
+
+    public void setCost(int cost) {
+        this.cost = cost;
+    }
+
     public int getBadgeId() {
         return badgeId;
     }
@@ -43,10 +52,18 @@ public class BadgeItem {
         return badgeImage;
     }
 
+    public void setBadgeImage(int badgeImage) {
+        this.badgeImage = badgeImage;
+    }
+
     public String getBadgeType() {
         return badgeType;
     }
     public String getUnlockCondition() {
         return unlockCondition;
+    }
+
+    public void setUnlockCondition(String unlockCondition) {
+        this.unlockCondition = unlockCondition;
     }
 }

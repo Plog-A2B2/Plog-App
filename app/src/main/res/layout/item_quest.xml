@@ -13,8 +13,8 @@
         android:layout_height="wrap_content"
         android:text="플로깅 3KM 하기"
         android:textColor="@color/black"
-        android:textSize="18sp"
-        android:layout_gravity="center_vertical"
+        android:textSize="17sp"
+        android:layout_gravity="center"
         android:paddingLeft="25dp"
         android:fontFamily="@font/nanumbarungothiclight"/>
 
@@ -24,7 +24,7 @@
         android:layout_height="22dp"
         android:src="@drawable/coin"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="30dp"/>
+        android:layout_marginLeft="28dp"/>
 
     <TextView
         android:id="@+id/coinNumTextView"
@@ -37,5 +37,14 @@
         android:layout_marginLeft="4dp"
         android:fontFamily="@font/nanumbarungothiclight"/>
 
+    <View
+        android:id="@+id/finishLine"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="20dp"
+        android:background="#FF0040"
+        android:layout_marginLeft="-255dp"
+        android:layout_marginRight="15dp"
+        android:visibility="gone"/>
 
 </LinearLayout>

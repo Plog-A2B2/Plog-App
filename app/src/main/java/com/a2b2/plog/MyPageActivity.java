@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -369,7 +371,81 @@ public class MyPageActivity extends AppCompatActivity {
         Log.d("updateProfileImage", "updateProfileImage executed");
         Log.d("updateProfileImage", String.valueOf(badgeId));
         profileImg.setImageResource(BadgeManager.getDrawableForBadgeId(badgeId));
+
+        String url;
+        UUID uuid = UserManager.getInstance().getUserId();
+
+        url = "http://15.164.152.246:8080/mybadge/" + uuid + "/" + badgeId;
+        // JSON 문자열을 구성하기 위한 StringBuilder 사용
+        String data = "";
+
+        // jsonData를 서버에 전송
+        Log.d("data", data);
+        new Thread(() -> {
+            String result = httpPatchBodyConnection(url, data);
+            if (handler == null) {
+                handler = new Handler(Looper.getMainLooper());
+            }
+            handler.post(() -> handleResponseAndShowToast(this, result));
+        }).start();
     }
+    // JSON 응답을 파싱하고, message 값을 Toast로 띄우는 메서드
+    public static void handleResponseAndShowToast(Context context, String jsonResponse) {
+        try {
+            // JSON 응답을 파싱
+            JSONObject responseJson = new JSONObject(jsonResponse);
+
+            // message 값 추출
+            String message = responseJson.getString("message");
+
+            // 추출한 메시지를 Toast로 표시
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(context, "오류가 발생했습니다.", Toast.LENGTH_LONG).show();
+        }
+    }
+    public String httpPatchBodyConnection(String UrlData, String ParamData) {
+        String responseData = "";
+        BufferedReader br = null;
+
+        try {
+            URL url = new URL(UrlData);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PATCH");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] request_data = ParamData.getBytes("utf-8");
+                os.write(request_data);
+            }
+
+            conn.connect();
+
+            br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            while ((responseData = br.readLine()) != null) {
+                sb.append(responseData);
+            }
+
+            return sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return responseData;
+    }
+
     private void getGeoDataByAddress(String completeAddress) {
         try {
             String API_KEY = "AIzaSyC6FB54gjhzW2wfkKqD8vo5OybyxW55k8M";
