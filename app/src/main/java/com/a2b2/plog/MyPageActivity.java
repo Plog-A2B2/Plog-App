@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.kakao.sdk.user.model.User;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -63,6 +64,7 @@ public class MyPageActivity extends AppCompatActivity {
     private String url;
     private ImageView coinInfoBtn, profileImg;
 
+    private ImageView membership;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +81,14 @@ public class MyPageActivity extends AppCompatActivity {
         more = findViewById(R.id.more);
         coinInfoBtn = findViewById(R.id.coinInfoBtn);
         profileImg = findViewById(R.id.profileImg);
+        membership = findViewById(R.id.membership);
+
+        membership.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showMembershipDialog();
+            }
+        });
 
         coinInfoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,6 +110,9 @@ public class MyPageActivity extends AppCompatActivity {
 
         pushAlarmSwitch.setChecked(false);
         saveBtn.setVisibility(View.GONE);
+        if(!pushAlarmSwitch.isChecked()) {
+            standardLocationTextView.setVisibility(View.GONE);
+        }
 
 
         Log.d("유유아이디 확인", String.valueOf(uuid));
@@ -185,6 +198,7 @@ public class MyPageActivity extends AppCompatActivity {
                 isDialogCheck = true;
             } else {
                 standardLocationTextView.setVisibility(View.GONE);
+                saveBtn.setVisibility(View.GONE);
                 url = "http://15.164.152.246:8080/api/fcm/"+uuid+"/notice";
                 String data = "{\"latitude\" : \"0\",\"longitude\" : \"0\",\"notificationEnabled\" : \""+isPushAlarmOn+"\",\"location\" : \"장소없음\"}";
                 Log.d("알람설정", String.valueOf(isPushAlarmOn));
@@ -285,7 +299,9 @@ public class MyPageActivity extends AppCompatActivity {
                 String url = "http://15.164.152.246:8080/api/fcm/"+uuid+"/notice";
                 Log.d("주소 확인",url);
                 new Thread(()->{
-                    getGeoDataByAddress(standardLocation.getAddress());
+                    if(standardLocation.getAddress() != null) {
+                        getGeoDataByAddress(standardLocation.getAddress());
+                    }
 
                     String data = "{\"latitude\" : \""+standardLocation.getLatitude()+"\",\"longitude\" : \""+standardLocation.getLongitude()+"\",\"notificationEnabled\" : \""+isPushAlarmOn+"\",\"location\" : \""+location.getPlaceName()+"\"}";
                     Log.d("데이터 확인", data);
@@ -365,6 +381,74 @@ public class MyPageActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    public void showMembershipDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        if (UserManager.getInstance().getIsMembership()) {
+            builder.setTitle("멤버십 해지")
+                    .setMessage("멤버십을 해지하시겠습니까?")
+                    .setPositiveButton("예", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // "예" 버튼 클릭 시의 행동
+                            //멤버십 해지
+                            UserManager.getInstance().setMembership(false);
+                        }
+                    })
+                    .setNegativeButton("아니요", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // "아니요" 버튼 클릭 시의 행동
+                            dialog.dismiss();
+                        }
+                    })
+                    .setCancelable(true); // 다이얼로그 외부 클릭으로 취소 가능
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        } else {
+            builder.setTitle("멤버십 가입")
+                    .setMessage("멤버십에 가입하시겠습니까?")
+                    .setPositiveButton("예", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // "예" 버튼 클릭 시의 행동
+                            onMembershipConfirmed();
+                        }
+                    })
+                    .setNegativeButton("아니요", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // "아니요" 버튼 클릭 시의 행동
+                            dialog.dismiss();
+                        }
+                    })
+                    .setCancelable(true); // 다이얼로그 외부 클릭으로 취소 가능
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+    }
+
+    // "예" 버튼 클릭 시 호출되는 메서드
+    private void onMembershipConfirmed() {
+        // 멤버십 가입 로직
+
+        UUID uuid = UserManager.getInstance().getUserId();
+
+        String url = "http://15.164.152.246:8080/profile/" + uuid + "/membership";
+        new Thread(() -> {
+            String result = httpPostBodyConnection(url, "");
+            // 처리 결과 확인
+            handler = new Handler(Looper.getMainLooper());
+            if (handler != null) {
+                handler.post(() -> {
+                    Log.d("result", result);
+                    Toast.makeText(this, "멤버십에 가입되었습니다.", Toast.LENGTH_LONG).show();
+                    UserManager.getInstance().setMembership(true);
+                });
+            }
+        }).start();
     }
 
     public void updateProfileImage(int badgeId) {

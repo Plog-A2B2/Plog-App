@@ -1,6 +1,7 @@
 package com.a2b2.plog;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.SparseArray;
 
 public class BadgeManager {
@@ -42,20 +43,29 @@ public class BadgeManager {
     public static int getLockedDrawableForBadgeId(int badgeId, Context context) {
         Integer unlockedDrawableId = badgeIdToDrawableMap.get(badgeId);
         if (unlockedDrawableId != null) {
-            // 리소스 이름에 _lock을 붙여서 잠긴 이미지 리소스를 찾음
             String unlockedDrawableName = context.getResources().getResourceEntryName(unlockedDrawableId);
-            String lockedDrawableName = unlockedDrawableName + "_lock";
+            String lockedDrawableNamePng = unlockedDrawableName + "_lock"; // PNG 시도
+            String lockedDrawableNameJpg = "sturgeon_lock";  // JPG 하드코딩 시도
 
-            // 리소스 이름을 기반으로 잠긴 이미지 리소스 ID를 가져옴
-            int lockedDrawableId = context.getResources().getIdentifier(lockedDrawableName, "drawable", context.getPackageName());
+            // PNG 리소스를 찾음
+            int lockedDrawableId = context.getResources().getIdentifier(lockedDrawableNamePng, "drawable", context.getPackageName());
+            Log.d("BadgeDebug", "Trying PNG resource: " + lockedDrawableNamePng + " with ID: " + lockedDrawableId);
 
-            // 잠긴 이미지 리소스가 존재하는지 확인
+            // PNG가 없으면 JPG 시도
+            if (lockedDrawableId == 0) {
+                lockedDrawableId = context.getResources().getIdentifier(lockedDrawableNameJpg, "drawable", context.getPackageName());
+                Log.d("BadgeDebug", "Trying JPG resource: " + lockedDrawableNameJpg + " with ID: " + lockedDrawableId);
+            }
+
             if (lockedDrawableId != 0) {
                 return lockedDrawableId;
             }
         }
-        return R.drawable.basic_badge; // 기본 잠긴 배지 이미지 (기본 이미지가 없으면 기본 배지로 설정)
+
+        Log.d("BadgeDebug", "Returning default badge image.");
+        return R.drawable.basic_badge;
     }
+
 
     // lock 드로어블 ID로 배지 ID를 찾는 메서드
     public static int getBadgeIdForLockedDrawable(int lockedDrawableId, Context context) {

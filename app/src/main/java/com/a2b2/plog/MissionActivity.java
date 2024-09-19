@@ -27,6 +27,7 @@ import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -79,6 +80,7 @@ public class MissionActivity extends AppCompatActivity {
         questRecyclerView.setHasFixedSize(true);
         layoutManager = new GridLayoutManager(this, 3, GridLayoutManager.HORIZONTAL, false);
         questRecyclerView.setLayoutManager(layoutManager);
+        Handler questHandler = new Handler(Looper.getMainLooper());
 
         UUID uuid = UserManager.getInstance().getUserId();
         handler = new Handler();
@@ -86,8 +88,8 @@ public class MissionActivity extends AppCompatActivity {
         url3 = "http://15.164.152.246:8080/mission/" + uuid + "/dailyquest";
 
         new Thread(() -> {
-            result3 = httpGetConnection(url);
-            handler.post(() -> {
+            result3 = httpGetConnection(url3);
+            questHandler.post(() -> {
                 if (result3 != null && !result3.isEmpty()) {
                     questList = parseMissions(result3);
 
@@ -123,40 +125,60 @@ public class MissionActivity extends AppCompatActivity {
         }
         badgeRecyclerView = findViewById(R.id.badgeRecyclerView);
 
-        url = "http://15.164.152.246:8080/mybadge/" + uuid;
+        url = "http://15.164.152.246:8080/badge/" + uuid;
+        String data = "";
 
         new Thread(() -> {
-            result = httpGetConnection(url);
+            result = httpPostBodyConnection(url, data);
             handler.post(() -> {
                 if (result != null && !result.isEmpty()) {
                     myBadgeItemList = parseBadgeAll(result);
 
-                    // 배지 목록을 보여줄 때, 소유한 배지는 정상 이미지, 소유하지 않은 배지는 잠긴 이미지로 설정
+                    // 소유한 배지 리스트와 전체 배지 리스트를 비교
                     for (BadgeItem badge : badgeList) {
-                        if (!myBadgeItemList.contains(badge)) {
-                            badge.setBadgeImage(BadgeManager.getLockedDrawableForBadgeId(badge.getBadgeImage(), this));  // 소유한 배지 이미지
+                        boolean isOwned = false;
+
+                        // 소유한 배지 리스트를 순회하며 현재 배지가 소유한 배지인지 확인
+                        for (BadgeItem myBadge : myBadgeItemList) {
+                            if (myBadge.getBadgeId() == badge.getBadgeId()) {
+                                isOwned = true;
+                                break;
+                            }
                         }
+
+                        // 배지가 소유한 배지일 경우
+                        if (isOwned) {
+                            // 소유한 배지 이미지 설정
+                            badge.setMine(true);
+                            badge.setBadgeImage(BadgeManager.getDrawableForBadgeId(badge.getBadgeId()));
+                        } else {
+                            // 소유하지 않은 배지일 경우
+                            badge.setMine(false);
+                            Log.d("소유하지 않은 배지", String.valueOf(BadgeManager.getLockedDrawableForBadgeId(badge.getBadgeId(), this)));
+                            badge.setBadgeImage(BadgeManager.getLockedDrawableForBadgeId(badge.getBadgeId(), this));  // 잠긴 배지 이미지
+                        }
+
+                        // 최종 배지 리스트에 배지 추가
                         finalBadgeList.add(badge);
                     }
+
                     // 어댑터 설정
                     badgeRecyclerView.setHasFixedSize(true);
                     badgeLayoutManager = new GridLayoutManager(this, 3);
                     badgeRecyclerView.setLayoutManager(badgeLayoutManager);
                     badgeAdapter = new BadgeAdapter(finalBadgeList);
                     badgeRecyclerView.setAdapter(badgeAdapter);
+
+                    badgeAdapter.setOnItemClickListener(new BadgeAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(int position) {
+                            BadgeItem clickedBadge = badgeList.get(position);
+                            showUnlockCondition(clickedBadge);
+                        }
+                    });
                 }
             });
         }).start();
-
-        badgeAdapter.setOnItemClickListener(new BadgeAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                BadgeItem clickedBadge = badgeList.get(position);
-                showUnlockCondition(clickedBadge);
-            }
-        });
-
-
 
         renewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -334,28 +356,26 @@ public class MissionActivity extends AppCompatActivity {
 
             // 각 미션 정보를 파싱하여 리스트에 추가
             for (int i = 0; i < dataArray.length(); i++) {
-                JSONObject missionObject = dataArray.getJSONObject(i);
+                JSONObject missionObject = dataArray.getJSONObject(i); // JSONObject로 가져오기
 
                 int missionId = missionObject.getInt("missionId");
-                int missionCoin = missionObject.getInt("missionCoin");
-                String missionDescription = missionObject.getString("mission");
-                boolean isFinish = false;
-                if (missionObject.has("isFinish")) {
-                    isFinish = missionObject.getBoolean("isFinish");
-                }
+                int missionCoin = missionObject.getInt("coinCount"); // coinCount로 변경
+                String missionDescription = missionObject.getString("message"); // message로 변경
+                boolean isFinish = missionObject.getBoolean("finish"); // finish는 boolean 타입
 
-                // Mission 객체 생성 후 리스트에 추가
+                // QuestItem 객체 생성 후 리스트에 추가
                 QuestItem mission = new QuestItem(missionId, missionDescription, missionCoin);
                 mission.setFinish(isFinish);
                 missionList.add(mission);
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // 에러 발생 시 로그 출력
         }
 
         return missionList;
     }
+
     private void showUnlockCondition(BadgeItem badgeItem) {
         // Inflate the custom layout
         LayoutInflater inflater = getLayoutInflater();
@@ -426,30 +446,36 @@ public class MissionActivity extends AppCompatActivity {
     public static List<BadgeItem> parseBadgeAll(String jsonResponse) {
         List<Integer> ownedBadgeIds = new ArrayList<>();
         List<BadgeItem> myBadgeItemList = new ArrayList<>();
+
         try {
             // JSON 응답을 JSONObject로 변환
             JSONObject jsonObject = new JSONObject(jsonResponse);
 
-            // 'data' 배열에서 배지 ID를 추출
+            // 'data' 배열을 가져옴
             JSONArray dataArray = jsonObject.getJSONArray("data");
 
             // 각 배지 ID를 리스트에 추가
             for (int i = 0; i < dataArray.length(); i++) {
-                int badgeId = dataArray.getInt(i);
-                ownedBadgeIds.add(badgeId);
+                // JSON 배열에서 int 값 추출
+                int badgeId = dataArray.getInt(i);  // getJSONObject가 아니라 getInt 사용
+                ownedBadgeIds.add(badgeId);  // 배지 ID는 1부터 시작
             }
 
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();  // 에러 발생 시 로그 출력
         }
 
-        for(int i=1; i<ownedBadgeIds.size()+1; i++) {
-            int drawableResId = BadgeManager.getDrawableForBadgeId(i);
-            myBadgeItemList.add(new BadgeItem(i, drawableResId));
+        // 소유한 배지 ID에 대해 BadgeItem 리스트 생성
+        for (int badgeId : ownedBadgeIds) {
+            // 배지 ID가 1부터 시작하는 것을 가정하고 그대로 처리
+            int drawableResId = BadgeManager.getDrawableForBadgeId(badgeId);
+            myBadgeItemList.add(new BadgeItem(badgeId, drawableResId));
         }
 
         return myBadgeItemList;  // 소유한 배지 리스트 반환
     }
+
+
     public String httpGetConnection(String UrlData) {
         String responseData = "";
         BufferedReader br = null;

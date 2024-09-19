@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                         // "data" 객체에서 "userNickname"과 "userUUID" 추출
                         userNickname = dataObject.get("userNickname").getAsString();
                         String userUUIDStr = dataObject.get("userUUID").getAsString();
-                        isMembership = dataObject.get("isMembership").getAsBoolean();
+                        isMembership = dataObject.get("userMembership").getAsBoolean();
                         userUUID = UUID.fromString(userUUIDStr);
                         seeNetworkResult(result);
 

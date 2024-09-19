@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -30,6 +31,7 @@ public class CustomBadgeDialog extends Dialog {
     private Context mContext;
     private BadgeItem badgeItem;
     Handler handler;
+    TextView unlockCondition;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,8 +44,16 @@ public class CustomBadgeDialog extends Dialog {
         // 커스텀 다이얼로그의 각 위젯들을 정의한다.
         buyBtn = findViewById(R.id.buyBtn);
         closeBtn = findViewById(R.id.closeBtn);
+        unlockCondition = findViewById(R.id.unlockConditionText);
 
-        buyBtn.setText(badgeItem.getCost() + "코인으로 구매");
+        unlockCondition.setText(badgeItem.getUnlockCondition());
+        if (badgeItem.isMine()) {
+            buyBtn.setText("구매 완료");
+            buyBtn.setEnabled(false);
+        } else {
+            buyBtn.setText(badgeItem.getCost() + "코인으로 구매");
+            buyBtn.setEnabled(true);
+        }
 
         // 버튼 리스너 설정
         buyBtn.setOnClickListener(new Button.OnClickListener() {
@@ -67,7 +77,7 @@ public class CustomBadgeDialog extends Dialog {
 
                                 // 추출한 메시지를 토스트로 표시
                                 Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
-
+                                badgeItem.setMine(true);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                                 // 파싱 중 에러 발생 시 에러 메시지를 토스트로 표시

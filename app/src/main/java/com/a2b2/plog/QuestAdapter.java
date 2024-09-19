@@ -117,8 +117,9 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.QuestViewHol
             handler = new Handler(Looper.getMainLooper());
             if (handler != null) {
                 handler.post(() -> {
-                    boolean missionCompleted = parseIsMissionComplete(result);
-                    if (missionCompleted) {
+                    String missionCompleted = parseIsMissionComplete(result);
+                    Log.d("isMissionCompleted", String.valueOf(missionCompleted));
+                    if (missionCompleted.equals("미션 성공")) {
                         questItem.setFinish(true);
                         notifyDataSetChanged();  // 미션 완료 상태 업데이트
                         Toast.makeText(context, "미션을 완료했습니다!", Toast.LENGTH_SHORT).show();
@@ -129,16 +130,16 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.QuestViewHol
             }
         }).start();
     }
-    public static boolean parseIsMissionComplete(String jsonResponse) {
-        boolean isComplete = false;
+    public static String parseIsMissionComplete(String jsonResponse) {
+        String isComplete = "실패";
 
         try {
-            // JSON 응답 파싱
-            JSONObject responseJson = new JSONObject(jsonResponse);
-            JSONObject dataObject = responseJson.getJSONObject("data");
+            // JSON 문자열을 JSONObject로 변환
+            JSONObject jsonObject = new JSONObject(jsonResponse);
 
-            // "isComplete" 값을 통해 미션 완료 여부 확인
-            isComplete = dataObject.getBoolean("isFinish");
+            // "message" 값 추출
+            isComplete = jsonObject.getString("message");
+
 
         } catch (Exception e) {
             e.printStackTrace();

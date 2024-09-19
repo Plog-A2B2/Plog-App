@@ -7,6 +7,7 @@ public class BadgeItem {
 
     private String unlockCondition = "플로깅 누적 시간 50H 달성";
     private int cost=0;
+    private boolean isMine = false;
 
 
     public BadgeItem(int badgeImage, String badgeName) {
@@ -30,6 +31,19 @@ public class BadgeItem {
         this.badgeImage = badgeImage;
         this.badgeType = badgeName;
         this.unlockCondition = unlockCondition;
+    }
+
+    public void setMine(boolean mine) {
+        isMine = mine;
+    }
+
+    public boolean isMine() {
+        if (badgeId != 1) {
+            return isMine;
+        } else {
+            isMine = true;
+            return isMine;
+        }
     }
 
     public int getCost() {
