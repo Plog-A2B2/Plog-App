@@ -285,6 +285,7 @@ public class CommunityPostShowActivity extends AppCompatActivity {
 
             // 데이터 추출
             String userNickname = postObject.optString("userNickname", "");
+            int badgeId = postObject.optInt("badgeId",0);
             String time = postObject.optString("time", "");
             String title = postObject.optString("title", "");
             String plogPlace = postObject.optString("plogPlace", "");
@@ -297,6 +298,7 @@ public class CommunityPostShowActivity extends AppCompatActivity {
             // UI 업데이트
             runOnUiThread(() -> {
                 nickname.setText(userNickname);
+                badge.setImageResource(BadgeManager.getDrawableForBadgeId(badgeId));
                 date.setText(time);
                 postTitle.setText(title);
                 ploggingPlace.setText(plogPlace);

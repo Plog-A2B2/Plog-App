@@ -86,22 +86,22 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-//        handler = new Handler();
-//
-//
-//        String url = "http://15.164.152.246:8080/profile/active";
-//        UUID uuid = UUID.fromString("57F7C28F-67A6-4091-B837-8C3168653B81");
-//
-//        new Thread(() -> {
-//            String result = httpGetConnection(url, "");
-//            ploggingItems = parseCommunityList(result);
-//            // 처리 결과 확인
-//            handler.post(() -> {
-//                seeNetworkResult(result);
-//                ploggerAdapter = new PloggerAdapter(ploggingItems);
-//                recyclerView.setAdapter(ploggerAdapter);
-//            });
-//        }).start();
+        handler = new Handler();
+
+
+        String url = "http://15.164.152.246:8080/profile/active";
+       // UUID uuid = UUID.fromString("57F7C28F-67A6-4091-B837-8C3168653B81");
+
+        new Thread(() -> {
+            String result = httpGetConnection(url, "");
+            ploggingItems = parseCommunityList(result);
+            // 처리 결과 확인
+            handler.post(() -> {
+                seeNetworkResult(result);
+                ploggerAdapter = new PloggerAdapter(ploggingItems);
+                recyclerView.setAdapter(ploggerAdapter);
+            });
+        }).start();
 
 
 //        ploggingItems = new ArrayList<>();

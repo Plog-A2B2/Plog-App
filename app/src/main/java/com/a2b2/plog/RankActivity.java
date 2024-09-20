@@ -320,21 +320,27 @@ public class RankActivity extends AppCompatActivity {
                             // userName 값을 final 변수에 복사
                             final String finalUserName = userName;
                             final int finalScore = score;
+                            final int finalBadge = badge;
                             runOnUiThread(() -> {
+                                first_userimg.setImageResource(BadgeManager.getDrawableForBadgeId(finalBadge));
                                 first_username.setText(finalUserName);
                                 first_score.setText(String.valueOf(finalScore));
                             });
                         } else if (rank == 2) {
                             final String finalUserName = userName;
                             final int finalScore = score;
+                            final int finalBadge = badge;
                             runOnUiThread(() -> {
+                                sec_userimg.setImageResource(BadgeManager.getDrawableForBadgeId(finalBadge));
                                 sec_username.setText(finalUserName);
                                 sec_score.setText(String.valueOf(finalScore));
                             });
                         } else if (rank == 3) {
                             final String finalUserName = userName;
                             final int finalScore = score;
+                            final int finalBadge = badge;
                             runOnUiThread(() -> {
+                                third_userimg.setImageResource(BadgeManager.getDrawableForBadgeId(finalBadge));
                                 third_username.setText(finalUserName);
                                 third_score.setText(String.valueOf(finalScore));
                             });

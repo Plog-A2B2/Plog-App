@@ -9,11 +9,13 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
@@ -26,6 +28,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.PixelCopy;
 import android.view.Surface;
 import android.view.View;
 import android.widget.EditText;
@@ -53,6 +56,7 @@ import com.kakao.vectormap.MapLifeCycleCallback;
 import com.kakao.vectormap.MapView;
 import com.kakao.vectormap.camera.CameraPosition;
 import com.kakao.vectormap.camera.CameraUpdateFactory;
+import com.kakao.vectormap.graphics.gl.GLSurfaceView;
 import com.kakao.vectormap.route.RouteLine;
 import com.kakao.vectormap.route.RouteLineLayer;
 import com.kakao.vectormap.route.RouteLineOptions;
@@ -83,6 +87,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+
 
 public class FinishActivity extends AppCompatActivity {
     HashMap<String, Integer> trashCountMap = new HashMap<>();
@@ -115,6 +120,7 @@ public class FinishActivity extends AppCompatActivity {
     ArrayList<LatLng> runRoutePoints = new ArrayList<>();
     String message = null;
     String presignedUrl = null;
+    private Bitmap kakao;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,6 +164,8 @@ public class FinishActivity extends AppCompatActivity {
         downloadBtn = findViewById(R.id.downloadBtn);
         nextBtn = findViewById(R.id.nextBtn);
         routeCreateBtn = findViewById(R.id.routeBtn);
+
+
 
         handler = new Handler();
         // routeBtn 버튼 클릭 리스너 설정
@@ -276,6 +284,47 @@ public class FinishActivity extends AppCompatActivity {
 
             }
         });
+        downloadBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Bitmap bitmap = captureScreen(); // 화면 캡처
+//                saveImageToGallery(bitmap);
+                if (mapView == null) {
+                    Toast.makeText(getApplicationContext(), "지도가 준비되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(!isPhotoVisible){
+                    MapCapture.capture(FinishActivity.this, (GLSurfaceView) mapView.getSurfaceView(), new MapCapture.OnCaptureListener() {
+                        @Override
+                        public void onCaptured(boolean isSucceed, Bitmap bitmap, String fileName) {
+                            if (isSucceed) {
+                                kakao = bitmap; // 캡쳐된 Bitmap을 kakao 변수에 저장
+                                //Toast.makeText(getApplicationContext(), "캡쳐가 완료되었습니다.", Toast.LENGTH_SHORT).show();
+
+                                Bitmap fullScreenBitmap = captureScreen();
+                                Bitmap mapBitmap = kakao;
+                                Bitmap combinedBitmap = combineBitmaps(fullScreenBitmap, mapBitmap);
+                                if (combinedBitmap != null) {
+                                    saveImageToGallery(combinedBitmap);
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "Bitmap is null, cannot save.", Toast.LENGTH_SHORT).show();
+                                }
+                                // 여기서 kakao Bitmap을 원하는 대로 사용할 수 있습니다.
+                            } else {
+                                Toast.makeText(getApplicationContext(), "캡쳐에 실패하였습니다.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                } else {
+                    Bitmap fullScreenBitmap = captureScreen();
+                    saveImageToGallery(fullScreenBitmap);
+                }
+
+//                saveImageToGallery(combinedBitmap);
+
+
+            }
+        });
 
 
         ImageView cameraIcon = findViewById(R.id.camera);
@@ -364,6 +413,70 @@ public class FinishActivity extends AppCompatActivity {
         });
 
     }
+    private Bitmap captureScreen() {
+        // 루트 뷰 가져오기
+        View rootView = getWindow().getDecorView().getRootView();
+        rootView.setDrawingCacheEnabled(true);
+        rootView.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(rootView.getDrawingCache());
+        rootView.setDrawingCacheEnabled(false); // 캡처 후 해제
+        return bitmap;
+    }
+    private Bitmap combineBitmaps(Bitmap background, Bitmap foreground) {
+        // Null 체크
+        if (background == null || foreground == null) {
+            Log.e("CombineBitmaps", "One of the bitmaps is null!");
+            return null;
+        }
+
+        // Recycled 상태 체크
+        if (background.isRecycled() || foreground.isRecycled()) {
+            Log.e("CombineBitmaps", "One of the bitmaps is already recycled!");
+            return null;
+        }
+
+        Bitmap combined = Bitmap.createBitmap(background.getWidth(), background.getHeight(), background.getConfig());
+        Canvas canvas = new Canvas(combined);
+
+        // 배경 이미지 (화면 전체)
+        canvas.drawBitmap(background, 0, 0, null);
+
+        int left = mapView.getLeft();
+        int top = mapView.getTop();
+
+        canvas.drawBitmap(foreground, left, top, null); // 지도 이미지
+
+        return combined;
+    }
+
+    private void saveImageToGallery(Bitmap bitmap) {
+        if(bitmap == null){
+            Log.e("Save Image", "Bitmap is null, cannot save image");
+        } else{
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, "finish_activity_image_" + System.currentTimeMillis() + ".png");
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES); // 갤러리 저장 경로
+
+            Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (uri != null) {
+                try {
+                    OutputStream outputStream = getContentResolver().openOutputStream(uri);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                    if (outputStream != null) {
+                        outputStream.close();
+                        Toast.makeText(this, "이미지가 갤러리에 저장되었습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "이미지 저장에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+    }
+
+
 
     public void parseImageResponse(String jsonResponse) {
         // JSON 응답을 파싱

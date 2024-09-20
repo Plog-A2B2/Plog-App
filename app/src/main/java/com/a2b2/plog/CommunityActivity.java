@@ -284,7 +284,7 @@ public class CommunityActivity extends AppCompatActivity {
                 }
 
                 if (postId != 0 && badge != 0 && title != null && time != null && userNickname != null) {
-                    CommunityList communitylist = new CommunityList(postId, R.drawable.tiger, title, time, userNickname);
+                    CommunityList communitylist = new CommunityList(postId, BadgeManager.getDrawableForBadgeId(badge), title, time, userNickname);
                     communitylists.add(communitylist);
                 } else {
                     Log.e("JSONError", "Missing key in JSON object: " + postObject.toString());
