@@ -49,16 +49,6 @@ public class CommunityActivity extends AppCompatActivity {
         setContentView(R.layout.activity_community);
         logo = findViewById(R.id.title);
 
-        Button nextBtn = findViewById(R.id.nextBtn);
-        nextBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(CommunityActivity.this, CommunityPostShowActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-
         handler = new Handler(Looper.getMainLooper());
 
         //UUID uuid = UUID.fromString("8D841B8A-C15A-4657-95AC-AB28ED6F0190");

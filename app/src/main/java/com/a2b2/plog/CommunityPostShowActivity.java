@@ -57,37 +57,6 @@ public class CommunityPostShowActivity extends AppCompatActivity {
         likeBtn = findViewById(R.id.likeBtn);
         joinBtn = findViewById(R.id.joinBtn);
 
-        Button testBtn = findViewById(R.id.testBtn);
-        Log.d("라이크 기본 상태", String.valueOf(isLikeCheck));
-        testBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isLikeCheck = true;
-                Log.d("라이크 상태 확인", String.valueOf(isLikeCheck));
-                updateLikeButton();
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        updateLikeButton();  // UI 업데이트는 메인 스레드에서 실행
-//                    }
-//                });
-            }
-        });
-        Button test2 = findViewById(R.id.testBtn2);
-        test2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isLikeCheck = false;
-                Log.d("false 떠야 함", String.valueOf(isLikeCheck));
-                updateLikeButton();
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        updateLikeButton();  // UI 업데이트는 메인 스레드에서 실행
-//                    }
-//                });
-            }
-        });
         int postId =getIntent().getIntExtra("postId", 0);;
 
         UUID uuid = UserManager.getInstance().getUserId();
