@@ -1,8 +1,10 @@
 package com.a2b2.plog;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -14,6 +16,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,6 +40,7 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.QuestViewHol
     private List<QuestItem> questList;
     private Context context;
     Handler handler = new Handler();
+    private RewardedAd rewardedAd;
 
     public static class QuestViewHolder extends RecyclerView.ViewHolder {
         public TextView questTextView;
@@ -65,7 +74,8 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.QuestViewHol
         QuestItem currentItem = questList.get(position);
         holder.questTextView.setText(currentItem.getQuestText());
         holder.coinNumTextView.setText("X " + currentItem.getCoinNum());
-
+// 구글 애드몹 초기화
+        MobileAds.initialize(context);
         if (currentItem.isFinish()) {
             holder.finishLine.setVisibility(View.VISIBLE);
         } else {
@@ -101,9 +111,75 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.QuestViewHol
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.dismiss();
                     }
+                })
+                .setNeutralButton("광고 시청 후 미션 바로 완료하기", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 광고 시청 후 미션 완료하기 로직
+                        showAdAndCompleteMission(questItem);
+                    }
                 });
+
         AlertDialog alert = builder.create();
         alert.show();
+
+        // 중립 버튼을 빨간색으로 설정
+        alert.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(Color.RED);
+    }
+    // 보상형 광고 로드 메소드
+    private void loadRewardedAd() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        RewardedAd.load(context, "ca-app-pub-3940256099942544/5224354917", adRequest, new RewardedAdLoadCallback() {
+            @Override
+            public void onAdLoaded(RewardedAd ad) {
+                rewardedAd = ad;
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError adError) {
+                Log.d("AdError", "Failed to load rewarded ad: " + adError.getMessage());
+                rewardedAd = null;
+            }
+
+        });
+    }
+    private void showAdAndCompleteMission(QuestItem questItem) {
+        if (!UserManager.getInstance().getIsMembership()) {
+            // 광고 시청(구글 애드몹 테스트 광고)
+            // 보상형 광고 로드
+            loadRewardedAd();
+
+            if (rewardedAd != null && context instanceof Activity) {
+                Activity activityContext = (Activity) context;  // Context를 Activity로 캐스팅
+                rewardedAd.show(activityContext, rewardItem -> {
+                    // 보상 지급 코드 처리
+                    int rewardAmount = rewardItem.getAmount();
+                    String rewardType = rewardItem.getType();
+                    // 보상 처리 로직을 추가
+
+                    Log.d("adtest", "reward get!");
+
+                    UUID uuid = UserManager.getInstance().getUserId();
+
+                    String url = "http://15.164.152.246:8080/mission/" + uuid + "/" + questItem.getQuestId() + "/advertisement";
+                    new Thread(() -> {
+                        String result = httpPostBodyConnection(url, "");
+                        // 처리 결과 확인
+                        handler = new Handler(Looper.getMainLooper());
+                        if (handler != null) {
+                            handler.post(() -> {
+                                Log.d("result", result);
+
+                                questItem.setFinish(true);
+                                notifyDataSetChanged();  // 미션 완료 상태 업데이트
+                            });
+                        }
+                    }).start();
+                });
+            }
+
+        }
+
     }
 
     // 서버에 미션 완료 여부 확인 요청 메서드
