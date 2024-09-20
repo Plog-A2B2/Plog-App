@@ -1,5 +1,6 @@
 package com.a2b2.plog;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,16 +17,20 @@ import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.util.List;
 
 public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.TrashcountViewHolder>  {
 
+    private Context context;
     private List<TrashcountItem> tData;
     private String[] trashTypes;
     private OnTrashTypeUpdateListener updateListener;
-    public TrashcountAdapter(List<TrashcountItem> data, String[] trashTypes,  OnTrashTypeUpdateListener updateListener) {
+    public TrashcountAdapter(Context context, List<TrashcountItem> data, String[] trashTypes, OnTrashTypeUpdateListener updateListener) {
+        this.context = context;
         this.tData = data;
         this.updateListener = updateListener;
 
@@ -55,6 +60,8 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
                 notifyItemChanged(position);
                 updateListener.onTrashTypeUpdate(item.getTrashtype(), count - 1);
                 updateTotal();
+                sendDataToPhone(item.getTrashtype(),item.getCnt());
+                Log.d(item.getTrashtype(), String.valueOf(item.getCnt()));
             }
         });
 
@@ -63,6 +70,8 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
             notifyItemChanged(position);
             updateListener.onTrashTypeUpdate(item.getTrashtype(), count + 1);
             updateTotal();
+            sendDataToPhone(item.getTrashtype(),item.getCnt());
+            Log.d(item.getTrashtype(), String.valueOf(item.getCnt()));
         });
     }
 
@@ -118,5 +127,16 @@ public class TrashcountAdapter extends RecyclerView.Adapter<TrashcountAdapter.Tr
         this.tData.clear();
         this.tData.addAll(newList);
         notifyDataSetChanged();
+    }
+    private void sendDataToPhone(String key, int value) {
+        Log.d("sendDataToPhone","클릭됨");
+        // JSON 데이터를 "/json_data" 경로로 전송
+        PutDataMapRequest dataMap = PutDataMapRequest.create("/getTrash");
+        dataMap.getDataMap().putInt(key, value);
+        PutDataRequest request = dataMap.asPutDataRequest();
+
+        // DataClient 사용하여 데이터 전송
+        DataClient dataClient = Wearable.getDataClient(context);
+        dataClient.putDataItem(request);
     }
 }

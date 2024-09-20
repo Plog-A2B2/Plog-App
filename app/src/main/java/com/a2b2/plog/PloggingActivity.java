@@ -48,7 +48,14 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
@@ -98,7 +105,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class PloggingActivity extends AppCompatActivity {
+public class PloggingActivity extends AppCompatActivity implements DataClient.OnDataChangedListener{
 
     String result;
 
@@ -272,11 +279,18 @@ public class PloggingActivity extends AppCompatActivity {
 
     private StompClient stompClient;
     final HashMap<String, Integer> trashCountMap = new HashMap<>();
+    ImageView plusBtn, minusBtn;
+    private Boolean getTrashStatus = false;
+    private Boolean basketIsPresent = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plogging);
+
+        DataClient dataClient = Wearable.getDataClient(this);
+        dataClient.addListener(this);
+
 
         stompClient = new StompClient();
         stompClient.connect("ws://15.164.152.246:8080/ws");
@@ -289,16 +303,20 @@ public class PloggingActivity extends AppCompatActivity {
         locationHandler = new Handler(Looper.getMainLooper());
 
         trashReport = findViewById(R.id.trashReport);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         trashReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(PloggingActivity.this);
-               // builder.setTitle("확인");
+                // builder.setTitle("확인");
                 builder.setMessage("🗑️쓰레기통 위치 신고하기");
                 builder.setPositiveButton("쓰레기통이 없어요!", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //쓰레기통 없다는 거 백으로 전송하기(유유아이디, 현 위치 위도경도, 쓰레기통 없음
+                        //쓰레기통 없다는 거 백으로 전송하기(유유아이디, 현 위치 위도경도, 쓰레기통 없으면 false 있으면 true
+                        basketIsPresent = false;
+                        getCurrentLocation(basketIsPresent);
+
                         Toast.makeText(PloggingActivity.this, "신고해주셔서 감사합니다", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
                     }
@@ -306,6 +324,8 @@ public class PloggingActivity extends AppCompatActivity {
                 builder.setNegativeButton("쓰레기통 있어요!", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        basketIsPresent = true;
+                        getCurrentLocation(basketIsPresent);
                         Toast.makeText(PloggingActivity.this, "신고해주셔서 감사합니다", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -318,8 +338,6 @@ public class PloggingActivity extends AppCompatActivity {
 
         KakaoMapSdk.init(this, "1b96fc67568f72bcc29317e838ad740f");
         mapView = findViewById(R.id.map);
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         if (ContextCompat.checkSelfPermission(this, locationPermissions[0]) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, locationPermissions[1]) == PackageManager.PERMISSION_GRANTED) {
             getStartLocation();
@@ -481,8 +499,8 @@ public class PloggingActivity extends AppCompatActivity {
                 tvTrashType.setText(trashType);
 
                 EditText etTrashAmount = itemView.findViewById(R.id.trashAmount);
-                ImageView plusBtn = itemView.findViewById(R.id.plusBtn);
-                ImageView minusBtn = itemView.findViewById(R.id.minusBtn);
+                plusBtn = itemView.findViewById(R.id.plusBtn);
+                minusBtn = itemView.findViewById(R.id.minusBtn);
 
                 // 초기값 설정
                 trashCountMap.put(trashType, 0);
@@ -496,32 +514,6 @@ public class PloggingActivity extends AppCompatActivity {
                         trashCountMap.put(trashType, count);
                         etTrashAmount.setText(String.valueOf(count));
                         sendJsonData(trashType,count);
-
-
-//                        //워치로 값 보내기
-//                        try {
-//                            // JSON 객체 생성
-//                            JSONObject jsonObject = new JSONObject();
-//                            jsonObject.put("\""+trashType+"\"", count);
-//                            Log.d(trashType, Integer.toString(count));
-//
-//
-//                            // JSON을 문자열로 변환
-//                            String jsonString = jsonObject.toString();
-//
-//                            // PutDataMapRequest를 사용하여 데이터 전송
-//                            PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/path/to/data");
-//                            putDataMapReq.getDataMap().putString("json_data", jsonString);
-//                            PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
-//
-//                            Wearable.getDataClient(getApplicationContext()).putDataItem(putDataReq)
-//                                    .addOnSuccessListener(dataItem -> Log.d("MobileApp", "JSON data sent successfully"))
-//                                    .addOnFailureListener(e -> Log.e("MobileApp", "Failed to send JSON data", e));
-//                        } catch (Exception e) {
-//                            Log.e("MobileApp", "Failed to create JSON data", e);
-//                        }
-
-
                     }
                 });
 
@@ -538,6 +530,7 @@ public class PloggingActivity extends AppCompatActivity {
                         }
                     }
                 });
+
 
                 // EditText 텍스트 변경 이벤트
                 etTrashAmount.addTextChangedListener(new TextWatcher() {
@@ -645,6 +638,68 @@ public class PloggingActivity extends AppCompatActivity {
             Log.e("PloggingActivity", "Exception in onCreate", e);
         }
     }
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        Log.d("onDataChanged","값 처리 중");
+
+        for (DataEvent event : dataEvents) {
+            if (event.getType() == DataEvent.TYPE_CHANGED) {
+                DataItem item = event.getDataItem();
+                Log.d("Reveived Path", item.getUri().getPath());
+                if (item.getUri().getPath().equals("/getTrash")) {
+                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                    //String jsonString = dataMap.getString("json_key");
+                    String[] trashTypes = {"종이류","유리류","일반쓰레기", "플라스틱",  "캔/고철류",  "비닐류"};
+                    for(String trashType : trashTypes){
+                        Log.d("키", String.valueOf(dataMap.containsKey(trashType)));
+
+                        if (dataMap.containsKey(trashType)){
+                            int count = dataMap.getInt(trashType);
+                            Log.d("값", trashType + count);
+
+                            runOnUiThread(() -> {
+                                Log.d("ui 업데이트 시작","ui 업데이트 시작");
+                                // trashCountMap에 업데이트합니다.
+                                trashCountMap.put(trashType, count);
+
+                                // UI의 LinearLayout에서 해당하는 항목을 찾기
+                                LinearLayout trashContainer = findViewById(R.id.trashContainer);
+                                for (int i = 0; i < trashContainer.getChildCount(); i++) {
+                                    View itemView = trashContainer.getChildAt(i);
+
+                                    // TextView의 쓰레기 종류 확인
+                                    TextView tvTrashType = itemView.findViewById(R.id.trashType);
+                                    if (tvTrashType.getText().toString().equals(trashType)) {
+                                        // 해당 항목의 EditText를 업데이트
+                                        EditText etTrashAmount = itemView.findViewById(R.id.trashAmount);
+                                        etTrashAmount.setText(String.valueOf(count));
+                                        break;
+                                    }
+                                }
+                                Log.d("ui 업데이트 끝","ui 업데이트 끝");
+                            });
+
+
+                            break;
+                        }
+                    }
+                }
+                else if (item.getUri().getPath().equals("/getAllTrash")) {
+                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                    getTrashStatus = dataMap.getBoolean("getAllTrash");
+                    Log.d("워치에서 받아온 상태 getTrashStatus", String.valueOf(getTrashStatus));
+                    String[] trashTypes = {"종이류","유리류","일반쓰레기", "플라스틱",  "캔/고철류",  "비닐류"};
+                    Log.d("getTrashStatus", String.valueOf(getTrashStatus));
+                    for(String trashType : trashTypes){
+                        if(getTrashStatus){
+                            sendJsonData(trashType,trashCountMap.get(trashType));
+                        }
+                    }
+
+                }
+            }
+        }
+    }
 
     @Override
     public void onResume() {
@@ -669,6 +724,7 @@ public class PloggingActivity extends AppCompatActivity {
         super.onPause();
         mapView.pause();    // MapView 의 pause 호출
         fusedLocationClient.removeLocationUpdates(locationCallback);
+        Wearable.getDataClient(this).removeListener(this);
 
     }
 
@@ -1339,9 +1395,6 @@ public class PloggingActivity extends AppCompatActivity {
 //        trackingManager.startTracking(userLabel);
 //    }
 
-    private void sendJsonData() {
-
-    }
     public String httpPostBodyConnection(String UrlData, String ParamData) {
         // 이전과 동일한 네트워크 연결 코드를 그대로 사용합니다.
         // 백그라운드 스레드에서 실행되기 때문에 메인 스레드에서는 문제가 없습니다.
@@ -1451,6 +1504,53 @@ public class PloggingActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("MobileApp", "Failed to create JSON data", e);
         }
+    }
+    private void getCurrentLocation(boolean basketIsPresent) {
+        // 권한 체크
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // 위치 권한 요청
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            return;
+        }
+
+        // 현재 위치 가져오기
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            // 위치 정보를 성공적으로 받아온 경우
+                            double latitude = location.getLatitude();
+                            double longitude = location.getLongitude();
+
+                            //Toast.makeText(PloggingActivity.this, "위도: " + latitude + ", 경도: " + longitude, Toast.LENGTH_LONG).show();
+
+                            // 여기에 서버로 데이터를 전송하는 코드나 로직 추가
+                            sendLocationToServer(latitude, longitude, basketIsPresent);
+                            Log.d("getCurrentLocation", "위도 : "+latitude + "경도  : "+ longitude + "상태 : "+ basketIsPresent);
+                        } else {
+                            // 위치를 받아오지 못한 경우 처리
+                            Toast.makeText(PloggingActivity.this, "위치를 찾을 수 없습니다.", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+    }
+
+    private void sendLocationToServer(double latitude, double longitude, boolean basketIsPresent) {
+
+        url = "http://15.164.152.246:8080/basket";
+        String data = "{\"basketLatitude\" : "+latitude+",\"basketLongitude\" : "+longitude+",\"basketIsPresent\" : "+basketIsPresent+"}";
+
+        new Thread(() -> {
+            String result = httpPostBodyConnection(url, data);
+            handler.post(() -> {
+                if (result != null && !result.isEmpty()) {
+                    seeNetworkResultFinish(result);
+                }
+            });
+        }).start();
+        // 위도와 경도를 서버로 보내는 로직을 이곳에 구현
     }
 
 }

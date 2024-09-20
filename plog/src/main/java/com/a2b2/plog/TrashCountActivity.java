@@ -5,10 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,6 +23,8 @@ import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONException;
@@ -38,6 +43,7 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
     private String trashType;
     public int total = 0;
     private int count = 0;
+    private Boolean getAllTrash = true;
 
 
     @Override
@@ -45,8 +51,11 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trashcount);
 
+
+
         trashcountRecyclerView = findViewById(R.id.trashcountRecyclerView);
         trashcountRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
 
         dataList = new ArrayList<>();
         for (int i = 0; i < trashTypes.length; i++) {
@@ -79,8 +88,17 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
                 }
             }
         });
+//        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//        View itemView = inflater.inflate(R.layout.item_trashcount, null);
+//
+//        ImageView plus = itemView.findViewById(R.id.plus);
+//        ImageView min = itemView.findViewById(R.id.min);
+//
+//        for(String trashType : trashTypes){
+//            sendDataToPhone(trashType,dataList.getCnt());
+//        }
 
-        adapter = new TrashcountAdapter(dataList, trashTypes, this);
+        adapter = new TrashcountAdapter(this, dataList, trashTypes, this);
         trashcountRecyclerView.setAdapter(adapter);
 
         //total = dataList.get()
@@ -94,6 +112,7 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
         DataClient dataClient = Wearable.getDataClient(this);
         dataClient.addListener(this);
 
+        sendDataToPhone("getAllTrash",getAllTrash);
         // Initial total update
        //  totalTxt.setText("Total: " + adapter.getTotalCount());
 
@@ -105,55 +124,6 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
     private void requestLatestDataFromWatch() {
         // 워치로부터 데이터를 요청하는 로직을 여기에 추가
     }
-
-//    @Override //핸드폰에서 값 받아오는 거
-//    public void onDataChanged(DataEventBuffer dataEvents) {
-//        Log.d("WatchApp", "onDataChanged called, checking for data events...");
-//
-//        for (DataEvent event : dataEvents) {
-//            if (event.getType() == DataEvent.TYPE_CHANGED) {
-//                DataItem item = event.getDataItem();
-//                Log.d("WatchApp", "Data event received. Path: " + item.getUri().getPath());
-//
-//                if (item.getUri().getPath().equals("/path/to/data")) {
-//                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-//                    String jsonString = dataMap.getString("json_data");
-//                    Log.d("WatchApp", "Received JSON string: " + jsonString);
-//
-//                    try {
-//                        // JSON 문자열을 JSONObject로 변환
-//                        JSONObject jsonObject = new JSONObject(jsonString);
-//
-//                        if(jsonObject != null) {
-//                            for (int i = 0; i < trashTypes.length; i++) {
-//                                int value = jsonObject.getInt(trashTypes[i]); // 쓰레기 종류별 개수를 가져옴
-//                                Log.d("WatchApp", "Updating " + trashTypes[i] + " with value: " + value);
-//
-//                                dataList.set(i, value); // 해당 리스트 항목을 업데이트
-//                            }
-//
-//                            // 어댑터를 통해 RecyclerView를 업데이트
-//                            adapter.notifyDataSetChanged();
-//                            Log.d("WatchApp", "RecyclerView updated with new data");
-//
-//                            // 총합 업데이트
-//                            total = adapter.getTotalCount();
-//                        } else {
-//                            Log.w("WatchApp", "Received null JSONObject, resetting dataList to zeros.");
-//
-//                            for (int i = 0; i < trashTypes.length; i++) {
-//                                dataList.set(i, 0); // 해당 리스트 항목을 업데이트
-//                            }
-//                        }
-//
-//                        //totalTxt.setText("Total: " + total); // UI에 총합 반영
-//                    } catch (Exception e) {
-//                        Log.e("WatchApp", "Failed to parse JSON data", e);
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     @Override
     public void onBackPressed() {
@@ -211,5 +181,24 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
     @Override
     public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
 
+    }
+    private void sendDataToPhone(String key, boolean getAllTrash) {
+        Log.d("sendDataToPhone","전송완료" + getAllTrash);
+        // JSON 데이터를 "/json_data" 경로로 전송
+        PutDataMapRequest dataMap = PutDataMapRequest.create("/getAllTrash");
+        dataMap.getDataMap().putBoolean(key, getAllTrash);
+        PutDataRequest request = dataMap.asPutDataRequest();
+
+        // DataClient 사용하여 데이터 전송
+        DataClient dataClient = Wearable.getDataClient(this);
+        dataClient.putDataItem(request)
+                .addOnSuccessListener(dataItem -> {
+                    // 전송 성공 시 로그
+                    Log.d("sendDataToPhone", "데이터 전송 성공");
+                })
+                .addOnFailureListener(e -> {
+                    // 전송 실패 시 로그
+                    Log.e("sendDataToPhone", "데이터 전송 실패", e);
+                });
     }
 }

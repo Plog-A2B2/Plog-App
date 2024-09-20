@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
         running.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendDataToPhone("tlqkf");
+                sendDataToPhone("json_key","tlqkf");
             }
         });
 
@@ -189,11 +189,11 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
         });
 
     }
-    private void sendDataToPhone(String jsonString) {
+    private void sendDataToPhone(String key, String value) {
         Log.d("sendDataToPhone","클릭됨");
         // JSON 데이터를 "/json_data" 경로로 전송
         PutDataMapRequest dataMap = PutDataMapRequest.create("/json_data");
-        dataMap.getDataMap().putString("json_key", jsonString);
+        dataMap.getDataMap().putString(key, value);
         PutDataRequest request = dataMap.asPutDataRequest();
 
         // DataClient 사용하여 데이터 전송
