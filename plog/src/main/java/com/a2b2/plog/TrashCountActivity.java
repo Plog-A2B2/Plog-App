@@ -12,7 +12,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.wearable.DataClient;
@@ -182,23 +184,42 @@ public class TrashCountActivity extends AppCompatActivity implements DataClient.
     public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
 
     }
+//    private void sendDataToPhone(String key, boolean getAllTrash) {
+//        Log.d("sendDataToPhone","전송완료" + getAllTrash);
+//        // JSON 데이터를 "/json_data" 경로로 전송
+//        PutDataMapRequest dataMap = PutDataMapRequest.create("/getAllTrash");
+//        dataMap.getDataMap().putBoolean(key, getAllTrash);
+//        PutDataRequest request = dataMap.asPutDataRequest();
+//
+//        // DataClient 사용하여 데이터 전송
+//        DataClient dataClient = Wearable.getDataClient(this);
+//        dataClient.putDataItem(request)
+//                .addOnSuccessListener(dataItem -> {
+//                    // 전송 성공 시 로그
+//                    Log.d("sendDataToPhone", "데이터 전송 성공");
+//                })
+//                .addOnFailureListener(e -> {
+//                    // 전송 실패 시 로그
+//                    Log.e("sendDataToPhone", "데이터 전송 실패", e);
+//                });
+//    }
     private void sendDataToPhone(String key, boolean getAllTrash) {
-        Log.d("sendDataToPhone","전송완료" + getAllTrash);
-        // JSON 데이터를 "/json_data" 경로로 전송
+        Log.d("sendDataToPhone", "전송완료 " + getAllTrash);
+
+        // DataItem을 생성할 때 타임스탬프 추가
         PutDataMapRequest dataMap = PutDataMapRequest.create("/getAllTrash");
         dataMap.getDataMap().putBoolean(key, getAllTrash);
+
+        // 타임스탬프 추가 - 매번 데이터 전송 시 시간이 달라지므로 데이터가 갱신됨
+        dataMap.getDataMap().putLong("timestamp", System.currentTimeMillis());
+
         PutDataRequest request = dataMap.asPutDataRequest();
 
-        // DataClient 사용하여 데이터 전송
+        // DataClient를 통해 데이터 전송
         DataClient dataClient = Wearable.getDataClient(this);
         dataClient.putDataItem(request)
-                .addOnSuccessListener(dataItem -> {
-                    // 전송 성공 시 로그
-                    Log.d("sendDataToPhone", "데이터 전송 성공");
-                })
-                .addOnFailureListener(e -> {
-                    // 전송 실패 시 로그
-                    Log.e("sendDataToPhone", "데이터 전송 실패", e);
-                });
+                .addOnSuccessListener(dataItem -> Log.d("sendDataToPhone", "데이터 전송 성공"))
+                .addOnFailureListener(e -> Log.e("sendDataToPhone", "데이터 전송 실패", e));
     }
+
 }
