@@ -288,8 +288,11 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plogging);
 
-        DataClient dataClient = Wearable.getDataClient(this);
-        dataClient.addListener(this);
+//        DataClient dataClient = Wearable.getDataClient(this);
+//        dataClient.addListener(this);
+
+        Wearable.getDataClient(this).addListener(this);
+
 
 
         stompClient = new StompClient();
@@ -645,6 +648,8 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
                 DataItem item = event.getDataItem();
+                Log.d("onDataChanged", "DataItem: " + item.toString());
+
                 Log.d("Reveived Path", item.getUri().getPath());
                 if (item.getUri().getPath().equals("/getTrash")) {
                     DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
@@ -724,7 +729,7 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
         super.onPause();
         mapView.pause();    // MapView 의 pause 호출
         fusedLocationClient.removeLocationUpdates(locationCallback);
-        Wearable.getDataClient(this).removeListener(this);
+
 
     }
 
@@ -1154,6 +1159,7 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Wearable.getDataClient(this).removeListener(this);
         isActivityDestroyed = true;
 
 
