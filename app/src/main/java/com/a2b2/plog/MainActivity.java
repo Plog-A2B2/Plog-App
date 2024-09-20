@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
     private static final String CAPABILITY_1_NAME = "capability_1";
     private ImageView logoImg;
     private String getToken;
-
+    boolean isMembership;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                         // "data" 객체에서 "userNickname"과 "userUUID" 추출
                         userNickname = dataObject.get("userNickname").getAsString();
                         String userUUIDStr = dataObject.get("userUUID").getAsString();
+                        isMembership = dataObject.get("userMembership").getAsBoolean();
                         userUUID = UUID.fromString(userUUIDStr);
                         seeNetworkResult(result);
 
@@ -476,6 +477,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
         UserManager userManager = UserManager.getInstance();
         userManager.setUserNickname(userNickname);
         userManager.setUserId(userUUID);
+        userManager.setMembership(isMembership);
         Log.d("닉네임",userNickname);
 
         Log.d("logintest", userNickname+" "+userUUID);
