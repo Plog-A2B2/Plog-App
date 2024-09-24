@@ -619,6 +619,7 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
 
 //                            drawRouteOnMap(routePoints);
 
+                            sendWatchToStopPlogging();
                             // 결과 화면으로 이동
                             Intent intent = new Intent(PloggingActivity.this, FinishActivity.class);
                             intent.putExtra("trashCountMap", trashCountMap);
@@ -641,6 +642,7 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
             Log.e("PloggingActivity", "Exception in onCreate", e);
         }
     }
+
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
         Log.d("onDataChanged","값 처리 중");
@@ -945,6 +947,31 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
 //                LatLng.from(37.33645497790997,127.09465351015245));
 
         return routePoints;
+    }
+    private void sendWatchToStopPlogging() {
+        try {
+            // JSON 객체 생성
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("stop", false);
+            //key1은 스플래시에서 메인으로 넘어갈 때 key2는 플로깅 종료했을 시 스톱워치 종료하게
+
+            // JSON을 문자열로 변환
+            String jsonString = jsonObject.toString();
+
+            // Node ID 가져오기 (단말과 워치 간의 연결된 노드)
+            Task<List<Node>> nodeListTask = Wearable.getNodeClient(this).getConnectedNodes();
+            nodeListTask.addOnSuccessListener(nodes -> {
+                for (Node node : nodes) {
+                    // MessageClient를 통해 데이터 전송
+                    Wearable.getMessageClient(this)
+                            .sendMessage(node.getId(), "/path/to/stopPlogging", jsonString.getBytes())
+                            .addOnSuccessListener(aVoid -> Log.d("MobileApp", "Message sent successfully"))
+                            .addOnFailureListener(e -> Log.e("MobileApp", "Failed to send message", e));
+                }
+            });
+        } catch (Exception e) {
+            Log.e("MobileApp", "Failed to create JSON data", e);
+        }
     }
 
     public List<LatLng> parseRouteAll(String json) {
