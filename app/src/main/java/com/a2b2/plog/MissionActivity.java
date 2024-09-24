@@ -183,23 +183,7 @@ public class MissionActivity extends AppCompatActivity {
         renewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!UserManager.getInstance().getIsMembership()) {
-                    // 광고 시청(구글 애드몹 테스트 광고)
-                    // 보상형 광고 로드
-                    loadRewardedAd();
 
-                    if (rewardedAd != null) {
-                        rewardedAd.show(MissionActivity.this, rewardItem -> {
-                            // 보상 지급 코드 처리
-                            int rewardAmount = rewardItem.getAmount();
-                            String rewardType = rewardItem.getType();
-                            // 보상 처리 로직을 추가
-
-                            Log.d("adtest", "reward get!");
-
-                        });
-                    }
-                }
                 UUID uuid = UserManager.getInstance().getUserId();
 
                 String url = "http://15.164.152.246:8080/mission/" + uuid + "/reroll";
@@ -209,10 +193,29 @@ public class MissionActivity extends AppCompatActivity {
                     handler = new Handler(Looper.getMainLooper());
                     if (handler != null) {
                         handler.post(() -> {
-                            questList = parseMissions(result);
+                            if (!UserManager.getInstance().getIsMembership()) {
+                                // 광고 시청(구글 애드몹 테스트 광고)
+                                // 보상형 광고 로드
+                                loadRewardedAd();
 
-                            adapter = new QuestAdapter(questList, MissionActivity.this);
-                            questRecyclerView.setAdapter(adapter);
+                                if (rewardedAd != null) {
+                                    rewardedAd.show(MissionActivity.this, rewardItem -> {
+                                        // 보상 지급 코드 처리
+                                        int rewardAmount = rewardItem.getAmount();
+                                        String rewardType = rewardItem.getType();
+                                        // 보상 처리 로직을 추가
+
+                                        questList = parseMissions(result);
+
+                                        adapter = new QuestAdapter(questList, MissionActivity.this);
+                                        questRecyclerView.setAdapter(adapter);
+
+                                        Log.d("adtest", "reward get!");
+
+                                    });
+                                }
+                            }
+
                         });
                     }
                 }).start();
