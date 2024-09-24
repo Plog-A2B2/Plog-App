@@ -158,19 +158,19 @@ public class HomeActivity extends AppCompatActivity {
                 sendJsonData(isPloggingStart);
                 Log.d("isPloggingSstart", String.valueOf(isPloggingStart));
 
-                UUID uuid = UserManager.getInstance().getUserId();
-                String url2 = "http://15.164.152.246:8080/activitys/start/" + uuid;
-// JSON 문자열을 구성하기 위한 StringBuilder 사용
-                String data = "";
-
-                new Thread(() -> {
-                    String result = httpPostBodyConnection(url2, data);
-                    handler.post(() -> {
-                        if (result != null && !result.isEmpty()) {
-                            Log.d("HomeActivity", result);
-                        }
-                    });
-                }).start();
+//                UUID uuid = UserManager.getInstance().getUserId();
+//                String url2 = "http://15.164.152.246:8080/activitys/start/" + uuid;
+//// JSON 문자열을 구성하기 위한 StringBuilder 사용
+//                String data = "";
+//
+//                new Thread(() -> {
+//                    String result = httpPostBodyConnection(url2, data);
+//                    handler.post(() -> {
+//                        if (result != null && !result.isEmpty()) {
+//                            Log.d("HomeActivity", result);
+//                        }
+//                    });
+//                }).start();
 
                 startActivity(intent);
                 overridePendingTransition(0, 0);

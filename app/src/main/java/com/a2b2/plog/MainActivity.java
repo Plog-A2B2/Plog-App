@@ -239,12 +239,14 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
             }
         });
 
-//        pwFindBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                sendJsonData();
-//            }
-//        });
+        pwFindBtn = findViewById(R.id.pwFindBtn);
+        pwFindBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isPloggingStart = true;
+                sendJsonData(isPloggingStart);
+            }
+        });
 
     }
     @Override
@@ -289,12 +291,11 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
     }
 
     //앱 -> 워치 json 형식 값 전달 확인
-    private void sendJsonData() {
+    private void sendJsonData(boolean isPloggingStart) {
         try {
             // JSON 객체 생성
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("key1", true);
-            //key1은 스플래시에서 메인으로 넘어갈 때 key2는 플로깅 종료했을 시 스톱워치 종료하게
+            jsonObject.put("key1", isPloggingStart);
 
             // JSON을 문자열로 변환
             String jsonString = jsonObject.toString();
