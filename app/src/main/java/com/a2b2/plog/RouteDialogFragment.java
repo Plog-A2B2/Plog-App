@@ -196,7 +196,6 @@ public class RouteDialogFragment extends DialogFragment {
         }
     }
 
-    // 더미 데이터 생성
     private List<LatLng> getRoutePoints() {
 
         List<LatLng> routePoints = new ArrayList<>();
@@ -204,7 +203,7 @@ public class RouteDialogFragment extends DialogFragment {
         UUID uuid = UserManager.getInstance().getUserId();
         routeId = route.getId();
 
-        url = "http://15.164.152.246:8080/activitys/" + uuid + "/" + routeId;
+        url = "http://15.164.152.246:8080/activitys/" + routeId + "/route-details";
         String data = "";
 
         new Thread(() -> {

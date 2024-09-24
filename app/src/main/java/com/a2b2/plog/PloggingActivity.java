@@ -905,7 +905,7 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
 
         UUID uuid = UserManager.getInstance().getUserId();
 
-        url = "http://15.164.152.246:8080/activitys/" + uuid + "/" + routeId;
+        url = "http://15.164.152.246:8080/activitys/" + routeId + "/route-details";
         String data = "";
 
         new Thread(() -> {
@@ -1364,6 +1364,7 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
                             Intent intent = new Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
                             startActivity(intent);
                         } finally {
+                            overridePendingTransition(0, 0);
                             finish();
                         }
                     }
@@ -1483,7 +1484,7 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
     }
     public void seeNetworkResult(String result) {
         // 네트워크 작업 완료 후
-        Log.d(result, "network");
+        Log.d("network", result);
     }
     private void sendJsonData(String trashType, int count) {
         try {

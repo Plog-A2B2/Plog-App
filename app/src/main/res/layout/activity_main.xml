@@ -82,11 +82,7 @@
             android:textSize="20dp"
             android:fontFamily="@font/nanumbarungothic"
             android:background="@drawable/rounded_full_square"/>
-        <ImageView
-            android:id="@+id/kakaoLogin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/kakao_login"/>
+
 
         <LinearLayout
             android:layout_width="wrap_content"

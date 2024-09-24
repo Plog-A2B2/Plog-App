@@ -106,16 +106,16 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
             }
         });
 
-        logoImg = findViewById(R.id.logoImg);
-        logoImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                startActivity(intent);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                finish();
-            }
-        });
+//        logoImg = findViewById(R.id.logoImg);
+//        logoImg.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+//                startActivity(intent);
+//                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//                finish();
+//            }
+//        });
 
         handler = new Handler();
 
@@ -137,10 +137,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
 
 
         loginBtn = findViewById(R.id.loginBtn);
-        idFindBtn = findViewById(R.id.idFindBtn);
-        pwFindBtn = findViewById(R.id.pwFindBtn);
         joinBtn = findViewById(R.id.joinBtn);
-        kakaoLogin =findViewById(R.id.kakaoLogin);
 
         id = findViewById(R.id.idTxt);
         pw = findViewById(R.id.pwTxt);
@@ -225,12 +222,12 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
         //워치 연결 확인 코드
         tv1 = findViewById(R.id.tv1);
 
-        idFindBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showNodes(CAPABILITY_1_NAME);
-            }
-        });
+//        idFindBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                showNodes(CAPABILITY_1_NAME);
+//            }
+//        });
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/path/to/data");
         putDataMapReq.getDataMap().putString("key", "value");
         PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
@@ -242,18 +239,13 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
             }
         });
 
-        pwFindBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendJsonData();
-            }
-        });
-        kakaoLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopPlogging();
-            }
-        });
+//        pwFindBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                sendJsonData();
+//            }
+//        });
+
     }
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {

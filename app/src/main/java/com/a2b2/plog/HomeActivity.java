@@ -158,6 +158,20 @@ public class HomeActivity extends AppCompatActivity {
                 sendJsonData(isPloggingStart);
                 Log.d("isPloggingSstart", String.valueOf(isPloggingStart));
 
+                UUID uuid = UserManager.getInstance().getUserId();
+                String url2 = "http://15.164.152.246:8080/activitys/start/" + uuid;
+// JSON 문자열을 구성하기 위한 StringBuilder 사용
+                String data = "";
+
+                new Thread(() -> {
+                    String result = httpPostBodyConnection(url2, data);
+                    handler.post(() -> {
+                        if (result != null && !result.isEmpty()) {
+                            Log.d("HomeActivity", result);
+                        }
+                    });
+                }).start();
+
                 startActivity(intent);
                 overridePendingTransition(0, 0);
                 finish();
@@ -206,6 +220,68 @@ public class HomeActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+    public String httpPostBodyConnection(String UrlData, String ParamData) {
+        String responseData = "";
+        BufferedReader br = null;
+
+        try {
+            // URL 연결 설정
+            URL url = new URL(UrlData);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+
+            // 요청 데이터 전송
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] request_data = ParamData.getBytes("utf-8");
+                os.write(request_data);
+            }
+
+            // 서버에 연결
+            conn.connect();
+
+            // 응답 코드 확인
+            int responseCode = conn.getResponseCode();
+            Log.d("HomeActivity", "Response Code: " + responseCode);
+
+            if (responseCode == HttpURLConnection.HTTP_OK) { // 성공 응답인 경우
+                // 응답 데이터 처리
+                br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                StringBuilder sb = new StringBuilder();
+                while ((responseData = br.readLine()) != null) {
+                    sb.append(responseData);
+                }
+                return sb.toString();
+            } else {
+                // 오류가 발생한 경우 서버에서 오류 응답 처리
+                Log.e("HomeActivity", "Error Response Code: " + responseCode);
+
+                // 에러 스트림 읽기
+                br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "UTF-8"));
+                StringBuilder errorResponse = new StringBuilder();
+                while ((responseData = br.readLine()) != null) {
+                    errorResponse.append(responseData);
+                }
+                Log.e("HomeActivity", "Error Response: " + errorResponse.toString());
+            }
+
+        } catch (IOException e) {
+            Log.e("HomeActivity", "IOException: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                Log.e("HomeActivity", "BufferedReader close IOException: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return responseData;
     }
     public String httpGetConnection(String UrlData, String s) {
         String totalUrl = UrlData.trim();
