@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                         userUUID = UUID.fromString(userUUIDStr);
                         seeNetworkResult(result);
 
+                        UserManager.getInstance().setMembership(isMembership);
 
                         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                         startActivity(intent);
