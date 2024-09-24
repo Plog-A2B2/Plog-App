@@ -86,7 +86,6 @@ public class RankActivity extends AppCompatActivity {
         MYrank = findViewById(R.id.MYrank);
         Mynickname = findViewById(R.id.mynickname);
         Myscore = findViewById(R.id.myscore);
-
         rankList = new ArrayList<>();
 //        rankList.add(new RankItem(4, "지구지킴이",936));
 //        rankList.add(new RankItem(5, "지구지킴이",873));

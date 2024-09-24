@@ -1,5 +1,7 @@
 package com.a2b2.plog;
 
+import static com.a2b2.plog.BadgeManager.getDrawableForBadgeId;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -304,9 +306,9 @@ public class MyCommunityActivity extends AppCompatActivity {
                     postId = postObject.getInt("postId");
                     Log.d("postId", String.valueOf(postId));
                 }
-                if (postObject.has("badge")) {
-                    badge = postObject.getInt("badge");
-                    Log.d("badge", String.valueOf(badge));
+                if (postObject.has("badgeId")) {
+                    badge = postObject.getInt("badgeId");
+                    Log.d("badgeId", String.valueOf(badge));
                 }
                 if (postObject.has("title")) {
                     title = postObject.getString("title");
@@ -322,7 +324,7 @@ public class MyCommunityActivity extends AppCompatActivity {
                 }
 
                 if (postId != 0 && badge != 0 && title != null && time != null && userNickname != null) {
-                    CommunityList communitylist = new CommunityList(postId, R.drawable.tiger, title, time, userNickname);
+                    CommunityList communitylist = new CommunityList(postId, getDrawableForBadgeId(badge), title, time, userNickname);
                     communitylists.add(communitylist);
                 } else {
                     Log.e("JSONError", "Missing key in JSON object: " + postObject.toString());

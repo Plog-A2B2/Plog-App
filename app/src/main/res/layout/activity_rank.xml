@@ -22,8 +22,8 @@
 
     <ImageView
         android:id="@+id/helpBtn"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginRight="25dp"
         android:layout_marginTop="10dp"
         android:src="@drawable/helpcircle"
@@ -59,6 +59,7 @@
         android:text="점수는 달린 거리(m) x 주운 쓰레기 개수로 \n측정됩니다! \n 점수는 매주 일요일 자정에 초기화됩니다."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/helpBtn"
+        android:textColor="@color/black"
         android:visibility="gone"/>
 
 

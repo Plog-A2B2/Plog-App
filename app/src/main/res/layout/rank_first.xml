@@ -56,7 +56,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:gravity="center"
-            android:text="7120점"
+            android:text="0점"
             android:textColor="@color/black"
             android:textSize="18sp"/>
     </LinearLayout>
