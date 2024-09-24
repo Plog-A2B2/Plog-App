@@ -107,6 +107,7 @@ public class CommunityPostActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent intent = new Intent(CommunityPostActivity.this, CommunityActivity.class);
                                 startActivity(intent);
+                                overridePendingTransition(0, 0);
                                 finish();
                                 dialog.dismiss();
 
@@ -163,6 +164,8 @@ public class CommunityPostActivity extends AppCompatActivity {
                             Toast.makeText(CommunityPostActivity.this,message+"완료",Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(CommunityPostActivity.this, CommunityActivity.class);
                             startActivity(intent);
+                            overridePendingTransition(0, 0);
+
                             finish();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -184,6 +187,8 @@ public class CommunityPostActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         Intent intent = new Intent(CommunityPostActivity.this, CommunityActivity.class);
                         startActivity(intent);
+                        overridePendingTransition(0, 0);
+
                         finish();
                         dialog.dismiss();
                         // 다이얼로그가 닫힌 후 액티비티 종료
@@ -285,7 +290,7 @@ public class CommunityPostActivity extends AppCompatActivity {
     }
     private void getGeoDataByAddress(String completeAddress) {
         try {
-            String API_KEY = "AIzaSyC6FB54gjhzW2wfkKqD8vo5OybyxW55k8M";
+            String API_KEY = "AIzaSyCD4wiVWqJJAq1ipj5VdS4CXVG7ulEswkE";
             String surl = "https://maps.googleapis.com/maps/api/geocode/json?address=" + URLEncoder.encode(completeAddress, "UTF-8") + "&key=" + API_KEY;
             URL url = new URL(surl);
             InputStream is = url.openConnection().getInputStream();

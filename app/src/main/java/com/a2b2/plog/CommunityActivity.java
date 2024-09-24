@@ -213,6 +213,8 @@ public class CommunityActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(CommunityActivity.this, MyCommunityActivity.class);
                 startActivity(intent);
+                overridePendingTransition(0, 0);
+
                 finish();
             }
         });
@@ -256,9 +258,9 @@ public class CommunityActivity extends AppCompatActivity {
                     postId = postObject.getInt("postId");
                     Log.d("postId", String.valueOf(postId));
                 }
-                if (postObject.has("badge")) {
-                    badge = postObject.getInt("badge");
-                    Log.d("badge", String.valueOf(badge));
+                if (postObject.has("badgeId")) {
+                    badge = postObject.getInt("badgeId");
+                    Log.d("badgeId", String.valueOf(badge));
                 }
                 if (postObject.has("title")) {
                     title = postObject.getString("title");
