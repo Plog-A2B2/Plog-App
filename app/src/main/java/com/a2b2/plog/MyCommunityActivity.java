@@ -111,6 +111,7 @@ public class MyCommunityActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MyCommunityActivity.this, CommunityActivity.class);
                 startActivity(intent);
+                overridePendingTransition(0, 0);
                 finish();
             }
         });

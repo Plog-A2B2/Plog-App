@@ -441,6 +441,8 @@ public class MyPageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MyPageActivity.this, MyCommunityActivity.class);
                 startActivity(intent);
+                overridePendingTransition(0, 0);
+
                 finish();
             }
         });
