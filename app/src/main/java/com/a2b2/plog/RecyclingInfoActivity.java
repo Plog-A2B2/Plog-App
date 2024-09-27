@@ -108,6 +108,9 @@ public class RecyclingInfoActivity extends AppCompatActivity {
 
                     Log.d("RecyclingInfoActivity", "Label added at: " + location.getLatitude() + ", " + location.getLongitude());
                 }
+            }@Override
+            public LatLng getPosition() {
+                return LatLng.from(33.26626855, 126.6088838);
             }
         });
 
