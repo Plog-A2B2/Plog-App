@@ -90,7 +90,7 @@ public class RecyclingInfoActivity extends AppCompatActivity {
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
 
                 //LabelStyle labelStyle   = LabelStyle.from(resizedBitmap).setZoomLevel(11);
-                LabelStyle labelStyle = LabelStyle.from(resizedBitmap).setZoomLevel(15);
+                LabelStyle labelStyle = LabelStyle.from(resizedBitmap).setZoomLevel(10);
                 LabelStyles styles = labelManager.addLabelStyles(LabelStyles.from(labelStyle));
 
 //                LabelStyles noHumanStyle = LabelStyles.from(LabelStyle.from(R.drawable.recyclemark_fin).setTextStyles(20, Color.BLACK));
