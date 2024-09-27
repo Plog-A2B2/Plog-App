@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/nanumbarungothic"
-            android:text="장징징"
+            android:text="새끼멍게"
             android:textColor="@color/black"
             android:textSize="18sp" />
 
@@ -52,7 +52,7 @@
             android:fontFamily="@font/nanumbarungothic"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:text="0점"
+            android:text="1531점"
             android:textSize="18sp"/>
     </LinearLayout>
 

@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/nanumbarungothic"
-            android:text="장징징"
+            android:text="떡튀순"
             android:textColor="@color/black"
             android:textSize="18sp" />
 
@@ -56,7 +56,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:gravity="center"
-            android:text="0점"
+            android:text="1615점"
             android:textColor="@color/black"
             android:textSize="18sp"/>
     </LinearLayout>

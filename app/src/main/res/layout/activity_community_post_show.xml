@@ -41,7 +41,7 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginLeft="15dp"
-                android:src="@drawable/tiger" />
+                android:src="@drawable/polarbear" />
             <TextView
                 android:id="@+id/nickname"
                 android:layout_width="wrap_content"
@@ -49,7 +49,7 @@
                 android:layout_gravity="center"
                 android:layout_marginLeft="10dp"
                 android:fontFamily="@font/nanumbarungothic"
-                android:text="아투비투"
+                android:text="무나즈"
                 android:textSize="20sp" />
             <View
                 android:layout_width="0dp"
@@ -62,7 +62,7 @@
                 android:layout_gravity="center"
                 android:layout_marginRight="15dp"
                 android:fontFamily="@font/nanumbarungothic"
-                android:text="2024.08.18.(일)" />
+                android:text="2024.09.02.(월)" />
         </LinearLayout>
         <TextView
             android:id="@+id/title"
@@ -71,7 +71,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="20dp"
             android:textSize="20dp"
-            android:text="8월 25일 플로깅 모집합니다~"
+            android:text="지구방범대들 기억하시죠?!"
             android:fontFamily="@font/nanumbarungothic"/>
         <ImageView
             android:layout_width="match_parent"
@@ -94,7 +94,7 @@
             android:id="@+id/meetingDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="모임 일시 : 08/25 (일) AM 8:00"
+            android:text="모임 일시 : 09/02 (월) PM 7:00"
             android:fontFamily="@font/nanumbarungothiclight"
             android:layout_marginLeft="5dp"
             android:layout_marginTop="10dp"
@@ -121,7 +121,7 @@
             android:id="@+id/posting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="함께 깨끗한 와우리를 만들 사람 구합니다~!"
+            android:text="21일에 같이 플로깅 하실 분들 모집하는 글을 올렸었는데 안 까먹으셨죠??? \n저녁 든든하게 드시고 \n있다 7시에 수원대 정문에서 봬요~😆"
             android:gravity="center"
             android:layout_marginLeft="5dp"
             android:layout_marginTop="15dp"

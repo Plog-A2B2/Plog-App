@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="25dp"
             android:layout_weight="1"
-            android:text="15등"
+            android:text="7등"
             android:fontFamily="@font/nanumbarungothic"
             android:textSize="25sp"
             android:layout_gravity="center"
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="25dp"
             android:layout_weight="1"
-            android:text="username"
+            android:text="지구지킴이"
             android:fontFamily="@font/nanumbarungothic"
             android:textSize="25sp"/>
         <TextView
@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="25dp"
             android:layout_weight="1"
-            android:text="234점"
+            android:text="831점"
             android:fontFamily="@font/nanumbarungothic"
             android:textSize="25sp"/>
 
