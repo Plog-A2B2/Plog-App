@@ -38,7 +38,7 @@
             android:layout_marginTop="10dp"
             android:textColor="@color/black"
             android:fontFamily="@font/nanumbarungothic"
-            android:text="장징징"
+            android:text="와우리 카리나"
             android:textSize="18sp" />
 
         <TextView
@@ -52,7 +52,7 @@
             android:fontFamily="@font/nanumbarungothic"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:text="0점"
+            android:text="1553점"
             android:textSize="18sp"/>
     </LinearLayout>
 
