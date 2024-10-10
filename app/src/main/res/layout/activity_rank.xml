@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RankActivity"
+    android:id="@+id/rank_background"
+    android:background="@drawable/rank_background_merge"
+    android:layout_gravity="center">
+
+    <ImageView
+        android:id="@+id/logoImg"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
+        android:src="@drawable/logotest"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="15dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="20dp"/>
+
+    <ImageView
+        android:id="@+id/helpBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/helpcircle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/rankcleartxt"
+        android:layout_width="370dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_height="80dp"
+        android:textSize="30sp"
+        android:fontFamily="@font/nanumbarungothicbold"
+        android:gravity="center"
+        android:text="랭킹 점수가 초기화되었습니다"
+        app:layout_constraintBottom_toTopOf="@+id/rankRecyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/rounded_white_square"
+        android:visibility="gone"
+        />
+
+    <TextView
+        android:id="@+id/helpTxt"
+        android:layout_width="270dp"
+        android:layout_height="70dp"
+        android:background="@drawable/speechbubble"
+        android:fontFamily="@font/nanumbarungothiclight"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="점수는 달린 거리(m) x 주운 쓰레기 개수로 \n측정됩니다! \n 점수는 매주 일요일 자정에 초기화됩니다."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/helpBtn"
+        android:textColor="@color/black"
+        android:visibility="gone"/>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rank_first_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@+id/helpBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="visible">
+
+        <include layout="@layout/rank_first"></include>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rank_sec_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/helpBtn"
+        app:layout_constraintRight_toLeftOf="@+id/rank_first_all"
+        android:layout_marginTop="40dp"
+        android:layout_marginRight="10dp"
+        android:visibility="visible">
+        <include layout="@layout/rank_second"></include>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rank_third_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/helpBtn"
+        app:layout_constraintLeft_toRightOf="@+id/rank_first_all"
+        android:layout_marginTop="60dp"
+        android:layout_marginLeft="5dp"
+        android:visibility="visible">
+
+        <include layout="@layout/rank_third"></include>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rankRecyclerView"
+        android:layout_width="wrap_content"
+        android:layout_height="300dp"
+        android:orientation="vertical"
+
+        android:scrollbars="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/rank_first_all"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
+        android:layout_marginTop="150dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:background="@drawable/rank_white_back"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/myrank"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout">
+
+        <include layout="@layout/myrank"></include>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <include layout="@layout/bottom"></include>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

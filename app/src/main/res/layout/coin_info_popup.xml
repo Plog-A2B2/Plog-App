@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="300dp"
+    android:layout_height="250dp"
+    android:layout_gravity="center"
+    android:padding="16dp"
+    android:background="@drawable/big_round_rectangle_gray">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/coin"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="코인 획득 방법!"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:fontFamily="@font/nanumbarungothicbold"/>
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/coin"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="1. 일일 퀘스트를 수행해요."
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:fontFamily="@font/nanumbarungothic"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="2. 본인의 플로깅 경로를 루트로 등록해서 사용자들과 공유해요."
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:fontFamily="@font/nanumbarungothic"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="30dp"
+        android:weightSum="2">
+
+        <android.widget.Button
+            android:id="@+id/closeBtn1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/round_rectangle_realblue"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:text="열심히 하러 가기"
+            android:textSize="16sp"
+            android:fontFamily="@font/nanumbarungothicbold"/>
+
+        <android.widget.Button
+            android:id="@+id/closeBtn2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/round_rectangle_realyellow"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:text="멋지게 하러 가기"
+            android:textSize="16sp"
+            android:fontFamily="@font/nanumbarungothicbold"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

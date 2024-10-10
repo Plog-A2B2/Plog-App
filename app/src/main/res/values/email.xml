@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="emailArray">
+        <item>
+            none
+        </item>
+        <item>
+            naver.com
+        </item>
+        <item>
+            google.com
+        </item>
+    </string-array>
+
+</resources>

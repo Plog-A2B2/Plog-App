@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="290dp"
+    android:layout_height="45dp"
+    android:orientation="horizontal"
+    android:layout_marginTop="8dp"
+    android:layout_gravity="center"
+    android:background="@drawable/rounded_white_square">
+
+    <TextView
+        android:id="@+id/questTextView"
+        android:layout_width="190dp"
+        android:layout_height="wrap_content"
+        android:text="플로깅 3KM 하기"
+        android:textColor="@color/black"
+        android:textSize="17sp"
+        android:layout_gravity="center"
+        android:paddingLeft="25dp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
+
+    <ImageView
+        android:id="@+id/coinImageView"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:src="@drawable/coin"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="28dp"/>
+
+    <TextView
+        android:id="@+id/coinNumTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="X 3"
+        android:layout_gravity="center_vertical"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:layout_marginLeft="4dp"
+        android:fontFamily="@font/nanumbarungothiclight"/>
+
+    <View
+        android:id="@+id/finishLine"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_marginTop="20dp"
+        android:background="#FF0040"
+        android:layout_marginLeft="-255dp"
+        android:layout_marginRight="15dp"
+        android:visibility="gone"/>
+
+</LinearLayout>

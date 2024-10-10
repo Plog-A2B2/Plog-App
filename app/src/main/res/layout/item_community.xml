@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_green_square"
+    android:layout_gravity="center"
+    android:id="@+id/community_back"
+    android:layout_margin="10dp">
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:id="@+id/linearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/badge"
+            android:layout_marginLeft="15dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/tiger" />
+
+        <TextView
+            android:id="@+id/nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:fontFamily="@font/nanumbarungothic"
+            android:text="아투비투"
+            android:textSize="20sp" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_marginRight="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/nanumbarungothic"
+            android:text="2024.08.18.(일)" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/community_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/nanumbarungothic"
+        android:text="8월 25일 플로깅 모집합니다~ "
+        android:textSize="25sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        android:layout_marginBottom="15dp"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

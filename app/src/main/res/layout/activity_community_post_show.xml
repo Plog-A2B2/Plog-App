@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CommunityPostShowActivity">
+
+    <ImageView
+        android:id="@+id/backBtn"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <LinearLayout
+        android:id="@+id/postBackground"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/backBtn"
+        android:layout_marginTop="25dp"
+        android:layout_margin="20dp"
+        android:orientation="vertical"
+        android:background="@drawable/rounded_lightgray_square"
+        android:padding="5dp">
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+            <ImageView
+                android:id="@+id/badge"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="15dp"
+                android:src="@drawable/polarbear" />
+            <TextView
+                android:id="@+id/nickname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:fontFamily="@font/nanumbarungothic"
+                android:text="무나즈"
+                android:textSize="20sp" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginRight="15dp"
+                android:fontFamily="@font/nanumbarungothic"
+                android:text="2024.09.02.(월)" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="20dp"
+            android:textSize="20dp"
+            android:text="지구방범대들 기억하시죠?!"
+            android:fontFamily="@font/nanumbarungothic"/>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/line"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"/>
+        <TextView
+            android:id="@+id/ploggingPlace"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="플로깅 장소 : 봉답읍 와우리 일대"
+            android:fontFamily="@font/nanumbarungothiclight"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:textSize="17sp"
+            android:layout_marginRight="5dp"/>
+        <TextView
+            android:id="@+id/meetingDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="모임 일시 : 09/02 (월) PM 7:00"
+            android:fontFamily="@font/nanumbarungothiclight"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:textSize="17sp"
+            android:layout_marginRight="5dp"/>
+        <TextView
+            android:id="@+id/meetingPlace"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="모임 징소 : 와위리 76-33 수원대학교 정문"
+            android:fontFamily="@font/nanumbarungothiclight"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:textSize="17sp"
+            android:layout_marginRight="5dp"/>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/line"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"/>
+        <TextView
+            android:id="@+id/posting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="21일에 같이 플로깅 하실 분들 모집하는 글을 올렸었는데 안 까먹으셨죠??? \n저녁 든든하게 드시고 \n있다 7시에 수원대 정문에서 봬요~😆"
+            android:gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="15dp"
+            android:fontFamily="@font/nanumbarungothiclight"
+            android:textSize="17sp"
+            android:layout_marginBottom="10dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintRight_toRightOf="@+id/postBackground"
+        app:layout_constraintTop_toBottomOf="@+id/postBackground"
+        android:layout_marginTop="15dp">
+
+        <TextView
+            android:id="@+id/editBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumbarungothiclight"
+            android:text="수정"
+            android:textSize="15sp"
+            android:textColor="#2400FF"
+            android:layout_marginRight="5dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumbarungothiclight"
+            android:text="|"
+            android:textSize="15sp"
+            android:textColor="#2400FF"
+            android:layout_marginRight="5dp"/>
+        <TextView
+            android:id="@+id/deleteBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumbarungothiclight"
+            android:text="삭제"
+            android:textSize="15sp"
+            android:textColor="#FF0000"
+            />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/likeBtn"
+        android:layout_marginTop="15dp"
+        android:layout_width="130dp"
+        android:layout_height="50dp"
+        android:fontFamily="@font/nanumbarungothic"
+        android:text="찜하기"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:background="@drawable/rounded_puple_square"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.241"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit" />
+
+    <Button
+        android:id="@+id/joinBtn"
+        android:layout_marginLeft="15dp"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:fontFamily="@font/nanumbarungothic"
+        android:text="참여하기"
+        android:background="@drawable/rounded_blue_square"
+        android:textColor="#ffffff"
+        android:layout_marginTop="15dp"
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@+id/edit"
+        app:layout_constraintLeft_toRightOf="@+id/likeBtn" />
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

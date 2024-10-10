@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="270dp"
+    android:layout_height="200dp"
+    android:orientation="vertical"
+    android:padding="30dp"
+    android:background="@drawable/rounded_white_square">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="무료 해금 조건 : "
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:fontFamily="@font/nanumbarungothic"/>
+
+    <TextView
+        android:id="@+id/unlockConditionText"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:text="플로깅 누적 시간 50H 달성"
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
+        android:fontFamily="@font/nanumbarungothiclight"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:gravity="center">
+
+        <android.widget.Button
+            android:id="@+id/buyBtn"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:background="@drawable/rounded_purple_square"
+            android:layout_marginRight="10dp"
+            android:text="코인으로 구매"
+            android:textColor="@color/white"
+            android:layout_weight="1"
+            android:fontFamily="@font/nanumbarungothiclight"/>
+
+        <android.widget.Button
+            android:id="@+id/closeBtn"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:background="@drawable/round_rectangle_deepgreen"
+            android:layout_marginLeft="10dp"
+            android:text="닫기"
+            android:textColor="@color/white"
+            android:layout_weight="0.5"
+            android:fontFamily="@font/nanumbarungothiclight"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

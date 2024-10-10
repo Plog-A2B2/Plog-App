@@ -3,7 +3,24 @@
     <style name="Base.Theme.Plog" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <style name="Theme.Plog" parent="Base.Theme.Plog" />
+
+    <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <style name="SimpleRouteLineStyle" parent="RouteLineStyle">
+        <item name="mapLineWidth">12.0</item>
+        <item name="mapLineColor">#F05D61</item>
+        <item name="mapStrokeWidth">3</item>
+        <item name="mapStrokeColor">#ffffff</item>
+    </style>
+
 </resources>

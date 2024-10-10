@@ -3,6 +3,7 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+
     }
 }
 dependencyResolutionManagement {
@@ -10,8 +11,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = "https://devrepo.kakao.com/nexus/content/groups/public/" }
+        maven { url = "https://jitpack.io" }
+        maven { url 'https://devrepo.kakao.com/nexus/repository/kakaomap-releases/' }
     }
 }
 
 rootProject.name = "plog"
 include ':app'
+include ':plog'

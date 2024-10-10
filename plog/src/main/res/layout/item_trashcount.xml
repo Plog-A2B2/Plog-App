@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:layout_gravity="center">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_margin="5dp"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center"
+        android:background="@drawable/round_square"
+        android:layout_marginRight="20dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="20dp">
+
+        <TextView
+            android:id="@+id/trashtype"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="일반쓰레기"
+            android:textColor="#ffffff"
+            android:gravity="center"
+            android:textSize="17sp"
+            android:fontFamily="@font/nanumbarungothicbold"/>
+
+        <ImageView
+            android:id="@+id/min"
+            android:layout_margin="5dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/min"/>
+        <TextView
+            android:id="@+id/cntTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="20sp"
+            android:textColor="#ffffff"
+            android:fontFamily="@font/nanumbarungothicbold"/>
+        <ImageView
+            android:id="@+id/plus"
+            android:layout_margin="5dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/plus" />
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

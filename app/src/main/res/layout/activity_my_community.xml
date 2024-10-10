@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MyCommunityActivity"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
+        <ImageView
+            android:id="@+id/backBtn"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="40dp"
+            android:src="@drawable/back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="내 활동"
+            android:fontFamily="@font/nanumbarungothicbold"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/backBtn"
+            android:textSize="30sp"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/mytext"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button"
+            android:text="작성글"
+            android:fontFamily="@font/nanumbarungothic"
+            android:textSize="20sp"
+            android:layout_margin="10dp"/>
+        <Button
+            android:id="@+id/finish"
+            android:layout_width="115dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button"
+            android:text="참가완료"
+            android:fontFamily="@font/nanumbarungothic"
+            android:textSize="20sp" />
+        <Button
+            android:id="@+id/like"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button"
+            android:text="찜완료"
+            android:fontFamily="@font/nanumbarungothic"
+            android:textSize="20sp"
+            android:layout_margin="10dp"
+            android:padding="10dp"/>
+
+    </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center">
+    </androidx.recyclerview.widget.RecyclerView>
+
+</LinearLayout>
