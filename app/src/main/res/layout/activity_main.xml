@@ -13,11 +13,14 @@
         android:layout_width="180dp"
         android:layout_height="180dp"
         android:src="@drawable/logotest"
+
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:paddingLeft="20dp"
         android:layout_marginTop="150dp"/>
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,6 +43,7 @@
                 android:textSize="20sp"
                 android:layout_marginLeft="50dp"
                 android:fontFamily="@font/nanumbarungothiclight"/>
+
             <EditText
                 android:id="@+id/idTxt"
                 android:layout_gravity="center"
@@ -61,6 +65,7 @@
                 android:text="PASSWARD"
                 android:textSize="20sp"
                 android:fontFamily="@font/nanumbarungothiclight"
+
                 android:layout_marginLeft="50dp"/>
             <EditText
                 android:id="@+id/pwTxt"
@@ -82,7 +87,6 @@
             android:textSize="20dp"
             android:fontFamily="@font/nanumbarungothic"
             android:background="@drawable/rounded_full_square"/>
-
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -130,6 +134,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"/>
+
 
 
 

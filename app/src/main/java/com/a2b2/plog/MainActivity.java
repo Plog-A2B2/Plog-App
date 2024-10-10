@@ -73,6 +73,7 @@ import java.util.Set;
 import java.util.UUID;
 
 
+
 public class MainActivity extends AppCompatActivity implements CapabilityClient.OnCapabilityChangedListener, DataClient.OnDataChangedListener {
 
     Button loginBtn, idFindBtn, pwFindBtn, joinBtn;
@@ -89,10 +90,15 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
     private String getToken;
     boolean isMembership;
 
+    Button loginBtn, idFindBtn, pwFindBtn, joinBtn;
+    ImageView kakaoLogin;
+    EditText id, pw;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         // Firebase 초기화
         FirebaseApp.initializeApp(this);
@@ -139,8 +145,10 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
         loginBtn = findViewById(R.id.loginBtn);
         joinBtn = findViewById(R.id.joinBtn);
 
+
         id = findViewById(R.id.idTxt);
         pw = findViewById(R.id.pwTxt);
+
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -479,5 +487,6 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
         Log.d("UserManager.getUserId", String.valueOf(UserManager.getInstance().getUserId()));
         Log.d("UserManager.getUserNickname", UserManager.getInstance().getUserNickname());
 //        Log.d("uuid",userUUIDStr);
+
     }
 }
