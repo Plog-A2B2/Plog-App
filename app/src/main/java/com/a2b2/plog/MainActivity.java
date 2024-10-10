@@ -222,13 +222,13 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
 
         //워치 연결 확인 코드
         tv1 = findViewById(R.id.tv1);
-
-//        idFindBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                showNodes(CAPABILITY_1_NAME);
-//            }
-//        });
+        idFindBtn = findViewById(R.id.idFindBtn);
+        idFindBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showNodes(CAPABILITY_1_NAME);
+            }
+        });
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/path/to/data");
         putDataMapReq.getDataMap().putString("key", "value");
         PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
