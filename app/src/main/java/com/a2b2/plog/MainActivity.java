@@ -90,9 +90,9 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
     private String getToken;
     boolean isMembership;
 
-    Button loginBtn, idFindBtn, pwFindBtn, joinBtn;
-    ImageView kakaoLogin;
-    EditText id, pw;
+//    Button loginBtn, idFindBtn, pwFindBtn, joinBtn;
+//    ImageView kakaoLogin;
+//    EditText id, pw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
