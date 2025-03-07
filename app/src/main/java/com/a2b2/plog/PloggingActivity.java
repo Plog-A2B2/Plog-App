@@ -288,9 +288,6 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plogging);
 
-//        DataClient dataClient = Wearable.getDataClient(this);
-//        dataClient.addListener(this);
-
         Wearable.getDataClient(this).addListener(this);
 
 
@@ -298,8 +295,6 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
         stompClient = new StompClient();
         stompClient.connect("ws://15.164.152.246:8080/ws");
 
-//        UUID uuid = UUID.fromString("36994BC9-E1BD-426B-AA36-99A1B31E9980");
-//        UUID uuid = UserManager.getInstance().getUserId();
 
         Handler handler = new Handler();
 
@@ -574,11 +569,6 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
                         Log.d("PloggingActivity", trashType + ": " + count);
                     }
 
-//                    endPlogging();
-
-//                    stopPlogging();
-//                    stopLocationUpdates();
-
                     UUID uuid = UserManager.getInstance().getUserId();
                     url = "http://15.164.152.246:8080/activitys/end/" + uuid;
 // JSON 문자열을 구성하기 위한 StringBuilder 사용
@@ -586,8 +576,6 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
 
                     int parsedTime = parseTime(timeTextView.getText().toString());
                     double parsedDistance = parseDistance(distanceTextView.getText().toString());
-
-//                    String jsonData = "{\"distance\":"+parsedDistance+",\"activityTime\":"+parsedTime+"}";
 
                     data.append("{");
                     data.append("\"distance\":").append(parsedDistance).append(",");
@@ -617,8 +605,6 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
                                 }
                             }
 
-//                            drawRouteOnMap(routePoints);
-
                             sendWatchToStopPlogging();
                             // 결과 화면으로 이동
                             Intent intent = new Intent(PloggingActivity.this, FinishActivity.class);
@@ -632,10 +618,6 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
                             finish();
                         });
                     }).start();
-                    ///////
-
-
-
                 }
             });
         } catch (Exception e) {
@@ -731,8 +713,6 @@ public class PloggingActivity extends AppCompatActivity implements DataClient.On
         super.onPause();
         mapView.pause();    // MapView 의 pause 호출
         fusedLocationClient.removeLocationUpdates(locationCallback);
-
-
     }
 
     // 거리 문자열을 double로 변환하는 메서드

@@ -33,15 +33,10 @@ public class CommunityActivity extends AppCompatActivity {
     private RecyclerView communityRecycler;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    //private List<CommunityItem> communityList;
     private List<CommunityList> communitylists;
-
     private String nickname, title, date;
     private TextView logo;
     private Handler handler;
-
-    //커뮤니티 테스트 해야 함
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +46,6 @@ public class CommunityActivity extends AppCompatActivity {
 
         handler = new Handler(Looper.getMainLooper());
 
-        //UUID uuid = UUID.fromString("8D841B8A-C15A-4657-95AC-AB28ED6F0190");
         UUID uuid = UserManager.getInstance().getUserId();
         Log.d("uuid", String.valueOf(uuid));
         // GET 요청을 위한 ParamData 제거
@@ -71,11 +65,6 @@ public class CommunityActivity extends AppCompatActivity {
                             communitylists.clear();
                         }
                         communitylists.addAll(parseCommunityList(result));
-                        // tripPlans 초기화 및 데이터 파싱
-
-//                                tripPlans = parseTripPlan(result);
-//                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + tripPlans.size());
-
                         // 데이터 확인 로그
                         Log.d("TripPlansSize", "Size of tripPlans after parsing: " + communitylists.size());
                         for (CommunityList clist : communitylists) {
@@ -91,63 +80,7 @@ public class CommunityActivity extends AppCompatActivity {
             }
         }).start();
 
-
-        // 싱글톤 인스턴스 가져오기
-
-        logo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //UUID uuid = UUID.fromString("8D841B8A-C15A-4657-95AC-AB28ED6F0190");
-                UUID uuid = UserManager.getInstance().getUserId();
-                Log.d("uuid", String.valueOf(uuid));
-                // GET 요청을 위한 ParamData 제거
-                String url = "http://15.164.152.246:8080/post/"+uuid+"/all";  // 예: http://example.com
-
-                new Thread(() -> {
-                    String result = httpGetConnection(url, "");
-                    // 처리 결과 확인
-                    handler = new Handler(Looper.getMainLooper());
-                    if (handler != null) {
-                        handler.post(() -> {
-                            if(result != null && !result.isEmpty()) {
-
-                                if (communitylists == null) {
-                                    communitylists = new ArrayList<>();
-                                } else{
-                                    communitylists.clear();
-                                }
-                                communitylists.addAll(parseCommunityList(result));
-                                // tripPlans 초기화 및 데이터 파싱
-
-//                                tripPlans = parseTripPlan(result);
-//                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + tripPlans.size());
-
-                                // 데이터 확인 로그
-                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + communitylists.size());
-                                for (CommunityList clist : communitylists) {
-                                    Log.d("TripPlan", "포스트아이디 : "+String.valueOf(clist.getPostId())+"제목 : "+clist.getTitle()+"시간 : "+clist.getTime()+"닉네임 :"+clist.getUserNickname());
-                                }
-                                // UI 갱신
-                                updateUI();
-                            } else {
-                                Log.e("Error", "Result is null or empty");
-                            }
-                            seeNetworkResult(result);
-                        });
-                    }
-                }).start();
-            }
-        });
-
         communitylists = new ArrayList<>();
-//        communityList.add(new CommunityItem(R.drawable.tiger,"지구지킴이","2024.08.18(일)","8월 30일에 같이 플로깅 하실 분 있나요?"));
-//        communityList.add(new CommunityItem(R.drawable.tiger,"지구지킴이","2024.08.18(일)","8월 30일에 같이 플로깅 하실 분 있나요?"));
-//        communityList.add(new CommunityItem(R.drawable.tiger,"지구지킴이","2024.08.18(일)","8월 30일에 같이 플로깅 하실 분 있나요?"));
-//        communityList.add(new CommunityItem(R.drawable.tiger,"지구지킴이","2024.08.18(일)","8월 30일에 같이 플로깅 하실 분 있나요?"));
-//        communityList.add(new CommunityItem(R.drawable.tiger,"지구지킴이","2024.08.18(일)","8월 30일에 같이 플로깅 하실 분 있나요?"));
-//        communityList.add(new CommunityItem(R.drawable.tiger,"지구지킴이","2024.08.18(일)","8월 30일에 같이 플로깅 하실 분 있나요?"));
-
         communityRecycler = findViewById(R.id.communityRecycler);
         communityRecycler.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
@@ -214,7 +147,6 @@ public class CommunityActivity extends AppCompatActivity {
                 Intent intent = new Intent(CommunityActivity.this, MyCommunityActivity.class);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
-
                 finish();
             }
         });
@@ -238,13 +170,10 @@ public class CommunityActivity extends AppCompatActivity {
         ArrayList<CommunityList> communitylists = new ArrayList<>();
 
         try {
-
             // 전체 JSON 데이터는 JSONObject로 파싱
             JSONObject jsonObject = new JSONObject(json);
-
             // JSONObject에서 "data" 필드를 JSONArray로 추출
             JSONArray jsonArray = jsonObject.getJSONArray("data");
-
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject postObject = jsonArray.getJSONObject(i);
 
@@ -349,6 +278,6 @@ public class CommunityActivity extends AppCompatActivity {
     }
     public void seeNetworkResult(String result) {
         // 네트워크 작업 완료 후
-        Log.d(result, "network");
+        Log.d("network",result);
     }
 }

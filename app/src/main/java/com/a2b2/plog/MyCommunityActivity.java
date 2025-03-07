@@ -107,7 +107,6 @@ public class MyCommunityActivity extends AppCompatActivity {
             }
         }).start();
 
-        //resetButtonBackgrounds();
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -337,17 +336,6 @@ public class MyCommunityActivity extends AppCompatActivity {
     }
     private void updateUI() {
         adapter.notifyDataSetChanged();
-//        TextView nothing = findViewById(R.id.nothing);
-//        if (communitylists.isEmpty()) {
-//            nothing.setVisibility(View.VISIBLE);
-//            MycommunityRecycler.setVisibility(View.GONE);
-//        } else {
-//            nothing.setVisibility(View.GONE);
-//            MycommunityRecycler.setVisibility(View.VISIBLE);
-//            if (adapter != null) {
-//                adapter.notifyDataSetChanged();
-//            }
-//        }
     }
     public String httpGetConnection(String UrlData, String s) {
         String totalUrl = UrlData.trim();

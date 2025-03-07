@@ -105,8 +105,6 @@ public class FinishActivity extends AppCompatActivity {
     private RouteLineLayer layer;
     private Handler handler;
     private String trashType;
-    //private final String url = "http://15.164.152.246:8080/trash/E9E37FE2-FE90-4D51-9422-5E1475E8AC1A/record";
-
     private static final int REQUEST_CAMERA_PERMISSION = 200;
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -165,8 +163,6 @@ public class FinishActivity extends AppCompatActivity {
         nextBtn = findViewById(R.id.nextBtn);
         routeCreateBtn = findViewById(R.id.routeBtn);
 
-
-
         handler = new Handler();
         // routeBtn 버튼 클릭 리스너 설정
         routeCreateBtn.setOnClickListener(new View.OnClickListener() {
@@ -180,7 +176,7 @@ public class FinishActivity extends AppCompatActivity {
 
                                 String url;
                                 url = "http://15.164.152.246:8080/activitys/" + uuid + "/" + activityId + "/route";
-// JSON 문자열을 구성하기 위한 StringBuilder 사용
+                                // JSON 문자열을 구성하기 위한 StringBuilder 사용
                                 String data = "";
 
                                 // jsonData를 서버에 전송
@@ -254,13 +250,6 @@ public class FinishActivity extends AppCompatActivity {
         }
         totalTrashAmountTextView.setText("Total : " + totalTrashAmount + "개");
 
-//        // trashCountMap을 사용하여 필요한 작업을 수행
-//        if (trashCountMap != null) {
-//            for (String key : trashCountMap.keySet()) {
-//                Integer count = trashCountMap.get(key);
-//                // count를 사용하여 필요한 작업 수행
-//            }
-//        }
         mapView = findViewById(R.id.map);
         mapView.start(new MapLifeCycleCallback() {
             @Override
@@ -299,7 +288,6 @@ public class FinishActivity extends AppCompatActivity {
                         public void onCaptured(boolean isSucceed, Bitmap bitmap, String fileName) {
                             if (isSucceed) {
                                 kakao = bitmap; // 캡쳐된 Bitmap을 kakao 변수에 저장
-                                //Toast.makeText(getApplicationContext(), "캡쳐가 완료되었습니다.", Toast.LENGTH_SHORT).show();
 
                                 Bitmap fullScreenBitmap = captureScreen();
                                 Bitmap mapBitmap = kakao;
@@ -319,10 +307,6 @@ public class FinishActivity extends AppCompatActivity {
                     Bitmap fullScreenBitmap = captureScreen();
                     saveImageToGallery(fullScreenBitmap);
                 }
-
-//                saveImageToGallery(combinedBitmap);
-
-
             }
         });
 
@@ -339,33 +323,6 @@ public class FinishActivity extends AppCompatActivity {
         });
 
         switchViewButton.setOnClickListener(v -> toggleMapAndPhoto());
-
-//        nextBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                try {
-//
-//                    String url = "http://15.164.152.246:8080/trash/" + uuid + "/" + activityId + "/record";
-//                    String data = "{\"garbage\" : \""+trashCountMap.get("일반쓰레기")+"\",\"can\" : \""+trashCountMap.get("캔/고철류")+"\",\"plastic\" : \""+trashCountMap.get("플라스틱")+"\",\"paper\" : \""+trashCountMap.get("종이류")+"\", \"plastic_bag\" : \""+trashCountMap.get("비닐류")+"\", \"glass\" : \""+trashCountMap.get("종이류")+"\"}";
-//                    Log.d("쓰레기 전송값", data);
-//                    new Thread(() -> {
-//                        String result = httpPostBodyConnection(url, data);
-//
-//                        // 처리 결과 확인
-//                       // handler.post(() -> seeNetworkResult(result));
-//                    }).start();
-//                } catch (Exception e) {
-//                    Log.e("서버로 전송 실패", "Failed to create JSON data", e);
-//                }
-//
-//                // 분리수거 확인 화면으로 이동
-//                Intent intent = new Intent(FinishActivity.this, RecyclingInfoActivity.class);
-//                startActivity(intent);
-//                overridePendingTransition(0, 0);
-//                finish();
-//            }
-//        });
 
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -475,8 +432,6 @@ public class FinishActivity extends AppCompatActivity {
         }
 
     }
-
-
 
     public void parseImageResponse(String jsonResponse) {
         // JSON 응답을 파싱
@@ -705,24 +660,6 @@ public class FinishActivity extends AppCompatActivity {
             }
         }
     }
-//    private void uploadImageToFirebase(File imageFile) {
-//        Uri fileUri = Uri.fromFile(imageFile);
-//
-//        FirebaseStorage storage = FirebaseStorage.getInstance();
-//        StorageReference storageRef = storage.getReference();
-//        StorageReference imageRef = storageRef.child("images/" + fileUri.getLastPathSegment());
-//
-//        UploadTask uploadTask = imageRef.putFile(fileUri);
-//        uploadTask.addOnSuccessListener(taskSnapshot -> {
-//            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-//                String imageUrl = uri.toString();
-//                Log.d("Image URL", imageUrl);
-//                // 이 URL을 서버에 저장하거나 UI에서 활용할 수 있습니다.
-//            });
-//        }).addOnFailureListener(exception -> {
-//            Log.e("Upload Failed", exception.getMessage());
-//        });
-//    }
 
     private void drawRouteOnMap(ArrayList<LatLng> routePoints) {
         if (kakaoMap != null) {

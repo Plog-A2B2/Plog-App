@@ -90,7 +90,6 @@ public class HomeActivity extends AppCompatActivity {
 
 
         String url = "http://15.164.152.246:8080/profile/active";
-       // UUID uuid = UUID.fromString("57F7C28F-67A6-4091-B837-8C3168653B81");
 
         new Thread(() -> {
             String result = httpGetConnection(url, "");
@@ -107,12 +106,6 @@ public class HomeActivity extends AppCompatActivity {
 //        ploggingItems = new ArrayList<>();
 //        // 샘플 데이터 추가
 //        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
-//        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
-//        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
-//        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
-//        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
-//        ploggingItems.add(new RealtimePloggerItem(R.drawable.badgetest, "nickname"));
-
 
 
 
@@ -157,20 +150,6 @@ public class HomeActivity extends AppCompatActivity {
                 isPloggingStart = true;
                 sendJsonData(isPloggingStart);
                 Log.d("isPloggingSstart", String.valueOf(isPloggingStart));
-
-//                UUID uuid = UserManager.getInstance().getUserId();
-//                String url2 = "http://15.164.152.246:8080/activitys/start/" + uuid;
-//// JSON 문자열을 구성하기 위한 StringBuilder 사용
-//                String data = "";
-//
-//                new Thread(() -> {
-//                    String result = httpPostBodyConnection(url2, data);
-//                    handler.post(() -> {
-//                        if (result != null && !result.isEmpty()) {
-//                            Log.d("HomeActivity", result);
-//                        }
-//                    });
-//                }).start();
 
                 startActivity(intent);
                 overridePendingTransition(0, 0);

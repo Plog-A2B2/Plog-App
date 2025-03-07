@@ -223,13 +223,6 @@ public class MyPageActivity extends AppCompatActivity {
             }
         }).start();
 
-//        profileImg.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                settingProfileDialog.show();
-//            }
-//        });
-
         profileImg.setOnClickListener(view -> {
             settingProfileDialog.setOnItemClickListener(dialogInterface -> {
                 updateProfileImage(userManager.getBadgeId());
@@ -237,12 +230,6 @@ public class MyPageActivity extends AppCompatActivity {
             settingProfileDialog.show();
         });
 
-//        if (isPushAlarmOn == true && isDialogCheck == true) {
-//            standardLocationTextView.setVisibility(View.VISIBLE);
-//            settingLocationDialog.show();
-//        } else {
-//            standardLocationTextView.setVisibility(View.GONE);
-//        }
 
         Log.d("다이얼로그 상태 확인", String.valueOf(isDialogCheck));
         // 스위치 상태 변경 리스너 설정
@@ -347,10 +334,6 @@ public class MyPageActivity extends AppCompatActivity {
                                 Log.d("fcm in mypage", token);
                                 //통신할 때 알람설정여부,위도,경도, 토큰값 보내기 (post)
 
-                                // Log and toast
-//                        System.out.println(token);
-//                        Toast.makeText(LoginActivity.this, "Your device registration token is" + token
-//                                , Toast.LENGTH_SHORT).show();
                             }
                         });
 
