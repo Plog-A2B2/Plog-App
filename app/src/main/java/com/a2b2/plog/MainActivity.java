@@ -90,10 +90,6 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
     private String getToken;
     boolean isMembership;
 
-//    Button loginBtn, idFindBtn, pwFindBtn, joinBtn;
-//    ImageView kakaoLogin;
-//    EditText id, pw;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,16 +108,13 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
             }
         });
 
-//        logoImg = findViewById(R.id.logoImg);
-//        logoImg.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-//                startActivity(intent);
-//                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-//                finish();
-//            }
-//        });
+        logoImg = findViewById(R.id.logoImg);
+        logoImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopPlogging();
+            }
+        });
 
         handler = new Handler();
 
@@ -158,11 +151,11 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                 String data = "{\"userAccount\" : \""+id.getText()+"\",\"userPw\" : \""+pw.getText()+"\",\"deviceToken\" : \""+getToken+"\"}";
                 new Thread(() -> {
                     String result = httpPostBodyConnection(url, data);
-// JSON 파싱
+                    // JSON 파싱
                     Gson gson = new Gson();
                     JsonObject jsonObject = JsonParser.parseString(result).getAsJsonObject();
 
-// "data" 객체를 먼저 추출
+                    // "data" 객체를 먼저 추출
                     JsonObject dataObject = jsonObject.getAsJsonObject("data");
                     JsonElement message = jsonObject.get("message");
                     Log.d("message", message.getAsString());
@@ -178,22 +171,6 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                             }
                         });
                     } else{
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                // "data" 객체에서 "userNickname"과 "userUUID" 추출
-//                                userNickname = dataObject.get("userNickname").getAsString();
-//                                String userUUIDStr = dataObject.get("userUUID").getAsString();
-//                                userUUID = UUID.fromString(userUUIDStr);
-//                                Log.d("userNickname", userNickname);
-//                                Log.d("userUUIDStr", String.valueOf(userUUID));
-//
-//                                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-//                                startActivity(intent);
-//                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-//                                finish();
-//                            }
-//                        });
                         // "data" 객체에서 "userNickname"과 "userUUID" 추출
                         userNickname = dataObject.get("userNickname").getAsString();
                         String userUUIDStr = dataObject.get("userUUID").getAsString();
@@ -210,11 +187,6 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                     }
 
                 }).start();
-//                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-//                startActivity(intent);
-//                overridePendingTransition(0, 0);
-//                finish();
-
             }
         });
         joinBtn.setOnClickListener(new View.OnClickListener() {
@@ -224,7 +196,6 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
                 startActivity(intent);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 finish();
-
             }
         });
 
@@ -375,8 +346,6 @@ public class MainActivity extends AppCompatActivity implements CapabilityClient.
         }
         tv1.setText(msg);
     }
-
-
     @Override
     public void onResume() {
         super.onResume();

@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -135,16 +137,37 @@ public class JoinActivity extends AppCompatActivity {
             idDuCheckTxt.setText("사용 가능한 ID입니다.");
             idDuCheckTxt.setVisibility(View.VISIBLE);
         });
+        // 비밀번호 입력 감지 리스너 추가
+        TextWatcher pwTextWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
-        // 비밀번호 확인
-        if (joinPw.getText().toString().equals(joinPwCheck.getText().toString())) {
-            pwDuCheckTxt.setVisibility(View.VISIBLE);
-            join.setEnabled(true);
-        } else {
-            pwDuCheckTxt.setText("비밀번호가 일치하지 않습니다.");
-            pwDuCheckTxt.setVisibility(View.VISIBLE);
-            join.setEnabled(false);
-        }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String pw = joinPw.getText().toString();
+                String pwCheck = joinPwCheck.getText().toString();
+
+                if (pw.isEmpty() || pwCheck.isEmpty()) {
+                    pwDuCheckTxt.setVisibility(View.GONE); // 둘 다 비어있으면 숨김
+                    join.setEnabled(false);
+                } else {
+                    pwDuCheckTxt.setVisibility(View.VISIBLE); // 입력하면 보이게 함
+                    if (pw.equals(pwCheck)) {
+                        pwDuCheckTxt.setVisibility(View.VISIBLE);
+                        join.setEnabled(true);
+                    } else {
+                        pwDuCheckTxt.setText("비밀번호가 일치하지 않습니다.");
+                        join.setEnabled(false);
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        };
+        //EditText에 TextWatcher 등록
+        joinPw.addTextChangedListener(pwTextWatcher);
+        joinPwCheck.addTextChangedListener(pwTextWatcher);
 
         // 회원가입 버튼 클릭 이벤트
         join.setOnClickListener(v -> {

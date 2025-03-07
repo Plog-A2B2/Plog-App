@@ -129,7 +129,6 @@ public class CommunityPostShowActivity extends AppCompatActivity {
                         }
                     }).start();
                 }
-                //서버랑 통신
             }
         });
         joinBtn.setOnClickListener(new View.OnClickListener() {
@@ -158,15 +157,16 @@ public class CommunityPostShowActivity extends AppCompatActivity {
                             });
                         }
                     }).start();
-                } else{
-                    Toast.makeText(getApplicationContext(),"참여완료!", Toast.LENGTH_SHORT).show();
-                    int postId =getIntent().getIntExtra("postId", 0);;
+                } else {
+                    Toast.makeText(getApplicationContext(), "참여완료!", Toast.LENGTH_SHORT).show();
+                    int postId = getIntent().getIntExtra("postId", 0);
+                    ;
 
                     UUID uuid = UserManager.getInstance().getUserId();
                     Log.d("uuid", String.valueOf(uuid));
                     Log.d("postId", String.valueOf(postId));
                     // GET 요청을 위한 ParamData 제거
-                    String url = "http://15.164.152.246:8080/post/"+uuid+"/"+postId+"/join";
+                    String url = "http://15.164.152.246:8080/post/" + uuid + "/" + postId + "/join";
                     new Thread(() -> {
                         // DELETE 요청을 수행
                         String result = httpPostBodyConnection(url, "");
@@ -179,12 +179,8 @@ public class CommunityPostShowActivity extends AppCompatActivity {
                         }
                     }).start();
                 }
-                //서버랑 통신
             }
         });
-
-
-        //삭제하는 버튼 클릭 시 지우는 통신 코드 추가하기
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -285,12 +281,6 @@ public class CommunityPostShowActivity extends AppCompatActivity {
                         likeBtn.setBackgroundResource(liked ? R.drawable.liked : R.drawable.rounded_puple_square);
                     }
                 });
-
-//                joinBtn.setText(joined ? "참여완료" : "참여하기");
-//                joinBtn.setBackgroundResource(joined ? R.drawable.joined : R.drawable.rounded_blue_square);
-//
-//                likeBtn.setText(liked ? "찜완료" : "찜하기");
-//                likeBtn.setBackgroundResource(liked ? R.drawable.liked : R.drawable.rounded_puple_square);
             });
 
         } catch (JSONException e) {

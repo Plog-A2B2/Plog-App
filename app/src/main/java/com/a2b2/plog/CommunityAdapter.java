@@ -52,14 +52,8 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
         } else {
             background.setColor(ContextCompat.getColor(context, R.color.green)); // 기본 색상 또는 짝수 색상
         }
-
         holder.itemView.setBackground(background);
-
-
-
-
     }
-
     @Override
     public int getItemCount() {
         return communityList.size();
@@ -69,15 +63,12 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.Comm
         public ImageView badge;
         public TextView nickname, title,date;
 
-
         public CommunityViewHolder(@NonNull View itemView) {
             super(itemView);
             badge = itemView.findViewById(R.id.badge);
             nickname = itemView.findViewById(R.id.nickname);
             title = itemView.findViewById(R.id.community_title);
             date = itemView.findViewById(R.id.date);
-
-
         }
     }
 }
