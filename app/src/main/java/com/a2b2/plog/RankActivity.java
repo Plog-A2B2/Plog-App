@@ -126,9 +126,6 @@ public class RankActivity extends AppCompatActivity {
                         adapter.notifyDataSetChanged();
                         // tripPlans 초기화 및 데이터 파싱
 
-//                                tripPlans = parseTripPlan(result);
-//                                Log.d("TripPlansSize", "Size of tripPlans after parsing: " + tripPlans.size());
-
                         // 데이터 확인 로그
                         Log.d("rankListSize", "Size of tripPlans after parsing: " + rankList.size());
                         for (RankItem rItem : rankList) {
@@ -144,17 +141,6 @@ public class RankActivity extends AppCompatActivity {
             }
         }).start();
 
-
-
-//        String content = helpTxt.getText().toString(); //텍스트 가져옴.
-//        SpannableString spannableString = new SpannableString(content); //객체 생성
-//        String word ="달린 거리(m) x 주운 쓰레기 개수";
-//        int start = content.indexOf(word);
-//        int end = start + word.length();
-//
-//        spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#2b5d5b")), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        spannableString.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        spannableString.setSpan(new RelativeSizeSpan(1.3f), start, end, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         helpBtn.setOnClickListener(new View.OnClickListener() {
             @Override

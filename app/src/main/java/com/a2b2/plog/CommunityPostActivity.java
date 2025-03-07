@@ -37,7 +37,6 @@ import java.util.UUID;
 
 //커뮤니티 게시글 작성 액티비티
 public class CommunityPostActivity extends AppCompatActivity {
-
     private ImageView backBtn;
     private TextView meetingPlace;
     private EditText title, ploggingPlace, meetingDate, text;
@@ -83,7 +82,6 @@ public class CommunityPostActivity extends AppCompatActivity {
                             // UI 업데이트를 메인 스레드에서 실행
                             runOnUiThread(() -> {
                                 // 결과 처리
-
                                 standardLocation = new Place(location.getPlaceName(), location.getAddress(), latitude, longtitude);
                                 meetingPlace.setText(document.getPlaceName());
                                 f_meetingPlace=document.getPlaceName();
@@ -205,7 +203,6 @@ public class CommunityPostActivity extends AppCompatActivity {
     }
 
     public String httpPostBodyConnection(String UrlData, String ParamData) {
-        // 이전과 동일한 네트워크 연결 코드를 그대로 사용합니다.
         // 백그라운드 스레드에서 실행되기 때문에 메인 스레드에서는 문제가 없습니다.
 
         String totalUrl = "";
@@ -222,8 +219,6 @@ public class CommunityPostActivity extends AppCompatActivity {
 
         //메소드 호출 결과값을 반환하기 위한 변수
         String returnData = "";
-
-
         try {
             //파라미터로 들어온 url을 사용해 connection 실시
             url = null;
@@ -286,7 +281,7 @@ public class CommunityPostActivity extends AppCompatActivity {
     }
     public void seeNetworkResult(String result) {
         // 네트워크 작업 완료 후
-        Log.d(result, "network");
+        Log.d("network",result);
     }
     private void getGeoDataByAddress(String completeAddress) {
         try {
